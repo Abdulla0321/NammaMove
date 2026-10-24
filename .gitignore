@@ -9,3 +9,16 @@ node_modules/
 dist/
 *.py[cod]
 .DS_Store
+
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.pem
+*.key
+*.p12
+*.pfx
+.envrc
+.idea/
+.vscode/
