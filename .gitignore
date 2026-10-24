@@ -22,3 +22,12 @@ coverage.xml
 .envrc
 .idea/
 .vscode/
+
+# Private databases, backups and diagnostic output
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.log
+backups/

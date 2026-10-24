@@ -17,3 +17,7 @@ Python 3.12+, FastAPI/Pydantic, typed public functions, Ruff lint/format and str
 Add behavioral tests for safety, API contracts and failure paths; avoid tests that merely mirror implementation.
 Introduce dependencies only in their scheduled phase. Future clients use React Native/Expo and React with strict TypeScript, linting, formatting and component tests when introduced.
 Record architecture decisions in docs/DECISIONS.md. Do not claim a planned feature is implemented. No deployment or payment integration without its phase gates.
+
+## Database/security changes (Phase 01 onward)
+Use `python -m alembic upgrade head` with a separate migration-owner DATABASE_URL; never create tables during API startup. Runtime must be a non-owner/non-BYPASSRLS login with transaction-local verified identity. Keep the nammamove schema out of Supabase exposed schemas. Private /v1 APIs must derive owner IDs from verified JWTs and authorize every access. User metadata cannot grant roles.
+Run `python -m pytest -q`; real PostGIS tests require an empty disposable *_test database via NAMMAMOVE_TEST_DATABASE_URL and `python -m pytest -q -m postgres`. Never treat skipped database tests or generated SQL as proof a migration/RLS/restore succeeded. Credentials/dumps must remain ignored. See docs/DATABASE.md for Windows setup and acceptance gates.
