@@ -1,3 +1,5 @@
+> Historical backlog. [MASTER_PLAN.md](MASTER_PLAN.md) supersedes its coarse phase numbering.
+
 # Full product backlog (phased; not currently implemented)
 
 ## Moovit-class baseline
