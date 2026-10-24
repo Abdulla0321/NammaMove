@@ -2,6 +2,7 @@
 testpaths = ["backend/tests"]
 pythonpath = ["backend"]
 addopts = "-ra"
+markers = ["postgres: requires a disposable PostgreSQL/PostGIS *_test database", "supabase: requires genuine local Supabase Auth and a non-owner PostgreSQL login"]
 
 [tool.ruff]
 target-version = "py312"

@@ -36,3 +36,6 @@ Typed validated boundaries; versioned API/data contracts; migrations and transac
 
 ## Measurement
 Track GPS-attributable false cancellation (target zero), incident precision, feed age, ETA interval calibration, transfer success, accessibility failures, oscillations and aggregate network load delta. Establish replay baselines before live use. Provisional p95 routing target is under 2 seconds; operations/release phases must validate availability and recovery budgets against measured pilot workloads.
+
+## Current Phase 01 boundary
+Phase 01 is accepted locally: 45 tests pass with zero skips, including real PostgreSQL/PostGIS migrations/RLS/grants, backup/restore and genuine Supabase Auth. See PHASE_STATUS.md and DATABASE.md for scope and production limits. No Phase 02 imports or later-phase routing/live features have started.

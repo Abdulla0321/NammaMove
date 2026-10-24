@@ -6,8 +6,8 @@ Stable IDs map expected outcomes to delivery/test ownership.
 | S01 | Missing/stale GPS | Uncertain service with observed age; never infer cancellation | 00/05 | Engine and HTTP tests now |
 | S02 | Authoritative cancellation | Retain independent authority and exclude affected service | 01/05 | Demo state test now; live trust tests planned |
 | S03 | Delayed moving bus | ETA range and missed-transfer risk | 05/07 | Replay/calibration planned |
-| S04 | Verified closure | Audited expiring overlay and feasible reroute | 00/06 | Demo block test now; expiry/authority planned |
-| S05 | Unverified closure | Warn with confidence, never automatically close link | 00/06 | Demo tests now; moderation planned |
+| S04 | Verified closure | Audited expiring overlay and feasible reroute | 00/06 | Demo block preserved; independent persistent verification tested; live graph lifecycle planned |
+| S05 | Unverified closure | Warn with confidence, never automatically close link | 00/06 | Demo tests preserved; report input/role/independence tested; full moderation lifecycle planned |
 | S06 | Flood | Avoid verified unsafe walking links | 03/06 | Graph safety fixtures planned |
 | S07 | Metro outage | Respect affected sequence and accessible station access | 03/06 | Timetable fixtures planned |
 | S08 | Crowded alternative | Reject harmful aggregate load shifts | 00/06 | Static preference tested; load replay planned |
@@ -24,6 +24,6 @@ Stable IDs map expected outcomes to delivery/test ownership.
 | S19 | Location permission denied | Manual stop selection without hidden tracking | 04 | Permission tests planned |
 | S20 | Incident storm | Bound queues and target notifications | 09 | Burst tests planned |
 | S21 | Overnight/holiday transit | Local calendar and times above 24:00 | 02/03 | GTFS fixtures planned |
-| S22 | Forged identity/webhook | Reject unauthorized authority and ledger mutations | 01/08 | Security contracts planned |
+| S22 | Forged identity/webhook | Reject unauthorized authority and ledger mutations | 01/08 | JWT forgery/issuer/audience/role tests implemented; payment contracts planned |
 | S23 | Negative GPS age | HTTP validation rejection | 00 | API test now |
 | S24 | Duplicate reports/payments | Idempotent evidence and ledger transitions | 06/08 | Concurrency/replay planned |

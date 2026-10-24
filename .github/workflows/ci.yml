@@ -21,3 +21,40 @@ jobs:
       - run: python -m ruff format --check .
       - run: python -m mypy
       - run: python -m pytest -q
+
+  postgis:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: nammamove_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-disposable-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nammamove_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      NAMMAMOVE_TEST_DATABASE_URL: postgresql+psycopg://postgres:ci-disposable-only@localhost:5432/nammamove_test
+      DATABASE_URL: postgresql+psycopg://postgres:ci-disposable-only@localhost:5432/nammamove_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r backend/requirements-dev.txt
+      - run: python -m pytest -q -m postgres
+      - name: Backup and restore drill on disposable database
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          python -m alembic upgrade head
+          docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_test -v ON_ERROR_STOP=1 -c "INSERT INTO nammamove.commuters (id,created_at,display_name,locale,location_consent) VALUES ('00000000-0000-0000-0000-000000000001',now(),'Synthetic restore fixture','en',false)"
+          docker exec "$POSTGRES_CONTAINER" pg_dump -U postgres -d nammamove_test -Fc -n nammamove > "$RUNNER_TEMP/nammamove-test.dump"
+          docker exec "$POSTGRES_CONTAINER" createdb -U postgres nammamove_restore_test
+          docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_restore_test -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS postgis'
+          docker exec -i "$POSTGRES_CONTAINER" pg_restore -U postgres -d nammamove_restore_test --no-owner --exit-on-error < "$RUNNER_TEMP/nammamove-test.dump"
+          docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_restore_test -v ON_ERROR_STOP=1 -c "SELECT version_num FROM nammamove.alembic_version"
+          docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_restore_test -v ON_ERROR_STOP=1 -c "SELECT 1/count(*) FROM nammamove.commuters WHERE display_name='Synthetic restore fixture'"

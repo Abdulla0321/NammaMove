@@ -1,65 +1,88 @@
-from typing import Annotated
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import Session
 
-from .engine import EDGES, Incident, Journey, route, service_state
-
-app = FastAPI(
-    title="NammaMove API",
-    version="0.1.0",
-    description="Simulation-only disruption-aware mobility API",
-)
-
-
-class RouteRequest(BaseModel):
-    origin: str = Field(min_length=1)
-    destination: str = Field(min_length=1)
-    incidents: list["IncidentRequest"] = Field(default_factory=list)
+from .api import router as persistent_router
+from .auth import TokenVerifier
+from .config import Settings
+from .database import Database
+from .observability import RequestMiddleware, configure_logging, logger
+from .simulator import router as simulator_router
 
 
-class IncidentRequest(BaseModel):
-    id: str
-    affected_edges: list[str]
-    kind: str = "disruption"
-    verified: bool = False
-    delay_minutes: int = Field(default=0, ge=0, le=1440)
-    blocked: bool = False
+def create_app(settings: Settings | None = None) -> FastAPI:
+    config = settings if settings is not None else Settings()
+    database = Database(config)
+
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        yield
+        database.dispose()
+
+    configure_logging()
+    application = FastAPI(
+        title="NammaMove API",
+        version="0.2.0",
+        description="Persistent security APIs and separately labeled sample routing; no live transit integration",
+        lifespan=lifespan,
+    )
+    application.state.settings = config
+    application.state.database = database
+    application.state.verifier = TokenVerifier(config)
+    application.add_middleware(RequestMiddleware)
+    application.include_router(simulator_router)
+    application.include_router(persistent_router)
+
+    @application.exception_handler(SQLAlchemyError)
+    async def database_error(request: Request, error: SQLAlchemyError) -> JSONResponse:
+        conflict = isinstance(error, IntegrityError)
+        logger.warning(
+            "database.conflict" if conflict else "database.unavailable",
+            extra={"fields": {"request_id": getattr(request.state, "request_id", "unknown")}},
+        )
+        return JSONResponse(
+            {
+                "detail": "Record conflicts with stored data"
+                if conflict
+                else "Persistence unavailable"
+            },
+            status_code=409 if conflict else 503,
+        )
+
+    @application.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, error: RequestValidationError) -> JSONResponse:
+        # Never echo rejected values, JSON bodies or sensitive validation context.
+        return JSONResponse(
+            {
+                "detail": "Invalid request",
+                "errors": [{"location": list(e["loc"]), "type": e["type"]} for e in error.errors()],
+            },
+            status_code=422,
+        )
+
+    @application.get("/health/ready")
+    def readiness() -> JSONResponse:
+        if database.engine is None or config.issuer is None:
+            return JSONResponse({"status": "unavailable"}, status_code=503)
+        try:
+            with Session(database.engine) as session:
+                revision = session.scalar(text("SELECT version_num FROM nammamove.alembic_version"))
+                spatial = session.scalar(
+                    text("SELECT extname FROM pg_extension WHERE extname='postgis'")
+                )
+                if revision != "0001_phase01" or spatial != "postgis":
+                    return JSONResponse({"status": "unavailable"}, status_code=503)
+            return JSONResponse({"status": "ready"})
+        except SQLAlchemyError:
+            return JSONResponse({"status": "unavailable"}, status_code=503)
+
+    return application
 
 
-@app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok", "mode": "simulation"}
-
-
-@app.get("/network")
-def network() -> dict[str, object]:
-    return {
-        "stops": sorted(set([x.source for x in EDGES] + [x.target for x in EDGES])),
-        "edges": [e.__dict__ for e in EDGES],
-        "mode": "simulation",
-    }
-
-
-@app.post("/journeys/plan")
-def plan(req: RouteRequest) -> Journey:
-    incidents = [
-        Incident(i.id, tuple(i.affected_edges), i.kind, i.verified, i.delay_minutes, i.blocked)
-        for i in req.incidents
-    ]
-    result = route(req.origin, req.destination, incidents)
-    if result is None:
-        raise HTTPException(status_code=404, detail="No route found in the sample network")
-    return result
-
-
-@app.get("/services/status")
-def status(
-    last_seen_seconds: Annotated[int | None, Query(ge=0)] = None, operator_cancelled: bool = False
-) -> dict[str, str]:
-    service, feed = service_state(last_seen_seconds, operator_cancelled)
-    return {
-        "serviceStatus": service,
-        "feedStatus": feed,
-        "notice": "Missing GPS data alone never confirms cancellation.",
-    }
+app = create_app()
