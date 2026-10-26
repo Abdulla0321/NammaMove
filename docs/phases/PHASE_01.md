@@ -1,5 +1,5 @@
 # Phase 01 - Database, Backend and Security
-Status: Accepted locally on 2026-10-25. 45 tests passed with zero skips, including real PostgreSQL/PostGIS and genuine local Supabase Auth. See ../PHASE_STATUS.md for final evidence. Phase 02 has not started.
+Status: Accepted locally on 2026-10-25. 45 tests passed with zero skips, including real PostgreSQL/PostGIS and genuine local Supabase Auth. See ../PHASE_STATUS.md for final evidence. Phase 02 was unstarted at that acceptance; current work is recorded separately in [PHASE_02.md](PHASE_02.md).
 
 ## Prerequisites
 Phase 00 accepted. A PostgreSQL/PostGIS server and Supabase asymmetric signing-key project are needed for external verification. Provisional development retention windows are documented; product/privacy approval is required before production use.
@@ -31,4 +31,4 @@ Portable tests exercise actual JWT cryptography with generated keys/mocked JWKS,
 Applicable local gates pass with all Phase 00 assertions preserved. Database acceptance requires successful PostgreSQL suite and restore execution on a real server; Auth interoperability requires a genuine Supabase access token. All three requirements were satisfied locally on 2026-10-25. Do not mark these gates passed from generated SQL or configured CI alone. Document results and approved runtime/retention configuration in PHASE_STATUS.md.
 
 ## Safety gate
-Missing GPS means uncertainty, never cancellation. Vehicle cancellation has a separate evidence FK; future ingestion must verify that evidence's authority and freshness. Persistent incident reports start unverified and only independent trusted moderators can append verification evidence; these records do not alter any routing graph in this phase. Simulation/live labels are explicit. Aggregate congestion-safe rerouting remains gated in Phase 06. No live feeds or Phase 02 ingestion has been introduced.
+Missing GPS means uncertainty, never cancellation. Vehicle cancellation has a separate evidence FK; future ingestion must verify that evidence's authority and freshness. Persistent incident reports start unverified and only independent trusted moderators can append verification evidence; these records do not alter any routing graph in this phase. Simulation/live labels are explicit. Aggregate congestion-safe rerouting remains gated in Phase 06. No live feeds or Phase 02 ingestion were introduced by Phase 01; see the separate Phase 02 record for current static catalog work.

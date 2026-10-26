@@ -14,6 +14,7 @@ from .config import Settings
 from .database import Database
 from .observability import RequestMiddleware, configure_logging, logger
 from .simulator import router as simulator_router
+from .transit.routes import router as transit_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -38,6 +39,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.add_middleware(RequestMiddleware)
     application.include_router(simulator_router)
     application.include_router(persistent_router)
+    application.include_router(transit_router)
 
     @application.exception_handler(SQLAlchemyError)
     async def database_error(request: Request, error: SQLAlchemyError) -> JSONResponse:
@@ -76,7 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 spatial = session.scalar(
                     text("SELECT extname FROM pg_extension WHERE extname='postgis'")
                 )
-                if revision != "0001_phase01" or spatial != "postgis":
+                if revision != "0002_transit_data" or spatial != "postgis":
                     return JSONResponse({"status": "unavailable"}, status_code=503)
             return JSONResponse({"status": "ready"})
         except SQLAlchemyError:

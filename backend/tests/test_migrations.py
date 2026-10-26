@@ -1,7 +1,6 @@
 """Offline DDL is always tested; real PostGIS tests require a disposable *_test DB."""
 
 import io
-import os
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,7 +10,6 @@ from alembic.config import Config
 from app.models import Commuter, Operator, Stop, Vehicle
 from conftest import auth, make_profile
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -42,47 +40,10 @@ def test_postgresql_ddl_contains_spatial_constraints_and_rls(monkeypatch):
     assert "DROP EXTENSION" not in downgrade.getvalue()
 
 
-@pytest.fixture
-def postgres(monkeypatch):
-    url = os.environ.get("NAMMAMOVE_TEST_DATABASE_URL")
-    if not url:
-        pytest.skip(
-            "Set NAMMAMOVE_TEST_DATABASE_URL to an empty disposable PostgreSQL/PostGIS *_test database"
-        )
-    parsed = make_url(url)
-    if (
-        parsed.drivername != "postgresql+psycopg"
-        or not parsed.database
-        or not parsed.database.endswith("_test")
-    ):
-        pytest.fail("Refusing integration DDL outside a dedicated *_test PostgreSQL database")
-    engine = create_engine(url, hide_parameters=True, connect_args={"connect_timeout": 5})
-    with engine.connect() as connection:
-        exists = connection.scalar(
-            text(
-                "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name='nammamove')"
-            )
-        )
-        if exists:
-            pytest.fail(
-                "Refusing to modify an existing nammamove schema; use a new empty test database"
-            )
-    monkeypatch.setenv("DATABASE_URL", url)
-    config = migration_config()
-    command.upgrade(config, "head")
-    try:
-        yield engine, config
-    finally:
-        command.downgrade(config, "base")
-        with engine.begin() as connection:
-            connection.execute(text("DROP TABLE nammamove.alembic_version"))
-            connection.execute(text("DROP SCHEMA nammamove"))
-        engine.dispose()
-
-
 @pytest.mark.postgres
 def test_real_postgis_constraints_migration_roundtrip(postgres):
     engine, config = postgres
+    command.check(config)
     with Session(engine) as db:
         assert (
             db.scalar(text("SELECT extname FROM pg_extension WHERE extname='postgis'")) == "postgis"
@@ -308,7 +269,7 @@ def test_non_owner_runtime_api_and_pool_identity_reset(postgres, secured):
                         "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='nammamove' AND c.relkind='r' AND c.relrowsecurity"
                     )
                 )
-                == 14
+                == 27
             )
         mine = token()
         other = token(subject=uuid4())

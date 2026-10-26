@@ -1,13 +1,13 @@
 # Phase status
-Last verified: 2026-10-25 02:52 IST (2026-10-24 21:22 UTC). Evidence describes local acceptance, not production deployment.
+Last verified: 2026-10-26 (Windows local acceptance evidence; no production deployment).
 
-Current result: **Phase 01 accepted locally - 45 tests passed, zero skipped, including real PostgreSQL and genuine Supabase Auth.** Earlier blocked/skipped entries below are historical and superseded by the final acceptance record.
+Current result: **Phase 02 implementation/audit verified locally: 87 tests passed, zero skipped. Full acceptance remains pending BMTC entitlement/import, authoritative current coverage/schedules and underlying-content clearance for public use.** Phase 01 functionality remains accepted. Current measured test and real-data evidence is recorded in the Phase 02 section below; earlier entries are historical.
 
 | Phase | State | Evidence / next gate |
 |---|---|---|
 | 00 Foundation | Complete locally | Audit, root layout, roadmap, quality gates and Windows regression execution below |
 | 01 Database/backend/security | Accepted locally | 45 passed, zero skipped; real PostGIS migrations/RLS/grants, backup/restore and genuine local Supabase Auth verified |
-| 02 Bengaluru data | Planned | Authorized GTFS source register and validated snapshots |
+| 02 Bengaluru data | Implemented; acceptance pending external gates | Real community BMRCL import/search plus synthetic/PostGIS/Supabase tests; BMTC rights and complete authoritative coverage unresolved |
 | 03 Multimodal routing | Planned | OTP graph/contract and feasibility tests |
 | 04 Mobile/web | Planned | Expo/React clients and client quality gates |
 | 05 Live tracking | Planned | Licensed realtime replay, freshness and privacy tests |
@@ -127,3 +127,45 @@ Acceptance database identifiers (synthetic resources only):
 - restore_target: `nammamove_restore_a891509680674ba39a91df7d8187d814_test`
 - supabase_auth_database: `nammamove_supabase_auth_7890c95566f04b33b356fbf9dbf67122_test`
 - supabase_api_database: `nammamove_supabase_api_9d5850f0461a4f8c8c83061eea95e2da_test`
+
+
+## Phase 02 implementation and acceptance evidence - 2026-10-26
+Branch: `phase/02-transit-data`. Existing repository and Phase 00/01 behavior preserved. No Phase 03, commit, push or merge.
+
+Implemented thirteen additive snapshot tables; bounded fixed-route GTFS validation; owner-only staged/idempotent import, quarantine, concurrent refresh serialization, atomic promotion and retained-version rollback; explicit BMTC/BMRCL adapters; protected feed/stop/route/pattern/transfer/network APIs; actual PostGIS proximity search; source/license/timestamps/coverage and community quality notes; SELECT-only runtime RLS/grants. Readiness requires the new head. Alembic private-schema reflection now works when owner username equals schema name.
+
+Executed on Windows/Python 3.14.7, PostgreSQL 16.4/PostGIS 3.4.3 and genuine official local Supabase Auth v2.197.0:
+- `python -m pytest -q -p no:cacheprovider --tb=short` with the ignored real-service environment configured: **83 passed, zero skipped**, in 22.35 seconds: 74 portable behavioral tests, 8 genuine PostgreSQL integration tests and 1 genuine Supabase Auth integration test. All accepted Phase 00/01 regressions remain passing. Synthetic ZIP fixtures use fixed metadata timestamps so byte-checksum idempotence tests are deterministic.
+- `python -m ruff check .` and `python -m ruff format --check .`: passed (57 Python files formatted).
+- `python -m mypy`: passed, 20 application source files under strict checking.
+- `python -m pip check`: no broken requirements. `docker compose config --quiet` and `git diff --check`: passed.
+- Tracked/untracked deliverables scan found no private-key blocks or recognizable JWT/Supabase secret-token values. `.env`, private Auth acceptance credentials, community feed and dump paths were confirmed ignored. No claim that pattern scanning alone proves absence of every possible secret.
+- Final validator rechecked the downloaded real community BMRCL ZIP; normalized counts match the successful database import.
+- Alembic upgrade applied to local development and the isolated Supabase acceptance database; real fixture roundtrips/failure rollback executed. `alembic check`: no new upgrade operations detected.
+- Actual migration failure injection leaves Phase 01 intact. Actual mid-import SQL failure leaves active dataset and normalized row counts intact. Concurrent identical refreshes resolve to one version.
+- New spatial search uses genuine geography, SRID 4326 and GiST; non-owner identity checks and SELECT-only grants are exercised against PostgreSQL, not SQLite.
+- Genuine Supabase sign-in/JWKS and protected transit access pass alongside existing ownership, verification and simulator regressions.
+- Executed disposable backup/restore: 93,747-byte synthetic dump, new head, two transit stops, identical active pointer, SRID 4326, 27 RLS-enabled tables restored.
+
+Real data: pinned ODbL community BMRCL snapshot successfully validated/imported into a disposable database: 488 stop records, 3 routes, 3,279 trips, 88,906 stop times, 19 shapes, 16 transfers, one weak component. Repeat CLI import, explicit activation and genuine-auth/non-owner spatial, route, date-filtered pattern and transfer queries passed. Source-derived intermediate times are estimates, not observed arrivals; dataset publication timestamp is unknown. Raw data remains ignored. See [Phase 02 evidence](phases/PHASE_02.md), [source/runbook](TRANSIT_DATA.md) and [aggregate JSON](evidence/phase02-community-bmrcl.json).
+
+Synthetic data: all committed GTFS fixtures, malformed-feed/failure/concurrency tests, realtime freshness inputs and backup source rows are explicitly authored test data. Existing seven-edge journey planning remains simulation. No official/live feed, cross-provider pedestrian graph or OTP integration is enabled.
+
+Unresolved acceptance requirements: BMTC publisher's ODbL declaration includes content-rights caveats requiring review/authorization before importing/distributing its contents; no reviewed representative BMTC import has passed. Official provider access and independent current city-wide schedules/coverage/interchanges/accessibility remain unverified. Refresh is manual; fixed-route GTFS profile omits optional fare/pathway/translation/feed_info semantics and rejects unsupported features. Structural connectivity is not timed transfer feasibility or congestion-safe assignment. Hosted CI, Linux/Python 3.12 execution and hosted/full Supabase platform remain unverified locally. Upstream Starlette HTTPX deprecation remains; Alembic may warn about reflection of generated geography, which is explicitly excluded from ORM comparison and exercised by real spatial tests.
+
+**Phase 02 does not meet every acceptance requirement. Do not begin Phase 03 until unresolved source/coverage gates are closed or explicitly revised with product approval.**
+
+
+## Phase 02 acceptance audit - 2026-10-26
+This audit supersedes the earlier 83-test count as the latest run, without changing its historical evidence. Branch remains `phase/02-transit-data`; all prior uncommitted work is preserved. No commit/push/merge, restricted scraping, production dataset import or Phase 03.
+
+- [Rights registry](DATA_SOURCES.md) now distinguishes publisher-declared ODbL database rights from unverified BMTC content rights; historical OpenBangalore/geohacker, OpenCity and TUMI data are not assumed cleared. Official agency permissions/access contracts were not established. No BMTC feed was downloaded/imported. BMRCL's prior community evaluation does not by itself clear all underlying contents for public deployment; agency copyright-policy ambiguity is explicitly recorded.
+- Sampled official BMRCL maps corroborate corridor termini and two interchange locations. A dated government release corroborates Yellow's sixteen stations at inauguration. Retrieved official timetable HTML did not expose usable numeric schedules; exhaustive current station/platform/direction/time/geographic certification remains open. No invented timetable replacements.
+- Read-only real-data audit: 1 community operator, 3 routes, 83 station records, 170 platforms, 235 entrances, 3,279 trips, 88,906 stop times and 16 transfers. Route memberships 32/37/16 share two stations. Internal reverse patterns pass, 25 overnight trips have no time regressions, reference/coordinate checks found zero errors. No actual BMTC inventory is inferred from zero imported records.
+- One weak component versus **151 strong components** over platform ride/explicit-transfer edges (independently cross-checked): this catalog lacks a complete station/pedestrian/accessibility graph and cannot certify all-pairs journeys. The development database still has zero active static feeds; the real source remains in its disposable evaluation database.
+- All 88,906 imported stop times have `timepoint=0`. Pattern API now exposes source timepoint and approximate/source-timepoint labels, plus false agency schedule-verification metadata. Existing fields and quality notes are preserved; no times changed or live status inferred.
+- **87 passed, zero skipped**, including 8 genuine PostgreSQL tests and 1 genuine Supabase Auth test; all Phase 00/01 regressions retained. New behavioral tests verify approximate labels, read-only audit and strong-versus-weak distinction. Actual malformed import, concurrency, SQL failure and RLS/grant tests preserve last-known-good behavior. Ruff lint/format, strict mypy (21 app files) and pip consistency pass. Existing two upstream warnings remain nonfatal.
+
+[Final audit](PHASE_02_ACCEPTANCE_AUDIT.md) and [aggregate coverage evidence](evidence/phase02-network-coverage.json) contain comparison scope, reproducible read-only command, known gaps and next steps. Use only authored, clearly simulated fixtures in a separate simulation pointer/disposable database while external dependencies remain pending. That fallback does not satisfy real-data acceptance or authorize Phase 03. **Full Phase 02 acceptance is not met.**
+
+Final audit verification: full suite **87 passed, zero skipped in 16.24 seconds**; lint, format, strict mypy and pip checks passed. A further read-only genuine-auth/non-owner request against the retained real BMRCL snapshot verified approximate labels on every stop in the sampled pattern. Maps, feed archive and Auth credentials remain ignored. No snapshot/pointer mutation was performed by the audit.

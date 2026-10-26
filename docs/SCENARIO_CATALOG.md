@@ -23,7 +23,22 @@ Stable IDs map expected outcomes to delivery/test ownership.
 | S18 | Mid-vehicle diversion | Replan at reachable alighting point | 06 | Feasibility tests planned |
 | S19 | Location permission denied | Manual stop selection without hidden tracking | 04 | Permission tests planned |
 | S20 | Incident storm | Bound queues and target notifications | 09 | Burst tests planned |
-| S21 | Overnight/holiday transit | Local calendar and times above 24:00 | 02/03 | GTFS fixtures planned |
+| S21 | Overnight/holiday transit | Local calendar and times above 24:00 | 02/03 | Synthetic GTFS overnight/date-exception tests pass; routing feasibility remains Phase 03 |
 | S22 | Forged identity/webhook | Reject unauthorized authority and ledger mutations | 01/08 | JWT forgery/issuer/audience/role tests implemented; payment contracts planned |
 | S23 | Negative GPS age | HTTP validation rejection | 00 | API test now |
 | S24 | Duplicate reports/payments | Idempotent evidence and ledger transitions | 06/08 | Concurrency/replay planned |
+
+
+## Phase 02 data scenarios
+| ID | Scenario | Expected behavior | Evidence |
+|---|---|---|---|
+| D01 | Malformed/unsafe ZIP or invalid CSV | Reject with bounded sanitized report, no extracted files | Transit archive tests |
+| D02 | Duplicate ID, missing reference or invalid coordinates | Quarantine metadata; preserve active version | Validator, atomic import and real PostGIS tests |
+| D03 | Reversed calendars, overnight time regression, overlapping frequencies | Reject inconsistent schedules; retain valid >24h values | Transit validator tests |
+| D04 | Provider unavailable / no approved URL | Explicit unavailable failure, retain last-known-good pointer | Provider transport failure tests; no official access claim |
+| D05 | Repeat import, staged import or rollback | Idempotent content+provenance; atomic same-feed activation only | Portable and genuine PostGIS import tests |
+| D06 | Cross-feed or synthetic promotion | Reject cross-feed pointer; scheduled and simulation isolated | Import tests and composite FK |
+| D07 | Missing/stale/future realtime timestamp | Unavailable or stale freshness; never cancelled | Synthetic realtime boundary tests |
+| D08 | Direction/transfer gaps | Preserve source direction and restrictions; report structural gaps | Directed-edge/calendar/pattern/transfer tests |
+| D09 | Runtime write attempt or identity absent | SQL grants deny mutation; RLS hides private catalog without identity | Actual non-owner PostgreSQL tests |
+| D10 | Migration failure / restore | Transactional rollback; restore snapshot, pointer, geography and RLS | Real failure injection and disposable backup/restore |

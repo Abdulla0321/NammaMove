@@ -28,3 +28,17 @@ Use private nammamove schema, deny PUBLIC grants, enable RLS and set verified id
 
 ## ADR-010 - Privacy and provisional retention (accepted for development)
 Do not duplicate Auth passwords/emails or collect raw GPS history. Local deletion removes owned history and redacts reporter text; it does not delete the external Supabase account. Retention CLI defaults to dry-run: 30-day journey/notification, 90-day audit/inactive-disruption windows, preserving referenced cancellation evidence. Obtain product/privacy approval and full account-deletion procedures before pilot release. No automatic background deletion is scheduled.
+
+
+## ADR-011 - Snapshot-scoped static catalog (implemented, Phase 02)
+Add thirteen tables and `/v1/transit` APIs instead of rewriting Phase 01 catalog IDs or simulator contracts. Separate pointers for provider and scheduled/simulation mode. Serialize owner imports with advisory transaction locks; stage/promote atomically, retain previous versions, quarantine invalid metadata and roll back SQL failures. Runtime grants are SELECT-only, including admin identities. Validated historical versions remain readable under RLS so an API request can finish against a snapshot selected before concurrent promotion; searches expose only the active version. Private tables remain unavailable through Supabase Data API.
+
+## ADR-012 - Explicit source review and bounded GTFS profile (implemented, Phase 02)
+No default official/live source or scraping pipeline is assumed. Require owner-reviewed provenance, license/authorization reference, checksum, timestamps and community quality notes. HTTPX downloads are explicit, bounded and credential-free; raw feeds/dumps stay ignored. Support the documented fixed-route subset and report unsupported optional tables rather than manufacture information. Frequency windows and untimed intermediate stops retain uncertainty. A manifest does not prove legal entitlement, and community schedules do not establish actual operational service.
+
+## ADR-013 - Structural catalog before journey integration (implemented, Phase 02)
+Use genuine PostGIS geography for proximity searches, explicit source directions/transfers and calendar exceptions for catalog inspection. Report directed edges and weak components without inferring reverse trips, walking links, accessible station paths, live cancellations or network-safe rerouting. GTFS-RT freshness is only a contract here; workers/Redis remain Phase 05 and OTP remains Phase 03. City-wide and provider acceptance are separate from passing synthetic/database tests.
+
+
+## ADR-014 - Evidence-scoped acceptance and approximate timing (Phase 02 audit)
+Retain static data as unverified operational evidence: expose timepoint=0 as approximate and type 1 as a source timepoint, never an observed arrival guarantee. Report weak and strong graph components separately; avoid certifying routing from a weakly connected platform catalog. Add a read-only aggregate audit rather than enabling routing or writing a new source. Publisher license assertions do not close underlying-content rights; record unresolved access/permissions and keep source-free synthetic fixtures separate until source/coverage acceptance is satisfied. See [acceptance audit](PHASE_02_ACCEPTANCE_AUDIT.md).

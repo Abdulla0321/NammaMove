@@ -1,0 +1,153 @@
+{
+  "audited_at": "2026-10-26T07:36:38.175997+00:00",
+  "environment": "explicitly selected database; not city-wide inventory",
+  "provider": "bmrcl",
+  "data_mode": "scheduled",
+  "authority": "community",
+  "dataset_id": "220a978e-e123-480c-89ec-7e6dd1dcc336",
+  "active": true,
+  "source_url": "https://raw.githubusercontent.com/Vonter/bmrcl-gtfs/f402c4c69a5d314320024f84620fa83e909c4188/gtfs/bmrcl.zip",
+  "checksum": "c19f56f32ad53525c71191125409dc8dded12dd2cebfc576ad9a4db23a62b8a7",
+  "source_version": "f402c4c69a5d314320024f84620fa83e909c4188",
+  "license_id": "ODbL-1.0",
+  "attribution": "Vonter/bmrcl-gtfs contributors; BMRCL timetable source; OpenStreetMap contributors (ODbL).",
+  "quality_notes": [
+    "Unofficial community schedule, not agency-authorized live information.",
+    "Intermediate times are estimated from stop spacing, dwell time and train speed; discrepancies and incomplete short-loop coverage are documented upstream.",
+    "OpenStreetMap spatial inputs require attribution and ODbL compliance. Publication timestamp not independently established."
+  ],
+  "service_start": "2026-08-17",
+  "service_end": "2027-08-17",
+  "counts": {
+    "operators": 1,
+    "routes": 3,
+    "stops": 488,
+    "trips": 3279,
+    "stop_times": 88906,
+    "transfers": 16,
+    "shape_points": 4541,
+    "stop_location_types": {
+      "0": 170,
+      "1": 83,
+      "2": 235
+    }
+  },
+  "routes": [
+    {
+      "route_id": "GREEN",
+      "name": "Madavara - Silk Institute",
+      "trip_count": 1149,
+      "physical_station_count": 32,
+      "direction_trip_counts": {
+        "0": 572,
+        "1": 577,
+        "None": 0
+      },
+      "longest_direction_patterns_reverse": true,
+      "agency_direction_mapping_verified": false
+    },
+    {
+      "route_id": "PURPLE",
+      "name": "Whitefield (Kadugodi) - Challaghatta",
+      "trip_count": 1265,
+      "physical_station_count": 37,
+      "direction_trip_counts": {
+        "0": 604,
+        "1": 661,
+        "None": 0
+      },
+      "longest_direction_patterns_reverse": true,
+      "agency_direction_mapping_verified": false
+    },
+    {
+      "route_id": "YELLOW",
+      "name": "Rashtreeya Vidyalaya Road - Delta Electronics Bommasandra",
+      "trip_count": 865,
+      "physical_station_count": 16,
+      "direction_trip_counts": {
+        "0": 430,
+        "1": 435,
+        "None": 0
+      },
+      "longest_direction_patterns_reverse": true,
+      "agency_direction_mapping_verified": false
+    }
+  ],
+  "route_pair_shared_station_counts": {
+    "GREEN:PURPLE": 1,
+    "GREEN:YELLOW": 1,
+    "PURPLE:YELLOW": 0
+  },
+  "checks": {
+    "invalid_coordinates": 0,
+    "outside_advisory_bengaluru_rectangle": 0,
+    "orphan_stop_time_references": 0,
+    "orphan_trip_service_references": 0,
+    "orphan_transfer_stop_references": 0,
+    "trip_time_regressions": 0,
+    "overnight_trip_count": 25,
+    "timepoint_counts": {
+      "0": 88906
+    },
+    "directed_ride_edges": 164,
+    "allowed_transfer_edges": 16,
+    "weak_components_with_explicit_transfers": 1,
+    "strong_components_with_explicit_transfers": 151
+  },
+  "interpretation": {
+    "agency_schedule_accuracy_verified": false,
+    "geographic_screen_is_official_boundary": false,
+    "missing_provider_means_cancelled": false,
+    "walking_or_accessibility_feasibility_verified": false
+  },
+  "evaluation_only": true,
+  "absent_required_providers": [
+    "bmtc"
+  ],
+  "absent_provider_is_not_cancellation": true,
+  "development_database_active_feed_count_observed": 0,
+  "independent_mutual_reachability_scc_count": 151,
+  "archive_revalidation": "passed; checksum and normalized counts match prior import",
+  "official_document_comparison": {
+    "checked_at": "2026-10-26T07:36:38.439239+00:00",
+    "scope": "sampled map topology and Yellow-line government inauguration facts only; not full station/schedule certification",
+    "sources": [
+      {
+        "url": "https://english.bmrc.co.in/images/metro/travel-info/sitemapimgkan.jpg",
+        "sha256": "6fadd512c996553d84b81d9b04e506c83529a7304ca92ba0cd55041c85eec902"
+      },
+      {
+        "url": "https://english.bmrc.co.in/images/PHASE-1-2-2A-2B.jpg",
+        "sha256": "714da2569518b64975d159a7170748d901de1a6fba64dcebee8df5dd089aadff"
+      }
+    ],
+    "corridor_endpoints_and_two_interchange_samples": "consistent",
+    "full_station_inventory_verified": false,
+    "platform_number_to_direction_id_mapping_verified": false,
+    "current_schedule_verified": false,
+    "official_coordinate_inventory_verified": false
+  },
+  "runtime_estimate_label_check": {
+    "genuine_supabase_auth": true,
+    "non_owner_runtime": true,
+    "existing_real_snapshot_read_only": true,
+    "sample_pattern_count": 1,
+    "all_sample_stop_times_labeled_approximate": true,
+    "agency_schedule_accuracy_verified": false
+  },
+  "automated_checks": {
+    "passed": 87,
+    "skipped": 0,
+    "postgres_integration": 8,
+    "genuine_supabase_integration": 1,
+    "full_suite_seconds": 16.24,
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "strict_mypy_app_files": 21,
+    "pip_check": "passed",
+    "warnings": [
+      "upstream Starlette HTTPX deprecation",
+      "reflection of explicitly managed PostGIS geography"
+    ]
+  }
+}

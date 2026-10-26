@@ -1,0 +1,72 @@
+{
+  "source_url": "https://raw.githubusercontent.com/Vonter/bmrcl-gtfs/f402c4c69a5d314320024f84620fa83e909c4188/gtfs/bmrcl.zip",
+  "source_revision": "f402c4c69a5d314320024f84620fa83e909c4188",
+  "retrieved_at": "2026-10-26T06:33:34.359862+00:00",
+  "license_id": "ODbL-1.0",
+  "checksum": "c19f56f32ad53525c71191125409dc8dded12dd2cebfc576ad9a4db23a62b8a7",
+  "zip_bytes": 2369725,
+  "state": "validated",
+  "service_start": "2026-08-17",
+  "service_end": "2027-08-17",
+  "authority": "community",
+  "attribution": "Vonter/bmrcl-gtfs contributors; BMRCL timetable inputs; OpenStreetMap contributors (ODbL).",
+  "limitations": [
+    "Unofficial static schedule; intermediate timings are estimates and short-loop coverage is incomplete.",
+    "No independently verified dataset publication timestamp or official current-service guarantee.",
+    "Public redistribution/adaptation requires review of ODbL obligations; no raw feed is included here."
+  ],
+  "counts": {
+    "agencies": 1,
+    "stops": 488,
+    "routes": 3,
+    "services": 4,
+    "calendar_dates": 64,
+    "shapes": 19,
+    "shape_points": 4541,
+    "trips": 3279,
+    "stop_times": 88906,
+    "transfers": 16,
+    "frequencies": 0
+  },
+  "network": {
+    "directed_edge_count": 164,
+    "weak_components": 1,
+    "unserved_platforms": 0,
+    "transfer_edges": 16,
+    "structural_only": true
+  },
+  "warnings": [
+    "optional_tables_not_imported"
+  ],
+  "api_validation": {
+    "genuine_supabase_auth": true,
+    "non_owner_runtime": true,
+    "readiness": 200,
+    "staged_search_status": 503,
+    "unauthenticated_status": 401,
+    "cli_repeat_import_exit": 0,
+    "cli_activate_exit": 0,
+    "nearby_count": 6,
+    "route_count": 3,
+    "sample_pattern_count": 25,
+    "transfer_count": 16,
+    "freshness": "scheduled",
+    "realtime_status": "unavailable",
+    "service_status": "unknown",
+    "promoted_only_in_disposable_database": true
+  },
+  "backup_restore": {
+    "revision": "0002_transit_data",
+    "stops": 2,
+    "srid": 4326,
+    "rls_tables": 27,
+    "dump_bytes": 93747
+  },
+  "automated_tests": {
+    "passed": 83,
+    "skipped": 0,
+    "postgres_integration": 8,
+    "genuine_supabase_integration": 1
+  },
+  "final_validator_recheck": "passed; normalized counts unchanged"
+}
