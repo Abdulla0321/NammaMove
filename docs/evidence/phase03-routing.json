@@ -1,0 +1,56 @@
+{
+  "graph_id": "5c8ac6db638b7245e9f2326f60184e9bdc85eada35fda7e10f913acb7acf67f7",
+  "graph_sha256": "834cebff7f3efd4606114b46833787fea3dc65378a2c119228ca30974a015c56",
+  "otp_image": "opentripplanner/opentripplanner:2.7.0@sha256:640870b240ad206d05634e7a066588804c6e23abebf37cbc02b0c9ba66073486",
+  "inputs": {
+    "build-config.json": "87873a255935bbb55eb1459fccae1b8a2918b029f8f715988374089f16d457a1",
+    "otp-config.json": "34250e67b530b051a53a1efd7b902ec0d223db00026f10c04ae4640f2b8613fd",
+    "router-config.json": "c068f85106064c225564fb24225cb81b08ea12832d27c2a332bd82ccd731fac5",
+    "synthetic.gtfs.zip": "227a949dbe3fa00269ed9e03d8ba291be5e101f11a736c443a7cc6a86fa7db79",
+    "synthetic.osm.pbf": "e97b54e1897cfcac31429264adc7df1dc70f9ba9793a4b4ed835b2325f0a91e5"
+  },
+  "data_mode": "simulation",
+  "geography": "independently authored grid, not real OSM streets",
+  "gtfs": "independently authored fixture, not actual schedules",
+  "auth": "genuine local Supabase ES256/JWKS; configured non-owner API login",
+  "http_api_requests": 40,
+  "concurrency": 4,
+  "warmup_requests": 2,
+  "p95_ms": 128.0,
+  "max_ms": 171.48,
+  "failures": 0,
+  "target_p95_ms": 2000,
+  "scope": "steady-state synthetic fixture; not city-scale or cold-start certification",
+  "rollback": {
+    "retained_previous_graph_verified": true,
+    "previous_graph_id": "fb58285ee562e0ae379b610294b459086384c62f6d9822b034bf297a26c6133d",
+    "current_graph_unchanged": true,
+    "cross_version_request_status": 409,
+    "old_best_fixture_fare": 50,
+    "new_best_fixture_fare": 30,
+    "tested_active_graph_id": "291b59e4af4e561c6842b4038704fae246861dd50f41ba122fc6b6634ce44266"
+  },
+  "build_warnings": [
+    "Three mode-connectivity summaries: one authored grid island, no edges removed.",
+    "Two graph-wide street-safety normalization notices."
+  ],
+  "real_outage": {
+    "stopped_provider_status": 503,
+    "recovery_without_simulator_fallback": true,
+    "graph_artifact_unchanged": true,
+    "tested_graph_id": "291b59e4af4e561c6842b4038704fae246861dd50f41ba122fc6b6634ce44266"
+  },
+  "container_limits": {
+    "cpu_limit": 2,
+    "memory_bytes": 3221225472,
+    "java_heap": "2g"
+  },
+  "readiness_probes": 1,
+  "tests": {
+    "tests": "130",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "18.059"
+  }
+}

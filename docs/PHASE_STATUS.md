@@ -1,14 +1,14 @@
 # Phase status
 Last verified: 2026-10-26 (Windows local acceptance evidence; no production deployment).
 
-Current result: **Phase 02 implementation/audit verified locally: 87 tests passed, zero skipped. Full acceptance remains pending BMTC entitlement/import, authoritative current coverage/schedules and underlying-content clearance for public use.** Phase 01 functionality remains accepted. Current measured test and real-data evidence is recorded in the Phase 02 section below; earlier entries are historical.
+Current result: **Phase 03 user-authorized synthetic routing is implemented and verified locally: 130 tests passed, zero failed/skipped. Full real-network acceptance remains blocked by Phase 02 data rights and authoritative coverage requirements.** Phase 00-02 regression functionality is preserved. See the Phase 03 evidence below; earlier entries remain historical.
 
 | Phase | State | Evidence / next gate |
 |---|---|---|
 | 00 Foundation | Complete locally | Audit, root layout, roadmap, quality gates and Windows regression execution below |
 | 01 Database/backend/security | Accepted locally | 45 passed, zero skipped; real PostGIS migrations/RLS/grants, backup/restore and genuine local Supabase Auth verified |
 | 02 Bengaluru data | Implemented; acceptance pending external gates | Real community BMRCL import/search plus synthetic/PostGIS/Supabase tests; BMTC rights and complete authoritative coverage unresolved |
-| 03 Multimodal routing | Planned | OTP graph/contract and feasibility tests |
+| 03 Multimodal routing | Synthetic scope verified locally; real-network acceptance blocked | Actual OTP, genuine Supabase-authenticated routing, 130 passing tests; Phase 02 external gates remain open |
 | 04 Mobile/web | Planned | Expo/React clients and client quality gates |
 | 05 Live tracking | Planned | Licensed realtime replay, freshness and privacy tests |
 | 06 Disruption recovery | Planned | Trusted evidence, expiry and aggregate congestion tests |
@@ -169,3 +169,20 @@ This audit supersedes the earlier 83-test count as the latest run, without chang
 [Final audit](PHASE_02_ACCEPTANCE_AUDIT.md) and [aggregate coverage evidence](evidence/phase02-network-coverage.json) contain comparison scope, reproducible read-only command, known gaps and next steps. Use only authored, clearly simulated fixtures in a separate simulation pointer/disposable database while external dependencies remain pending. That fallback does not satisfy real-data acceptance or authorize Phase 03. **Full Phase 02 acceptance is not met.**
 
 Final audit verification: full suite **87 passed, zero skipped in 16.24 seconds**; lint, format, strict mypy and pip checks passed. A further read-only genuine-auth/non-owner request against the retained real BMRCL snapshot verified approximate labels on every stop in the sampled pattern. Maps, feed archive and Auth credentials remain ignored. No snapshot/pointer mutation was performed by the audit.
+
+
+## Phase 03 local fixture acceptance - 2026-10-26
+- Continued the existing `phase/03-multimodal-routing` implementation without recreating, committing, pushing or merging. Phase 04 remains unstarted.
+- Independently authored CC0 GTFS/geographic grid, canonical hashed inputs and official digest-pinned OTP 2.7.0 build/load are implemented. Source simulation labels, attribution and immutable graph identity remain explicit. No real Bengaluru/live coverage is claimed.
+- Authenticated schedule-aware bus/metro/walking planning supports departure/arrival deadlines, weekdays/date exceptions, overnight trips, directions, transfer/walking/accessibility constraints, bounded preference ranking, known fixture fares and null unknown fares. Physical travel, initial waiting and elapsed arrival time are distinct.
+- Final complete real-service regression run: **130 passed, 0 failed, 0 skipped** in 18.15 seconds, including actual PostGIS migrations/RLS/grants/spatial/atomic rollback tests, genuine local Supabase and OTP. No new schema migration is required; revision remains `0002_transit_data`.
+- Ruff lint and format checks passed (71 files formatted); strict mypy passed (27 application files); pip dependency check and Git whitespace check passed. Two existing upstream warnings remain: Starlette HTTPX TestClient deprecation and Alembic geography reflection.
+- Actual authenticated API workload: 40 steady-state requests, four concurrent clients, **p95 128.0 ms**, maximum 171.48 ms, zero failures; two warmups after bounded readiness probes. OTP container is limited to two CPUs, 3 GiB memory and 2 GiB Java heap. Cold graph/JIT readiness is excluded from this workload target and may return 503.
+- Current graph identity: `5c8ac6db638b7245e9f2326f60184e9bdc85eada35fda7e10f913acb7acf67f7`; binary SHA-256: `834cebff7f3efd4606114b46833787fea3dc65378a2c119228ca30974a015c56`. Input hashes and aggregate measurements are recorded in [routing evidence](evidence/phase03-routing.json). Private auth settings and binary artifacts remain ignored.
+- Earlier actual-service outage and retained-release rollback experiments passed on the explicitly recorded prior graph identities in that evidence: stopped provider returned 503; restart retained the artifact; old/new releases returned their respective fixture fares; mismatched graph request returned 409. These experiments are not mislabeled as executions against the final canonical-input graph.
+- Reproduced cold-start timeouts were handled with bounded test readiness probes, preserving the runtime timeout and strict steady-state latency requirement. Actual arrival-boundary false negatives are handled with documented candidate padding followed by strict original-deadline filtering.
+
+### Acceptance decision and unresolved requirements
+The documented **local authored-fixture functional/performance criteria are met**. Full real Bengaluru/pilot Phase 03 acceptance is **not met**: BMTC rights/import, authoritative current station/route/direction/schedule/geographic coverage and public-content clearance remain Phase 02 blockers. Surveyed accessibility, operational lift status, city-scale workload, hosted CI execution, Linux/Python 3.12 backend validation and production security/support approval remain unverified.
+
+Ranking is limited to returned candidates, not guaranteed global fare or walking optimality. Arrival padding is a bounded workaround; walking post-filters can conservatively omit feasible unreturned alternatives. No live overlays, congestion-safe automatic rerouting, generalized real agency fare engine, remote graph attestation or zero-downtime deployment controller is claimed. See [Phase 03 criteria](phases/PHASE_03.md), [routing runbook](ROUTING.md) and ADR-015 through ADR-018 in [decisions](DECISIONS.md).

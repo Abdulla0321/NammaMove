@@ -24,3 +24,6 @@ Run `python -m pytest -q`; real PostGIS tests require an empty disposable *_test
 
 ## Transit data changes (Phase 02 onward)
 Use [docs/TRANSIT_DATA.md](docs/TRANSIT_DATA.md) for provenance, licensing, supported GTFS scope and owner-run import/activation commands. Keep immutable snapshot rows and provider/mode isolation. Run genuine PostGIS tests for spatial queries, concurrency, RLS/grants and atomic rollback; a SQLite pass is not spatial evidence. Do not enable a source without reviewed rights and documented quality limitations. Never publish raw licensed feeds or claim community scheduled estimates are official/live. Phase 03 stays gated on Phase 02 acceptance.
+
+## User-authorized Phase 03 fixture scope
+The explicit Phase 03 request authorizes local development/testing with independently authored synthetic GTFS and geographic data while Phase 02 external source/coverage blockers remain open. This exception does not accept Phase 02 or authorize real Bengaluru/live deployment. Use [docs/ROUTING.md](docs/ROUTING.md) for pinned OTP builds, sealed graph provenance, rollback and actual-service tests. Retain simulation labels and disable this fixture endpoint in production. Never treat candidate ranking as guaranteed global fare optimality or congestion-safe rerouting.

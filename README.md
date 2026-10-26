@@ -47,3 +47,6 @@ React Native + Expo, React/TypeScript, PostgreSQL/PostGIS, Supabase Auth, OpenTr
 
 ## Static Bengaluru transit catalog (Phase 02)
 Versioned GTFS import/rollback and protected stop/route/PostGIS searches are implemented separately from simulator routing. See [transit data runbook and source rights](docs/TRANSIT_DATA.md) and [Phase 02 acceptance report](docs/phases/PHASE_02.md). A real community BMRCL snapshot passed isolated import/search checks; timings include upstream estimates. Official/live feeds and complete BMTC/Bengaluru coverage remain unresolved. Phase 03 is not started.
+
+## Synthetic schedule routing (Phase 03)
+An opt-in authenticated OTP adapter now plans over independently authored bus/metro/street fixtures with calendar, direction, transfer, wheelchair and walking constraints. Graph builds and responses remain explicitly simulated. See [Windows routing setup](docs/ROUTING.md), [Phase 03 acceptance scope](docs/phases/PHASE_03.md) and [evidence](docs/evidence/phase03-routing.json). External Bengaluru data rights/coverage remain blocked; no live routing or Phase 04 client is enabled.

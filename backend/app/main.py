@@ -13,6 +13,10 @@ from .auth import TokenVerifier
 from .config import Settings
 from .database import Database
 from .observability import RequestMiddleware, configure_logging, logger
+from .routing.build import verify_release
+from .routing.contracts import GraphManifest
+from .routing.provider import OTPProvider
+from .routing.routes import router as routing_router
 from .simulator import router as simulator_router
 from .transit.routes import router as transit_router
 
@@ -33,6 +37,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         description="Persistent security APIs and separately labeled sample routing; no live transit integration",
         lifespan=lifespan,
     )
+    application.state.routing_provider = None
+    if config.otp_url and config.otp_manifest:
+        try:
+            manifest = verify_release(config.otp_manifest.parent)
+            assert isinstance(manifest, GraphManifest)
+            application.state.routing_provider = OTPProvider(config.otp_url, manifest)
+        except (ValueError, OSError, TypeError, KeyError):
+            logger.warning("routing.graph_unavailable")
     application.state.settings = config
     application.state.database = database
     application.state.verifier = TokenVerifier(config)
@@ -40,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(simulator_router)
     application.include_router(persistent_router)
     application.include_router(transit_router)
+    application.include_router(routing_router)
 
     @application.exception_handler(SQLAlchemyError)
     async def database_error(request: Request, error: SQLAlchemyError) -> JSONResponse:
