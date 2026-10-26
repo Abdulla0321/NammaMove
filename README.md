@@ -44,3 +44,6 @@ For database setup, copy `.env.example` to ignored `.env`, replace POSTGRES_PASS
 - .github/workflows/ci.yml: Windows/Linux quality gates
 
 React Native + Expo, React/TypeScript, PostgreSQL/PostGIS, Supabase Auth, OpenTripPlanner, GTFS/GTFS-Realtime, Redis and Python ML are introduced progressively; PostgreSQL/PostGIS and Supabase verification now have Phase 01 implementations. No original Namma-Yatra source was copied; preserve provenance and third-party licenses when adding assets or feeds.
+
+## Static Bengaluru transit catalog (Phase 02)
+Versioned GTFS import/rollback and protected stop/route/PostGIS searches are implemented separately from simulator routing. See [transit data runbook and source rights](docs/TRANSIT_DATA.md) and [Phase 02 acceptance report](docs/phases/PHASE_02.md). A real community BMRCL snapshot passed isolated import/search checks; timings include upstream estimates. Official/live feeds and complete BMTC/Bengaluru coverage remain unresolved. Phase 03 is not started.

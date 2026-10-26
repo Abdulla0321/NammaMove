@@ -62,6 +62,11 @@ def test_real_supabase_sign_in_roles_and_persistent_ownership():
             assert saved.status_code == 200
             assert saved.json()["id"] == subject
         first, second, moderator = (item[1] for item in sessions)
+        catalog = api.get("/v1/transit/feeds", headers=first)
+        assert catalog.status_code == 200
+        assert catalog.json()["service_status"] == "unknown"
+        assert catalog.json()["realtime_status"] == "unavailable"
+        assert api.get("/v1/transit/feeds").status_code == 401
         # User one has malicious user_metadata, but no server-granted admin role.
         assert (
             api.post(
