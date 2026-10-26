@@ -42,3 +42,16 @@ Stable IDs map expected outcomes to delivery/test ownership.
 | D08 | Direction/transfer gaps | Preserve source direction and restrictions; report structural gaps | Directed-edge/calendar/pattern/transfer tests |
 | D09 | Runtime write attempt or identity absent | SQL grants deny mutation; RLS hides private catalog without identity | Actual non-owner PostgreSQL tests |
 | D10 | Migration failure / restore | Transactional rollback; restore snapshot, pointer, geography and RLS | Real failure injection and disposable backup/restore |
+
+
+## Phase 03 routing scenarios
+| ID | Case | Evidence/limit |
+|---|---|---|
+| R01 | Bus-walk-metro transfer, reverse directions | Actual OTP owned fixture; no invented reverse leg |
+| R02 | Weekday/date exception/previous-day midnight run | Actual OTP calendar and overnight integration |
+| R03 | Arrival deadline/missed service/disconnected graph | Exact deadline filters and explicit no-route; bounded candidate completeness caveat |
+| R04 | Step-free request or unknown accessibility | Actual inaccessible vehicle excluded; unknown source accessibility fails closed; lifts not live-verified |
+| R05 | Zero walking/max transfers/preferences/missing fare | Actual OTP alternatives plus portable contracts; unknown is never free |
+| R06 | Provider timeout/saturation/invalid schedules/outage | Sanitized failure contracts and real provider stop/restart; no simulator fallback |
+| R07 | Graph corruption/new-release failure/rollback | Hash/source-metadata refusal and retained previous real graph; no remote attestation |
+| R08 | Four concurrent authenticated callers | Actual Supabase/JWKS and OTP benchmark below local fixture p95 target; no city-scale guarantee |

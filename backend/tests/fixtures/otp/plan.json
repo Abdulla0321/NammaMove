@@ -1,0 +1,123 @@
+{
+  "data": {
+    "planConnection": {
+      "routingErrors": [],
+      "edges": [
+        {
+          "node": {
+            "start": "2026-10-26T08:00:00+05:30",
+            "end": "2026-10-26T08:17:00+05:30",
+            "legs": [
+              {
+                "mode": "BUS",
+                "distance": 1083.58,
+                "start": {
+                  "scheduledTime": "2026-10-26T08:00:00+05:30"
+                },
+                "end": {
+                  "scheduledTime": "2026-10-26T08:05:00+05:30"
+                },
+                "from": {
+                  "lat": 12.97,
+                  "lon": 77.59
+                },
+                "to": {
+                  "lat": 12.97,
+                  "lon": 77.6
+                },
+                "route": {
+                  "gtfsId": "1:BUS"
+                },
+                "trip": {
+                  "gtfsId": "1:BUS_OUT",
+                  "directionId": "0",
+                  "wheelchairAccessible": "POSSIBLE"
+                }
+              },
+              {
+                "mode": "WALK",
+                "distance": 111.2,
+                "start": {
+                  "scheduledTime": "2026-10-26T08:05:00+05:30"
+                },
+                "end": {
+                  "scheduledTime": "2026-10-26T08:08:26+05:30"
+                },
+                "from": {
+                  "lat": 12.97,
+                  "lon": 77.6
+                },
+                "to": {
+                  "lat": 12.971,
+                  "lon": 77.6
+                },
+                "route": null,
+                "trip": null
+              },
+              {
+                "mode": "SUBWAY",
+                "distance": 2167.16,
+                "start": {
+                  "scheduledTime": "2026-10-26T08:12:00+05:30"
+                },
+                "end": {
+                  "scheduledTime": "2026-10-26T08:17:00+05:30"
+                },
+                "from": {
+                  "lat": 12.971,
+                  "lon": 77.6
+                },
+                "to": {
+                  "lat": 12.971,
+                  "lon": 77.62
+                },
+                "route": {
+                  "gtfsId": "1:METRO"
+                },
+                "trip": {
+                  "gtfsId": "1:METRO_OUT",
+                  "directionId": "0",
+                  "wheelchairAccessible": "POSSIBLE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "node": {
+            "start": "2026-10-26T08:25:00+05:30",
+            "end": "2026-10-26T08:35:00+05:30",
+            "legs": [
+              {
+                "mode": "BUS",
+                "distance": 3252.64,
+                "start": {
+                  "scheduledTime": "2026-10-26T08:25:00+05:30"
+                },
+                "end": {
+                  "scheduledTime": "2026-10-26T08:35:00+05:30"
+                },
+                "from": {
+                  "lat": 12.97,
+                  "lon": 77.59
+                },
+                "to": {
+                  "lat": 12.971,
+                  "lon": 77.62
+                },
+                "route": {
+                  "gtfsId": "1:EXPRESS"
+                },
+                "trip": {
+                  "gtfsId": "1:EXP_OUT",
+                  "directionId": "0",
+                  "wheelchairAccessible": "POSSIBLE"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

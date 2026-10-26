@@ -42,3 +42,16 @@ Use genuine PostGIS geography for proximity searches, explicit source directions
 
 ## ADR-014 - Evidence-scoped acceptance and approximate timing (Phase 02 audit)
 Retain static data as unverified operational evidence: expose timepoint=0 as approximate and type 1 as a source timepoint, never an observed arrival guarantee. Report weak and strong graph components separately; avoid certifying routing from a weakly connected platform catalog. Add a read-only aggregate audit rather than enabling routing or writing a new source. Publisher license assertions do not close underlying-content rights; record unresolved access/permissions and keep source-free synthetic fixtures separate until source/coverage acceptance is satisfied. See [acceptance audit](PHASE_02_ACCEPTANCE_AUDIT.md).
+
+
+## ADR-015 - User-authorized synthetic Phase 03 exception
+Proceed on the existing Phase 03 branch using independently authored GTFS and CC0 geographic content, under the latest explicit instruction. This does not close Phase 02 data entitlement/coverage gates. No external licensed feed or real OSM content is required for this engineering fixture; geographic values/streets are illustrative. Permit local fixture acceptance only, preserving production and real-network blockers.
+
+## ADR-016 - Pinned OTP, immutable inputs and explicit rollback
+Use official OTP 2.7.0 linux/amd64 pinned by digest behind a typed GraphQL provider protocol; preserve all legacy APIs. Hash canonical inputs/image, validate GTFS/source metadata and record graph binary hash after a successful build. Construct a provider only from a verified sealed release. Use explicit canary/coordinated release and previous-release rollback, not silent stale-graph/simulator fallback. Local service/mount verification is operational; cryptographic remote graph attestation and zero-downtime activation are not claimed.
+
+## ADR-017 - Bounded preference ranking and honest schedule semantics
+OTP performs schedule/street search; the application validates chronology/continuity/transfers and post-filters hard limits. Rank only returned candidates for time/fare/transfers/walking, with explicit scope instead of global optimality claims. Keep generalized costs out of physical duration; show initial waiting separately. Known fixture fares are source-derived per boarding, unknown remains null. Source wheelchair constraints are not live lift assurance. Use bounded arrival-window padding for a reproduced OTP 2.7 false negative, then enforce the caller's exact deadline; document possible completeness limits.
+
+## ADR-018 - Local acceptance workload and privacy
+Use at most four provider calls per process, a 1.5s inactivity timeout, 2 MB response budget, 16 candidates and 64 legs. Benchmark the actual authenticated endpoint at four concurrency/40 warm requests, with graph loading/JIT treated as readiness. No raw coordinates/tokens are logged or persisted by the backend. Fixture routing is opt-in and disabled in production. Retain real-service fault/rollback evidence; neither mocks nor skipped integration tests establish OTP acceptance. No production sizing/cancellation/rerouting guarantees arise from this workload.

@@ -1,0 +1,22 @@
+# Only independently authored synthetic fixtures are enabled in Phase 03.
+name: nammamove-routing
+x-otp: &otp
+  image: opentripplanner/opentripplanner:2.7.0@sha256:640870b240ad206d05634e7a066588804c6e23abebf37cbc02b0c9ba66073486
+  platform: linux/amd64
+  environment:
+    JAVA_TOOL_OPTIONS: -Xmx2g
+  mem_limit: 3g
+  cpus: 2
+  volumes:
+    - ${NAMMAMOVE_OTP_BUILD_DIR:?Set an absolute dedicated build directory}:/var/opentripplanner
+services:
+  otp-build:
+    <<: *otp
+    profiles: [build]
+    command: [--build, --save]
+    network_mode: none
+  otp:
+    <<: *otp
+    command: [--load, --serve]
+    ports:
+      - "127.0.0.1:${NAMMAMOVE_OTP_PORT:-18081}:8080"

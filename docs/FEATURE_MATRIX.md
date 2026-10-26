@@ -17,7 +17,10 @@ Implemented refers to local demo behavior, not production readiness.
 | Read-only coverage and network audit | Real snapshot: 83 stations, 170 platforms, 235 entrances; strong/weak connectivity distinguished | 02 |
 | Approximate timetable labels | Source timepoint and timing_precision exposed; agency_schedule_accuracy_verified=false | 02 |
 | GTFS-RT freshness contract | Synthetic boundary tests; no live ingestion worker | 02/05 |
-| OTP schedule/accessibility routing | Planned | 03 |
+| OTP schedule/street/accessibility routing | Implemented on owned synthetic graph; actual OTP calendar/direction/transfer/wheelchair tests | 03 |
+| Departure/arrival-time and journey preferences | Implemented over bounded candidates; no global optimum or real agency schedule claim | 03 |
+| Graph build/versioning/rollback | Pinned image/platform, canonical inputs, source/graph hashes, real build/load and explicit rollback verified | 03 |
+| Routing faults and bounded-load target | Real outage/recovery plus four-concurrent-request authenticated fixture benchmark; production/city-load gates open | 03 |
 | Expo mobile and React shell | Planned | 04 |
 | Offline/manual origin, favorites, languages | Planned | 04 |
 | Live tracking and notifications | Planned | 05 |
@@ -31,3 +34,5 @@ Implemented refers to local demo behavior, not production readiness.
 Phase 01 also implements private-schema RLS/grant definitions, commuter preferences, owned journey history and notifications, basic report evidence/audit, JSON logs, readiness, deletion/redaction and explicit retention. See PHASE_STATUS.md for measured local evidence and external gates. These persistence/security primitives do not change the planned live recovery or operations phases.
 
 Latest [Phase 02 acceptance audit](PHASE_02_ACCEPTANCE_AUDIT.md): **87 tests passed, zero skipped**. [Source registry](DATA_SOURCES.md) and [coverage JSON](evidence/phase02-network-coverage.json) record evidence and gaps. Synthetic fallback is limited to pipeline validation and does not satisfy real-provider acceptance.
+
+Phase 03 is user-authorized synthetic development only; [local acceptance scope](phases/PHASE_03.md) and [routing runbook](ROUTING.md) preserve all Phase 02 source/coverage blockers. Phase 04 is unstarted.

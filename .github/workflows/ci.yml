@@ -58,3 +58,26 @@ jobs:
           docker exec -i "$POSTGRES_CONTAINER" pg_restore -U postgres -d nammamove_restore_test --no-owner --exit-on-error < "$RUNNER_TEMP/nammamove-test.dump"
           docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_restore_test -v ON_ERROR_STOP=1 -c "SELECT version_num FROM nammamove.alembic_version"
           docker exec "$POSTGRES_CONTAINER" psql -U postgres -d nammamove_restore_test -v ON_ERROR_STOP=1 -c "SELECT 1/count(*) FROM nammamove.commuters WHERE display_name='Synthetic restore fixture'"
+
+  otp-synthetic:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: backend
+      NAMMAMOVE_OTP_BUILD_DIR: ${{ github.workspace }}/backups/ci-otp
+      NAMMAMOVE_TEST_OTP_DIR: ${{ github.workspace }}/backups/ci-otp
+      NAMMAMOVE_TEST_OTP_URL: http://127.0.0.1:18081
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r backend/requirements-dev.txt
+      - run: python -m app.routing.fixture --output "$NAMMAMOVE_OTP_BUILD_DIR"
+      - run: docker compose -f compose.routing.yaml --profile build run --rm otp-build
+      - run: python -m app.routing.build seal "$NAMMAMOVE_OTP_BUILD_DIR"
+      - run: docker compose -f compose.routing.yaml up -d otp
+      - run: python -m pytest -q -m 'otp and not supabase'
+      - if: always()
+        run: docker compose -f compose.routing.yaml logs --tail=100 otp
+      - if: always()
+        run: docker compose -f compose.routing.yaml down
