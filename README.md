@@ -50,3 +50,7 @@ Versioned GTFS import/rollback and protected stop/route/PostGIS searches are imp
 
 ## Synthetic schedule routing (Phase 03)
 An opt-in authenticated OTP adapter now plans over independently authored bus/metro/street fixtures with calendar, direction, transfer, wheelchair and walking constraints. Graph builds and responses remain explicitly simulated. See [Windows routing setup](docs/ROUTING.md), [Phase 03 acceptance scope](docs/phases/PHASE_03.md) and [evidence](docs/evidence/phase03-routing.json). External Bengaluru data rights/coverage remain blocked; no live routing or Phase 04 client is enabled.
+
+
+## Commuter client (Phase 04)
+The Expo Android-first app and React web preview live in [apps/mobile](apps/mobile/). Run `npm ci`, then follow [MOBILE.md](docs/MOBILE.md) for public-only environment values, non-owner backend startup, emulator/USB networking, fixture journeys and device acceptance. Client checks: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run build`. Android JS export is available separately; no APK/device certification or live Bengaluru coverage is claimed.
