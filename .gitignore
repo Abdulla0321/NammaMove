@@ -31,3 +31,7 @@ coverage.xml
 *.backup
 *.log
 backups/
+
+# Expo platform exports and client coverage
+dist-android/
+coverage/

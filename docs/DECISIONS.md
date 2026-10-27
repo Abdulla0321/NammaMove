@@ -55,3 +55,13 @@ OTP performs schedule/street search; the application validates chronology/contin
 
 ## ADR-018 - Local acceptance workload and privacy
 Use at most four provider calls per process, a 1.5s inactivity timeout, 2 MB response budget, 16 candidates and 64 legs. Benchmark the actual authenticated endpoint at four concurrency/40 warm requests, with graph loading/JIT treated as readiness. No raw coordinates/tokens are logged or persisted by the backend. Fixture routing is opt-in and disabled in production. Retain real-service fault/rollback evidence; neither mocks nor skipped integration tests establish OTP acceptance. No production sizing/cancellation/rerouting guarantees arise from this workload.
+
+
+## ADR-019 - One Expo commuter workspace and bounded web shell (Phase 04)
+Add `apps/mobile` to the existing monorepo, with Expo SDK 55, strict TypeScript, React Native and a shared React Native Web commuter/status preview. Do not introduce a separate operations administration product before its gate. Pin compatible React/RN peers in the root and commit the npm lockfile; generate routing types from the real FastAPI schema and check contract drift. Keep authorized synthetic stop search independent of the unsynchronized persistent catalog. Native maps supplement a geographic endpoint/list fallback, never manufacture missing shapes.
+
+## ADR-020 - Device privacy, explicit stale cache and token lifecycle
+Use Supabase public-client auth only, encrypted native SecureStore sessions and a serialized chunked adapter; web storage is memory-only. Refresh once after 401, fail closed and clear user-visible results on invalid sessions; token refresh for the same user must not erase the selected itinerary. Favorites/recents are user-scoped device records; offline journey retention is explicit consent, capped and expires after 24 hours. Sign-out removes device records. No location history or background tracking; permission denial retains manual origin. Native key/backup/uninstall/orphan cleanup requires device/pilot review.
+
+## ADR-021 - Evidence-scoped Phase 04 acceptance
+Component accessibility/width/font-scale assertions and web/Android JavaScript exports are not proof of native installation, TalkBack or real basemap behavior. Require physical/emulator end-to-end validation and full locale translation before full acceptance. Retain Phase 02 data-rights/coverage blockers and Phase 03 candidate-ranking limitations. Record the unresolved upstream Expo CLI/Zod advisory; do not force an incompatible SDK downgrade or claim a clean security audit. No Phase 05 work is authorized by these client interfaces.

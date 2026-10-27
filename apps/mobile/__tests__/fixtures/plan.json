@@ -1,0 +1,118 @@
+{
+  "contract_version": "1",
+  "graph_id": "5c8ac6db638b7245e9f2326f60184e9bdc85eada35fda7e10f913acb7acf67f7",
+  "graph_sha256": "834cebff7f3efd4606114b46833787fea3dc65378a2c119228ca30974a015c56",
+  "source_attribution": "NammaMove independently authored synthetic GTFS and geographic grid; no real transit or OSM database contents.",
+  "source_license": "CC0-1.0",
+  "otp_version": "2.7.0",
+  "data_mode": "simulation",
+  "confidence": "authored_fixture_only",
+  "realtime_status": "unavailable",
+  "service_status": "unknown",
+  "disruption_overlay_applied": false,
+  "congestion_safety_verified": false,
+  "status": "ok",
+  "reason": null,
+  "preference": "fastest",
+  "ranking_scope": "bounded_provider_candidates",
+  "itineraries": [
+    {
+      "start": "2026-10-26T08:00:00+05:30",
+      "end": "2026-10-26T08:17:00+05:30",
+      "duration_seconds": 1020,
+      "initial_wait_seconds": 300,
+      "elapsed_from_requested_departure_seconds": 1320,
+      "walking_m": 111.2,
+      "transfers": 1,
+      "fare_inr": 30,
+      "fare_status": "known_synthetic_per_boarding",
+      "legs": [
+        {
+          "mode": "BUS",
+          "start": "2026-10-26T08:00:00+05:30",
+          "end": "2026-10-26T08:05:00+05:30",
+          "distance_m": 1083.58,
+          "from_lat": 12.97,
+          "from_lon": 77.59,
+          "to_lat": 12.97,
+          "to_lon": 77.6,
+          "route_id": "1:BUS",
+          "trip_id": "1:BUS_OUT",
+          "direction_id": "0",
+          "wheelchair_status": "POSSIBLE"
+        },
+        {
+          "mode": "WALK",
+          "start": "2026-10-26T08:05:00+05:30",
+          "end": "2026-10-26T08:08:26+05:30",
+          "distance_m": 111.2,
+          "from_lat": 12.97,
+          "from_lon": 77.6,
+          "to_lat": 12.971,
+          "to_lon": 77.6,
+          "route_id": null,
+          "trip_id": null,
+          "direction_id": null,
+          "wheelchair_status": null
+        },
+        {
+          "mode": "SUBWAY",
+          "start": "2026-10-26T08:12:00+05:30",
+          "end": "2026-10-26T08:17:00+05:30",
+          "distance_m": 2167.16,
+          "from_lat": 12.971,
+          "from_lon": 77.6,
+          "to_lat": 12.971,
+          "to_lon": 77.62,
+          "route_id": "1:METRO",
+          "trip_id": "1:METRO_OUT",
+          "direction_id": "0",
+          "wheelchair_status": "POSSIBLE"
+        }
+      ],
+      "explanations": [
+        "SIMULATION: independently authored schedule and streets; no live Bengaluru coverage.",
+        "Physical duration uses scheduled timestamps; generalized costs are not added to ETA.",
+        "Preference ranks only up to 16 provider candidates in a two-hour search window.",
+        "Take BUS, direction 0, from 2026-10-26T08:00:00+05:30 to 2026-10-26T08:05:00+05:30.",
+        "Walk 111 m on the authored street graph.",
+        "Take METRO, direction 0, from 2026-10-26T08:12:00+05:30 to 2026-10-26T08:17:00+05:30.",
+        "Static wheelchair constraints applied; lifts and paths are not live-verified."
+      ]
+    },
+    {
+      "start": "2026-10-26T08:25:00+05:30",
+      "end": "2026-10-26T08:35:00+05:30",
+      "duration_seconds": 600,
+      "initial_wait_seconds": 1800,
+      "elapsed_from_requested_departure_seconds": 2400,
+      "walking_m": 0.0,
+      "transfers": 0,
+      "fare_inr": 50,
+      "fare_status": "known_synthetic_per_boarding",
+      "legs": [
+        {
+          "mode": "BUS",
+          "start": "2026-10-26T08:25:00+05:30",
+          "end": "2026-10-26T08:35:00+05:30",
+          "distance_m": 3252.64,
+          "from_lat": 12.97,
+          "from_lon": 77.59,
+          "to_lat": 12.971,
+          "to_lon": 77.62,
+          "route_id": "1:EXPRESS",
+          "trip_id": "1:EXP_OUT",
+          "direction_id": "0",
+          "wheelchair_status": "POSSIBLE"
+        }
+      ],
+      "explanations": [
+        "SIMULATION: independently authored schedule and streets; no live Bengaluru coverage.",
+        "Physical duration uses scheduled timestamps; generalized costs are not added to ETA.",
+        "Preference ranks only up to 16 provider candidates in a two-hour search window.",
+        "Take EXPRESS, direction 0, from 2026-10-26T08:25:00+05:30 to 2026-10-26T08:35:00+05:30.",
+        "Static wheelchair constraints applied; lifts and paths are not live-verified."
+      ]
+    }
+  ]
+}
