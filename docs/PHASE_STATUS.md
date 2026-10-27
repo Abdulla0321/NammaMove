@@ -1,7 +1,7 @@
 # Phase status
-Last verified: 2026-10-26 (Windows local acceptance evidence; no production deployment).
+Last verified: 2026-10-27 (Windows local acceptance evidence; no production deployment).
 
-Current result: **Phase 03 user-authorized synthetic routing is implemented and verified locally: 130 tests passed, zero failed/skipped. Full real-network acceptance remains blocked by Phase 02 data rights and authoritative coverage requirements.** Phase 00-02 regression functionality is preserved. See the Phase 03 evidence below; earlier entries remain historical.
+Current result: **Phase 04 commuter client implemented and locally checked: 31 mobile tests, 135 backend tests and 11 genuine mobile-client/Auth/API/OTP integration checks passed. Full Phase 04 acceptance is pending native device, accessibility/localization and security gates.** Phase 00-03 functionality and Phase 02/03 real-data blockers are preserved. See the Phase 04 section below; earlier entries remain historical.
 
 | Phase | State | Evidence / next gate |
 |---|---|---|
@@ -9,7 +9,7 @@ Current result: **Phase 03 user-authorized synthetic routing is implemented and 
 | 01 Database/backend/security | Accepted locally | 45 passed, zero skipped; real PostGIS migrations/RLS/grants, backup/restore and genuine local Supabase Auth verified |
 | 02 Bengaluru data | Implemented; acceptance pending external gates | Real community BMRCL import/search plus synthetic/PostGIS/Supabase tests; BMTC rights and complete authoritative coverage unresolved |
 | 03 Multimodal routing | Synthetic scope verified locally; real-network acceptance blocked | Actual OTP, genuine Supabase-authenticated routing, 130 passing tests; Phase 02 external gates remain open |
-| 04 Mobile/web | Planned | Expo/React clients and client quality gates |
+| 04 Mobile/web | Implemented; full device acceptance pending | Expo commuter app/web status preview, synthetic API integration, client quality gates; native/device/translation/security evidence remains open |
 | 05 Live tracking | Planned | Licensed realtime replay, freshness and privacy tests |
 | 06 Disruption recovery | Planned | Trusted evidence, expiry and aggregate congestion tests |
 | 07 Predictive AI | Planned | Held-out baseline/calibration and drift gates |
@@ -186,3 +186,26 @@ Final audit verification: full suite **87 passed, zero skipped in 16.24 seconds*
 The documented **local authored-fixture functional/performance criteria are met**. Full real Bengaluru/pilot Phase 03 acceptance is **not met**: BMTC rights/import, authoritative current station/route/direction/schedule/geographic coverage and public-content clearance remain Phase 02 blockers. Surveyed accessibility, operational lift status, city-scale workload, hosted CI execution, Linux/Python 3.12 backend validation and production security/support approval remain unverified.
 
 Ranking is limited to returned candidates, not guaranteed global fare or walking optimality. Arrival padding is a bounded workaround; walking post-filters can conservatively omit feasible unreturned alternatives. No live overlays, congestion-safe automatic rerouting, generalized real agency fare engine, remote graph attestation or zero-downtime deployment controller is claimed. See [Phase 03 criteria](phases/PHASE_03.md), [routing runbook](ROUTING.md) and ADR-015 through ADR-018 in [decisions](DECISIONS.md).
+
+
+## Phase 04 implementation and acceptance - 2026-10-27
+- Continued on existing `phase/04-mobile-app`; no repository recreation, commit, push, merge or Phase 05 work. Added one Expo workspace under `apps/mobile`, npm lockfile, SDK-compatible React Native/React dependencies, strict TypeScript and client CI configuration. Existing Python/backend architecture is retained.
+- Implemented onboarding, Supabase sign-in/signup confirmation handling, secure native session storage, authenticated routing with one refresh/retry, source fixture stop search, consented foreground nearby lookup/manual origin, departure/arrival time, modes/accessibility/walking constraints and four preferences. Alternatives show physical duration, waiting, known/unknown fixture fares, walking/transfers, explanations and detailed source legs.
+- Geographic endpoint diagram is available without external maps; native Google basemap is optional, key-restricted and explicitly opened. Endpoint links are approximate because the API supplies no shape geometry. Saved places/recents are device-local; offline journey retention is consented, user-scoped, native-encrypted, capped and timestamped stale with a 24-hour expiry. Browser sessions/cache remain memory-only.
+- Localization structure includes English and core Kannada/Hindi labels with English fallback; incomplete translation is explicit. Accessible control names/states/announcements, skeletons, no-route/error states, scalable scrollable layouts and Android Back handling are implemented. Component checks include 320/800 widths at 200% font scale, not Android layout certification.
+- **31 mobile unit/component tests passed, zero failed/skipped.** Coverage includes auth/onboarding/expiry, one token refresh, refreshed-session continuity, API failures/contracts, unknown fares/no-route, permissions/manual origin, deferred loading, search selection, cache consent/expiry/isolation/corruption and encrypted chunk-write failure/Unicode session values. Native module/transport mocks are not counted as native integration evidence.
+- **8 actual TypeScript client checks passed** against genuine local Supabase, a temporary non-owner FastAPI process and actual OTP: readiness, four preferences, bus-only, impossible route and invalid-token rejection. The temporary API process was stopped afterwards; no real data or credentials were written to tracked files.
+- **135 backend tests passed, zero failed/skipped** in 35.17 seconds, including all real PostGIS/Supabase/OTP regressions. Five new CORS tests verify exact opt-in origins, disabled defaults, denied untrusted origins and continued bearer protection. No schema migration/API contract change is required. Python Ruff lint/format and strict mypy passed (27 application files). Existing Starlette HTTPX deprecation and Alembic geography reflection warnings remain.
+- Client strict typecheck, lint, formatting, generated routing OpenAPI drift check and Expo dependency compatibility are checked; web and Android Hermes JavaScript exports are validated separately from APK/device execution. Root peer/type anchors prevent incompatible or unresolvable workspace hoisting. Latest clean-install command outcomes, test counts and source hashes are in [Phase 04 evidence](evidence/phase04-mobile.json).
+- Dependency audit is **not clean**: three high affected-package entries in the Expo CLI -> Zod 3 chain remain. The app uses patched Zod 4. A forced suggested SDK-major downgrade is not applied; review an upstream compatible fix before release.
+
+### Phase 04 acceptance decision
+Local client engineering and synthetic-service integration are verified, but **not every documented criterion is met**. No Android SDK/adb/emulator was available, and no browser automation surface was connected. Native APK/AAB compilation/install, actual startup/end-to-end selection, TalkBack/large-font/keyboard/rotation, encrypted keystore/relaunch/backup/uninstall behavior, optional native basemap rendering and visual browser QA are unverified. Full Kannada/Hindi translation, signup email/deep-link delivery, hosted CI and dependency security resolution remain open.
+
+The shared web shell supplies the commuter preview and read-only health status, not Phase 09 operations administration. Cached records require a restorable identity; expired/nonrestorable Auth can require reconnecting. Reviewed BMTC rights, authoritative current Bengaluru coverage, real paths/schedules/accessibility and production release approval remain external prerequisites. No live tracking, push subscriptions, disruption overlay or congestion-safe automatic rerouting is claimed. Follow [MOBILE.md](MOBILE.md) and [Phase 04 criteria](phases/PHASE_04.md) for manual verification; keep Phase 05 unstarted.
+
+
+### Phase 04 browser Auth preflight fix - 2026-10-27
+Manual browser sign-in exposed a gap in the original server-to-server integration: genuine credentials and POST headers worked, but the older local Auth server omitted CORS allowance when preflight requested `apikey`. Added a credential-free exact-origin local gateway config, preserved the previous ignored config, validated it with actual `nginx -t` and reloaded only that gateway. Both localhost preview origins now pass; an untrusted origin receives no allowance; genuine browser-header sign-in returns 200. The TypeScript integration script now includes these preflight assertions. No authentication, issuer or database authorization was bypassed. Full native/visual acceptance remains pending.
+
+Follow-up verification: **11 real TypeScript client integration checks passed**; strict client typecheck and lint passed after the gateway regression addition. The earlier eight-check run remains historical evidence.

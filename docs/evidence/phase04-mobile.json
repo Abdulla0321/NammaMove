@@ -1,0 +1,75 @@
+{
+  "verified_at": "2026-10-27",
+  "branch": "phase/04-mobile-app",
+  "scope": "independently authored synthetic Phase 03 network; no live Bengaluru claim",
+  "runtime": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "expo": "55.0.32",
+    "react_native": "0.83.10"
+  },
+  "checks": {
+    "clean_npm_ci": 0,
+    "typecheck": 0,
+    "lint": 0,
+    "format": 0,
+    "contracts": 0,
+    "expo_compatibility": 0,
+    "mobile_tests": 0,
+    "web_export": 0,
+    "android_js_export": 0
+  },
+  "mobile_tests": {
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0
+  },
+  "backend_tests": {
+    "tests": 135,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_api_client_checks": {
+    "passed": 11,
+    "failed": 0,
+    "auth": "genuine local Supabase",
+    "routing": "actual OTP; synthetic graph",
+    "api": "existing non-owner local FastAPI process; left running",
+    "auth_cors": "two exact localhost origins allowed; untrusted origin has no allowance; browser-header login 200"
+  },
+  "contract_sha256": "58eaf318d3e919519183130ea9ed1e5e63128f27f34b7312b25b0ff062399c6a",
+  "lockfile_sha256": "81c728bca1582074eaba8cf0dafe3a0fe1d0abf94c3c07f6cdc42fe71ea36310",
+  "unverified": [
+    "native APK/AAB build/install",
+    "physical/emulator startup and end-to-end journey selection",
+    "TalkBack and real font/keyboard/rotation layout",
+    "native keystore/relaunch/backup/uninstall behavior",
+    "optional Google basemap rendering and key restrictions",
+    "browser visual QA (no connected browser automation surface)",
+    "complete Kannada/Hindi translation",
+    "signup email confirmation/deep links",
+    "hosted CI"
+  ],
+  "dependency_audit": {
+    "exit_code": 1,
+    "counts": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "affected_packages": [
+      "@expo/cli",
+      "expo",
+      "zod"
+    ],
+    "chain": "expo -> @expo/cli -> zod 3; application uses patched zod 4",
+    "resolved": false
+  },
+  "full_phase04_acceptance": false,
+  "phase05_started": false,
+  "privacy": "Nearby distances remain transient; recent origins use canonical fixture places."
+}

@@ -3,6 +3,27 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m venv .venv
+      - run: .venv/bin/python -m pip install -r backend/requirements-dev.txt
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+      - run: npm run contracts --workspace @nammamove/mobile -- --check
+      - run: npm run build
+      - run: npm run build:android --workspace @nammamove/mobile
   backend:
     runs-on: ${{ matrix.os }}
     strategy:
