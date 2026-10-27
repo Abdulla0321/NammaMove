@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     supabase_url: str | None = None
     supabase_jwt_audience: str = "authenticated"
     simulation_enabled: bool | None = None
+    cors_allowed_origins: list[str] = []
 
     @property
     def allow_simulation(self) -> bool:
@@ -32,6 +33,22 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_configuration(self) -> "Settings":
+        for origin in self.cors_allowed_origins:
+            parts = urlsplit(origin)
+            local = self.app_env != "production" and parts.hostname in {"localhost", "127.0.0.1"}
+            if (
+                parts.scheme != "https"
+                and not (local and parts.scheme == "http")
+                or not parts.hostname
+                or parts.username
+                or parts.password
+                or parts.path
+                or parts.query
+                or parts.fragment
+            ):
+                raise ValueError(
+                    "CORS requires exact HTTPS origins; development localhost HTTP allowed"
+                )
         if self.app_env not in {"development", "test", "production"}:
             raise ValueError("APP_ENV must be development, test or production")
         if self.database_url:

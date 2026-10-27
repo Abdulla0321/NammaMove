@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -49,6 +50,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.database = database
     application.state.verifier = TokenVerifier(config)
     application.add_middleware(RequestMiddleware)
+    if config.cors_allowed_origins:
+        application.add_middleware(
+            CORSMiddleware,
+            allow_origins=config.cors_allowed_origins,
+            allow_credentials=False,
+            allow_methods=["GET", "POST"],
+            allow_headers=["Authorization", "Content-Type"],
+        )
     application.include_router(simulator_router)
     application.include_router(persistent_router)
     application.include_router(transit_router)
