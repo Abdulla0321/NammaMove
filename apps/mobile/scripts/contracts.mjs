@@ -1,9 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import openapiTS, { astToString } from 'openapi-typescript';
 
-const root = resolve('../..');
+const workspace = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const root = resolve(workspace, '../..');
 const python =
     process.env.PYTHON ??
     resolve(
@@ -25,9 +27,11 @@ const schema = JSON.parse(
     execFileSync(python, ['-c', code], { cwd: root, encoding: 'utf8' }),
 );
 const output = astToString(await openapiTS(schema));
-const target = resolve('src/generated/api.ts');
+const target = resolve(workspace, 'src/generated/api.ts');
+// Compare schema content across Windows and Linux checkouts, retaining real drift detection.
+const normalize = (value) => value.replace(/\r\n/g, '\n');
 if (process.argv.includes('--check')) {
-    if (readFileSync(target, 'utf8') !== output)
+    if (normalize(readFileSync(target, 'utf8')) !== normalize(output))
         throw new Error('Routing contracts drifted; regenerate and review.');
     console.log('Routing OpenAPI contracts match backend.');
 } else {

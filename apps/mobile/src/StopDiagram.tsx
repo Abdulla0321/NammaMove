@@ -2,12 +2,17 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import type { Itinerary } from './types';
 import { colors, styles } from './ui';
+import { translator, type Translate } from './i18n';
 
 export interface MapProps {
   itinerary: Itinerary;
   enabled: boolean;
+  t?: Translate;
 }
-export function StopDiagram({ itinerary }: Pick<MapProps, 'itinerary'>) {
+export function StopDiagram({
+  itinerary,
+  t = translator('en'),
+}: Pick<MapProps, 'itinerary' | 't'>) {
   const points = itinerary.legs.flatMap((leg, index) => [
     ...(index === 0
       ? [{ latitude: leg.from_lat, longitude: leg.from_lon }]
@@ -22,13 +27,11 @@ export function StopDiagram({ itinerary }: Pick<MapProps, 'itinerary'>) {
   const lonRange = Math.max(0.001, Math.max(...lons) - minLon);
   return (
     <View style={styles.card}>
-      <Text style={styles.label}>Synthetic geographic overview · North ↑</Text>
-      <Text style={styles.muted}>
-        Approximate endpoints only; not a street or track path.
-      </Text>
+      <Text style={styles.label}>{t('mapOverview')}</Text>
+      <Text style={styles.muted}>{t('mapApproximate')}</Text>
       <View
         accessible
-        accessibilityLabel="Synthetic route endpoints, north up. Coordinates listed below."
+        accessibilityLabel={t('mapEndpoints')}
         style={{
           height: 170,
           backgroundColor: '#E9F1EC',

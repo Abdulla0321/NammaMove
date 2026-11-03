@@ -1,0 +1,21 @@
+{
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "environment": "development",
+      "env": {
+        "NAMMAMOVE_REQUIRE_ANDROID_MAPS": "true"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

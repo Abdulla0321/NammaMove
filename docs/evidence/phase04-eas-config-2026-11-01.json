@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-01",
+  "eas_cli": "27.2.0",
+  "node": "24.21.0",
+  "expo_sdk": 55,
+  "cwd": "C:/Users/ABDALLAH SHINGERI/Desktop/NammaMove/apps/mobile",
+  "resolved_cli": "C:/Users/ABDALLAH SHINGERI/Desktop/NammaMove/node_modules/expo/bin/cli",
+  "spawn_executable": "node",
+  "arguments": [
+    "C:/Users/ABDALLAH SHINGERI/Desktop/NammaMove/node_modules/expo/bin/cli",
+    "config",
+    "--json",
+    "--type",
+    "public"
+  ],
+  "sanitized_environment": {
+    "inherit_parent": true,
+    "EXPO_NO_DOTENV": "1",
+    "NAMMAMOVE_REQUIRE_ANDROID_MAPS": "true",
+    "EAS_BUILD": "unset during local metadata evaluation",
+    "EXPO_PUBLIC_GOOGLE_MAPS_KEY": "not present in local probe; no credential value recorded",
+    "ComSpec": "C:/Windows/system32/cmd.exe",
+    "NODE_OPTIONS": "unset in probe"
+  },
+  "before": {
+    "baseline_without_profile": 0,
+    "public_config_with_profile": 1,
+    "profile_stdout_bytes": 0,
+    "profile_stderr_bytes": 0,
+    "explicit_node_with_profile": 1,
+    "actual_eas_config": 1,
+    "getConfig_exception_confirmed": "Custom Android map build requires an owner-authorized Maps key in the build environment."
+  },
+  "root_cause": "An app.config top-level missing-key guard ran during EAS metadata bootstrap, before EAS fetched cloud variables. JSON-mode logging suppression hid the exception. Not a Windows spawn/Node runtime incompatibility.",
+  "fix": "Require EAS_BUILD=true and EAS_BUILD_PLATFORM=android for the existing profile key guard; retain maps:check and native worker rejection.",
+  "after": {
+    "exact_eas_public_spawn": 0,
+    "exact_eas_project_config_evaluator": 0,
+    "actual_eas_config": 0,
+    "resolved_owner": "abood21s-team",
+    "resolved_project_id": "4b408848-1521-455e-93ec-c04605b59204",
+    "resolved_android_package": "work.nammamove.commuter",
+    "mobile_tests": {
+      "passed": 48,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typecheck": "passed",
+    "lint": "passed",
+    "format": "passed"
+  },
+  "no_signing_credentials_generated": true,
+  "no_credential_management_invoked": true,
+  "no_build_started": true,
+  "private_logs": "Ignored backups only; no raw environment, key, token or resolved private config in public evidence."
+}

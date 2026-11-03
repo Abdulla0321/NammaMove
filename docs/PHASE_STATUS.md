@@ -1,7 +1,7 @@
 # Phase status
-Last verified: 2026-10-27 (Windows local acceptance evidence; no production deployment).
+Last verified: 2026-11-03 (local synthetic automated checks and user-reported custom Android acceptance; no production deployment).
 
-Current result: **Phase 04 commuter client implemented and locally checked: 31 mobile tests, 135 backend tests and 11 genuine mobile-client/Auth/API/OTP integration checks passed. Full Phase 04 acceptance is pending native device, accessibility/localization and security gates.** Phase 00-03 functionality and Phase 02/03 real-data blockers are preserved. See the Phase 04 section below; earlier entries remain historical.
+Current result: **52 mobile tests, 135 backend tests and 11 genuine mobile-client/Auth/API/OTP checks pass. ARM64 custom APK build/install, Google Maps and the main physical walkthrough pass by user report, including signup/sign-in, cache/relaunch/backend-loss behavior, clearing/sign-out, permissions, TalkBack, layout and Kannada/Hindi wording. Full acceptance remains pending dependency security, hosted CI and remaining lifecycle/expiry/backup/email gates.** See [current resume evidence](evidence/phase04-resume-2026-11-03.json).
 
 | Phase | State | Evidence / next gate |
 |---|---|---|
@@ -9,7 +9,7 @@ Current result: **Phase 04 commuter client implemented and locally checked: 31 m
 | 01 Database/backend/security | Accepted locally | 45 passed, zero skipped; real PostGIS migrations/RLS/grants, backup/restore and genuine local Supabase Auth verified |
 | 02 Bengaluru data | Implemented; acceptance pending external gates | Real community BMRCL import/search plus synthetic/PostGIS/Supabase tests; BMTC rights and complete authoritative coverage unresolved |
 | 03 Multimodal routing | Synthetic scope verified locally; real-network acceptance blocked | Actual OTP, genuine Supabase-authenticated routing, 130 passing tests; Phase 02 external gates remain open |
-| 04 Mobile/web | Implemented; full device acceptance pending | Expo commuter app/web status preview, synthetic API integration, client quality gates; native/device/translation/security evidence remains open |
+| 04 Mobile/web | Automated synthetic and main device walkthrough verified; full acceptance pending | 52 mobile/135 backend/11 real-client checks pass; custom APK/Maps and user-reported walkthrough pass; security/CI and remaining lifecycle gates open |
 | 05 Live tracking | Planned | Licensed realtime replay, freshness and privacy tests |
 | 06 Disruption recovery | Planned | Trusted evidence, expiry and aggregate congestion tests |
 | 07 Predictive AI | Planned | Held-out baseline/calibration and drift gates |
@@ -209,3 +209,89 @@ The shared web shell supplies the commuter preview and read-only health status, 
 Manual browser sign-in exposed a gap in the original server-to-server integration: genuine credentials and POST headers worked, but the older local Auth server omitted CORS allowance when preflight requested `apikey`. Added a credential-free exact-origin local gateway config, preserved the previous ignored config, validated it with actual `nginx -t` and reloaded only that gateway. Both localhost preview origins now pass; an untrusted origin receives no allowance; genuine browser-header sign-in returns 200. The TypeScript integration script now includes these preflight assertions. No authentication, issuer or database authorization was bypassed. Full native/visual acceptance remains pending.
 
 Follow-up verification: **11 real TypeScript client integration checks passed**; strict client typecheck and lint passed after the gateway regression addition. The earlier eight-check run remains historical evidence.
+
+
+## Phase 04 acceptance audit - 2026-10-30
+Audit-only changes on `docs/project-prd`; the working tree was clean before this audit. No application source/credentials were changed and no commit/push/merge or Phase 05 work was performed. See [machine-readable audit](evidence/phase04-audit-2026-10-30.json). The 2026-10-27 evidence is retained as historical, not copied forward as a current pass.
+
+- Implemented in code: synthetic four-stop planning, source constraints/preferences, authenticated requests with one refresh/retry, explanations/details, endpoint diagram/optional native map, device-local favorites/recents, consented 24-hour cached journeys, manual origin/foreground permission handling, en/kn/hi translation structure, accessibility labels/loading/empty/error states. Real catalog/live coverage, complete translation, surveyed paths and native acceptance remain incomplete.
+- Mobile: **31 passed, 0 failed, 0 skipped**. Strict TypeScript, ESLint, Expo dependency compatibility, web export and Android Hermes JS export passed. Exports are not APK/AAB or device evidence.
+- Backend: **133 passed, 2 failed, 0 skipped** (135 total). Real PostGIS/OTP tests ran; the two genuine Auth-dependent tests fail while parsing the ignored local acceptance JSON at line 12, column 7, before sign-in. The real TypeScript integration runner also fails at bootstrap, with zero checks executed. Auth/backend/OTP HTTP health each returned 200; health is not proof that the malformed local test fixture works. Credentials and parser source excerpts are excluded from public evidence.
+- Python Ruff lint/format, strict mypy and pip dependency checks passed. Existing Starlette HTTPX deprecation and Alembic geography reflection warnings remain.
+- **Formatting failed in 28 mobile files.** Diagnostic normalization makes 24 pass; `eslint.config.mjs`, `jest.config.cjs`, `scripts/contracts.mjs` and `scripts/integration.mts` still differ beyond line endings. `core.autocrlf=true` and absent tracked line-ending policy contribute to checkout differences. No source reformat was performed.
+- **Byte-exact routing contract check failed.** LF-normalized generated and checked-in contracts match: no semantic API schema drift was found. Fix/review line-ending policy and regenerate/check before submission.
+- Fresh dependency audit: **13 low and 3 high affected-package entries, 0 critical**; security acceptance remains open. This is not a count of independent CVEs.
+- Metro startup succeeded with `NODE_OPTIONS=--dns-result-order=ipv4first` and `expo start --offline --port 8081`: HTTP status and Android manifest returned 200, manifest SDK 55. Initial probe flag misuse was corrected; a default-localhost probe had timed out. Only the temporary Metro server was stopped; backend/Docker were left running. No phone was attached and no emulator was present at the standard SDK path. Native journey selection, storage lifecycle, maps and TalkBack were not verified.
+- **Static finding P04-A01:** `App.tsx` `persist` catches a storage-write error and returns normally; `saveJourney` then replaces that error with a saved-success message. Existing tests cover adapter write failure but do not cover this UI false-success path. Treat reliable offline-save confirmation as incomplete until a focused behavior fix/test passes.
+
+**Decision: full Phase 04 acceptance is not met, and submission quality gates are not all green.** Repair the private JSON without sharing credentials, normalize/review client formatting and contract output, fix the cache-save false-success path, resolve/review dependency findings and complete native/accessibility/locale evidence. Exact Android/USB/emulator instructions are in the [audited launch section](MOBILE.md#phase-04-audit-launch-commands-2026-10-30).
+
+
+## Phase 04 blocker resolution - 2026-10-30
+Continued on recovered `phase/04-mobile-app` (five commits ahead of its tracked remote). Preserved the four prior audit files and their historical results; no branch switch, stash application, commit, push, merge or Phase 05 work. [Follow-up evidence](evidence/phase04-followup-2026-10-30.json) supersedes the initial audit for current checks.
+
+- Repaired accidental non-JSON text and an existing misplaced test credential in ignored local configuration. Retained the original privately and verified the intended credential against genuine Auth before restoring its field. No server password, role, JWT verification or RLS change. Private fixtures/logs remain ignored and untracked.
+- Storage persistence now commits the in-memory library only after a successful write and returns an explicit outcome; offline-save success requires that outcome. Failed save/retry and failed consent writes have component regressions. Existing user-generation checks prevent stale UI success after navigation/user changes.
+- Scoped mobile LF attributes and Prettier formatting remove Windows checkout inconsistencies. Contract generation resolves paths relative to its script, ignores CRLF-only differences and still rejects content drift. Explicit CRLF acceptance and semantic-mutation rejection checks passed; the contract was restored afterwards.
+- Complete typed English/Kannada/Hindi UI dictionaries now cover safety/error/detail/map/date-picker text with interpolation. Tests verify key completeness, placeholders, actual Unicode script characters, missing/blank English fallback and localized screens. Fixture place names/IDs and backend attribution/explanations remain source text. Native-speaker review and native font/TalkBack validation are not established by these tests.
+- Final mobile **38 passed / 0 failed / 0 skipped**. Backend **135 passed / 0 failed / 0 skipped** in 26.762 seconds, including actual disposable PostGIS, genuine Supabase ownership/roles and sealed-fixture OTP checks. All **11 actual TypeScript client checks passed** using a temporary non-owner API and existing real Auth/OTP services; only the temporary API was stopped.
+- Strict TypeScript, ESLint (no warnings), Prettier, routing-contract check, Expo dependency compatibility, Ruff lint/format, strict mypy and pip consistency passed. Web and Android Hermes JS exports passed; neither is an APK/AAB or device install. Git whitespace validation passed.
+- Fresh npm audit remains **13 low / 3 high affected-package entries, 0 critical**. Expo CLI requires Zod 3.25.76; app validation uses patched Zod 4.6.7. Deepmerge 4.3.1 has no published patched version. No compatible advisory fix is currently available in these chains; no forced major overrides/downgrades, suppression or lockfile churn was applied. See [advisories and scope](MOBILE.md#dependency-review-2026-10-30).
+- ADB is available but reports **zero attached devices**. Native install/startup, secure-storage/relaunch/sign-out/backup/offline lifecycle, permission behavior, TalkBack/large fonts/keyboard/rotation and optional basemap remain unverified. Signup email/deep links and hosted CI also remain open. Existing BMTC rights and authoritative real Bengaluru coverage blockers remain unchanged.
+
+**Acceptance: automated local synthetic engineering gates pass; full Phase 04 acceptance remains unmet.** Complete native/manual acceptance and review unresolved dependency findings before submission as accepted/release-ready. Use the exact [USB/emulator instructions](MOBILE.md#phase-04-audit-launch-commands-2026-10-30). No live Bengaluru coverage or Phase 05 functionality is claimed.
+
+
+## Phase 04 physical map follow-up - 2026-10-31
+User-reported physical passes: authentication, synthetic A-D planning/alternatives/details and simulated-data labeling; map failed. One authorized phone runs Expo Go 55.0.7 and Google Play Services. Actual logs show no captured map authorization error/fatal crash, but do not verify tiles. Fixed a confirmed app gate incorrectly requiring a project Google Maps key in Expo Go. Retained consent and the approximate endpoint-only fallback; custom binaries retain the build-time key requirement. Added explicit map width, localized fallback guidance and focused runtime/component regressions.
+
+**45 mobile tests passed / 0 failed / 0 skipped**, with TypeScript, ESLint, Prettier, schema contract check, SDK dependency compatibility and Android Hermes JS export passing. Backend untouched; the preceding 135-pass backend result remains historical. See [map evidence](evidence/phase04-map-2026-10-31.json) and [exact phone retest](MOBILE.md#exact-usb-retest). The cause of any separate blank-Google-tile symptom is unverified until the fixed screen is retested. Native basemap acceptance, other native/human/security gates and real-source blockers remain open. Existing changes preserved; no commit, push, merge, branch switch or Phase 05.
+
+
+### Confirmed blank-map cause - 2026-10-31
+After opening the fixed basemap control, the user screenshot shows a blank Google-logo map. Fresh connected-device logs explicitly report **Google Android Maps SDK: Authorization failure**, identifying the host application as `host.exp.exponent` (Expo Go). The renderer initializes, but its native Maps authorization is rejected. No Maps key or raw log is included in public evidence. This verifies the visibility fix and establishes a separate actual provider-authorization blocker; coordinate/GPS permission changes are not a supported remedy.
+
+The project cannot replace Expo Go's embedded Maps key through a JavaScript environment variable. Use an upstream repaired compatible Expo Go client, or a custom development build with an authorized Maps SDK for Android key restricted to the actual package/signing SHA-1, native rebuild and reinstall. Google project/key provisioning is owner-controlled; none was created or changed here. Keep the endpoint diagram as the available fallback, and do not mark physical map acceptance passed. No app code or tests changed in this diagnostic-only follow-up; the preceding 45 passing mobile tests do not prove tile authorization. See [map evidence](evidence/phase04-map-2026-10-31.json).
+
+
+### Phase 04 custom map development build preparation - 2026-10-31
+Prepared the documented react-native-maps plugin, expo-dev-client dependency, development-only EAS APK profile and sanitized configuration preflight; signing/private credential files and generated native projects are ignored. No Maps key, local signing certificate, Android SDK or cloud authorization was verified available. Actual Google project ownership/key/API/billing settings and development signing SHA-1 require manual owner configuration. Both ordinary key presence and guarded missing-key configuration checks correctly block the current environment. Existing 45 mobile regressions/static checks remain passing; Expo Go/fallback defaults are preserved. No key, billing action, EAS project/account link or signing credential was created, and no build/upload/install was started. See [exact owner steps](ANDROID_MAPS_DEVELOPMENT_BUILD.md). The physical map acceptance blocker remains open.
+
+
+## Phase 04 pre-build blocker measures - 2026-11-01
+The user authorized the next environment/upload measures after the read-only audit. Preserved the existing private Maps key and appended the documented USB-only API/Auth/public-gateway settings to the ignored mobile environment. Created the four previously missing EAS development variables; the Maps key is Sensitive and the three public values are Plain text. Existing cloud values were not overwritten. Fresh remote verification and cloud-only EAS config (inherited public values removed) pass; the Maps plugin receives the same key without printing it. No new Google key, billing action or signing credential was created.
+
+Created root [.easignore](../.easignore) with all existing Git private/cache/signing protections plus unrelated backend/docs/legacy frontend exclusions. EAS's Windows copy filter receives directory names without a trailing slash; directory-only ignore patterns did not prevent an unreadable cache from being opened. Added equivalent plain directory-name patterns, then successfully ran the actual EAS filtered-copy function into a temporary directory: 46 app/workspace files, required source/manifests/lockfile retained, no private key/environment/signing/backups/caches/Git or unrelated sources. No cache was deleted or granted new permissions, no Git clone/history mutation occurred and no archive was uploaded.
+
+Local maps:check passes. Mobile **48 passed / 0 failed / 0 skipped**; TypeScript, lint and formatting pass. API/Auth loopback values are for USB-only development and require the phone's reverse ports 8000, 54321 and Metro 8081 plus running backend/Auth/OTP. They are not hosted services and were not claimed reachable in this configuration-only step. Google Maps SDK enablement/approved billing and package/signing SHA-1 restrictions still require owner confirmation; actual installed APK tile behavior remains unverified. Existing security/native/human acceptance gates remain open.
+
+No build, commit, push, merge or Phase 05 work. [Sanitized preparation evidence](evidence/phase04-prebuild-preparation-2026-11-01.json) records the changes.
+
+
+## Phase 04 resume verification - 2026-11-03
+
+Fresh local checks: 48 mobile tests and 135 backend tests passed with zero failures/skips; the full backend run included a new disposable PostGIS database (removed afterwards), genuine local Supabase and sealed synthetic OTP. All 11 actual mobile-client/API integration checks passed after OTP warmup. TypeScript, ESLint, Prettier, contracts, Ruff lint/format and mypy passed. Generated Android/iOS directories are now excluded from Prettier; eas.json was formatted. Existing source changes and Git history were preserved.
+
+This chat contains user evidence of a successful ARM64 debug APK build/install and Google Maps tiles/markers on the installed custom app. This closes those specific historical blockers, not all native acceptance. Restored the existing local services, PostgreSQL-before-Auth startup ordering, IPv4 Metro binding and USB forwards on 8000/54321/8081. No credentials changed and no application database migration was run.
+
+Current phone sign-in/signup, native storage/offline/relaunch/sign-out behavior, TalkBack/font/keyboard/rotation, human language review, hosted CI and security disposition remain pending. Full Phase 04 acceptance is not yet met; Phase 05 remains unstarted. See evidence/phase04-resume-2026-11-03.json.
+
+
+### Device health-status follow-up - 2026-11-03
+
+User confirms custom app launch. Screenshots show signed-in Plan/Settings/Saved and recent A-D/A-C entries; offline consent is off, so offline persistence is not established. Phone planning requests reach the API with HTTP 200 and server readiness returns 200. Replaced health-only AbortSignal.timeout with the AbortController/timer mechanism already used by planning; missing static API, HTTP failure and stalled-request regressions now pass. Mobile 52 passed/0 failed/0 skipped, TypeScript and lint pass; device Service status retest pending. Fresh official npm bulk advisories identify zod, minimatch, glob and deepmerge package names in the lockfile; remediation/security acceptance remains open. No forced dependency upgrade, audit suppression or completion claim.
+
+
+### Physical acceptance walkthrough - 2026-11-03
+
+User reports passes on the installed custom Android app: cached journey survives relaunch and details open; health now reports backend ready; removing only API USB forwarding leaves cached details readable and reports backend unavailable; sign-out clearing removes cached journeys and recent entries after re-login; denied location retains manual planning; Android Back works; largest device font, keyboard and landscape remain usable. Exact font scale was not measured. These are user-observed checks, not instrumented certification, and API-only disconnection does not establish fully disconnected cold-start behavior. TalkBack, native language review, signup email/deep links, backup/expiry, security and hosted-CI gates remain open. See updated resume evidence.
+
+
+### Additional physical acceptance - 2026-11-03
+
+User reports TalkBack walkthrough, Kannada/Hindi glyph/layout/navigation, and Clear saved data with continued signed-in planning pass. Natural translation quality remains unconfirmed; display success is not native-speaker review. Security/hosted CI and other unverified gates remain open as listed in resume evidence.
+
+
+### Auth and translation confirmation - 2026-11-03
+
+User confirms new-account signup/sign-in and natural accurate Kannada/Hindi wording both pass. This does not independently verify email/deep-link delivery. Completed npm audit reports 6 low/47 moderate/3 high affected-package entries and zero critical; its suggested Expo major upgrade and ESLint downgrade are not applied. Remaining CI, security and native backup/expiry gates stay explicit in resume evidence.

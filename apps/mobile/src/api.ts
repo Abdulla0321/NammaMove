@@ -63,14 +63,18 @@ export function apiClient(
       throw new ClientError('unauthorized');
     },
     async health(): Promise<boolean> {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
       try {
         const response = await fetcher(`${base}/health/ready`, {
-          signal: AbortSignal.timeout(5000),
+          signal: controller.signal,
           redirect: 'error',
         });
         return response.ok;
       } catch {
         return false;
+      } finally {
+        clearTimeout(timer);
       }
     },
   };

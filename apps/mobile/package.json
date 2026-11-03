@@ -4,8 +4,8 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
+    "start": "expo start --go",
+    "android": "expo start --go --android",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -15,13 +15,16 @@
     "build": "expo export --platform web",
     "build:android": "expo export --platform android --output-dir dist-android",
     "contracts": "node scripts/contracts.mjs",
-    "integration": "node --import tsx scripts/integration.mts"
+    "integration": "node --import tsx scripts/integration.mts",
+    "maps:check": "node scripts/maps-preflight.mjs",
+    "start:dev-client": "expo start --dev-client"
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.12",
     "@react-native-community/datetimepicker": "8.6.0",
     "@supabase/supabase-js": "^2.118.0",
     "expo": "~55.0.32",
+    "expo-dev-client": "~55.0.41",
     "expo-location": "~55.1.15",
     "expo-secure-store": "~55.0.18",
     "expo-status-bar": "~55.0.6",

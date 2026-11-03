@@ -11,7 +11,15 @@ if (!file || !base)
         'Set ignored Auth config and actual local API URL; no mocks or skip substitution.',
     );
 assert(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
-const config = JSON.parse(readFileSync(file, 'utf8')) as {
+let parsed: unknown;
+try {
+    parsed = JSON.parse(readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+} catch {
+    throw new Error(
+        'Local Auth test configuration is unreadable or invalid JSON; repair it privately.',
+    );
+}
+const config = parsed as {
     supabase_url: string;
     users: { email: string; password: string }[];
 };
