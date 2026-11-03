@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -88,7 +88,7 @@ export default function App({
 
 export function CommuterApp({ services }: { services: Services }) {
   const [language, setLanguage] = useState<Language>('en');
-  const t = translator(language);
+  const t = useMemo(() => translator(language), [language]);
   const { width } = useWindowDimensions();
   const [onboarded, setOnboarded] = useState(false);
   const [ready, setReady] = useState(false);
@@ -175,12 +175,12 @@ export function CommuterApp({ services }: { services: Services }) {
           }
         })
         .catch(() => {
-          if (active) setMessage('Could not read encrypted device storage.');
+          if (active) setMessage(t('storageReadFailed'));
         });
     return () => {
       active = false;
     };
-  }, [session, services]);
+  }, [session, services, t]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -209,17 +209,18 @@ export function CommuterApp({ services }: { services: Services }) {
   }, [detail, result, picker, tab]);
 
   async function persist(next: Library) {
-    if (!session || !libraryReady) return;
-    setLibrary(next);
+    if (!session || !libraryReady) return false;
+    const userId = session.userId;
+    const current = generation.current;
     try {
-      await services.store.setItem(
-        libraryKey(session.userId),
-        JSON.stringify(next),
-      );
+      await services.store.setItem(libraryKey(userId), JSON.stringify(next));
+      if (current !== generation.current || sessionUser.current !== userId)
+        return false;
+      setLibrary(next);
+      return true;
     } catch {
-      setMessage(
-        'Could not save encrypted device data. Free storage and retry.',
-      );
+      if (current === generation.current) setMessage(t('storageSaveFailed'));
+      return false;
     }
   }
   async function authenticate(signUp = false) {
@@ -229,21 +230,18 @@ export function CommuterApp({ services }: { services: Services }) {
       !password ||
       (signUp && password.length < 8)
     ) {
-      setMessage(
-        'Enter a valid email and password (8+ characters for a new account).',
-      );
+      setMessage(t('authValidation'));
       return;
     }
     setBusy(true);
     try {
       if (signUp) {
         const signedIn = await services.auth.signUp(email.trim(), password);
-        if (!signedIn)
-          setMessage('Check your email to confirm your account, then sign in.');
+        if (!signedIn) setMessage(t('confirmEmail'));
       } else await services.auth.signIn(email.trim(), password);
       setPassword('');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : t('offline'));
+    } catch {
+      setMessage(t(signUp ? 'signUpFailed' : 'signInFailed'));
     } finally {
       setBusy(false);
     }
@@ -329,18 +327,18 @@ export function CommuterApp({ services }: { services: Services }) {
       setMessage(t('cacheNotice'));
       return;
     }
-    await persist(
+    const saved = await persist(
       cacheJourney(library, {
         savedAt: new Date().toISOString(),
         request: result.request,
         response: result.response,
       }),
     );
-    setMessage(t('remember'));
+    if (saved) setMessage(t('remember'));
   }
   function openCached(item: CachedJourney) {
     if (!cacheValid(item.savedAt)) {
-      setMessage('This cached journey has expired. Reconnect and plan again.');
+      setMessage(t('cacheExpired'));
       return;
     }
     setResult({ ...item });
@@ -380,23 +378,20 @@ export function CommuterApp({ services }: { services: Services }) {
       >
         {!ready ? (
           <ActivityIndicator
-            accessibilityLabel="Restoring session"
+            accessibilityLabel={t('restoring')}
             color={colors.green}
           />
         ) : !onboarded ? (
           <>
-            <Text style={styles.eyebrow}>BENGALURU / COMMUTER PREVIEW</Text>
+            <Text style={styles.eyebrow}>{t('preview')}</Text>
             <Text accessibilityRole="header" style={styles.title}>
               {t('welcome')}
             </Text>
             <Text style={styles.body}>{t('intro')}</Text>
             <View style={styles.card}>
-              <Text style={styles.heading}>One journey. Clear choices.</Text>
-              <Text style={styles.body}>Bus + Metro + Walk</Text>
-              <Text style={styles.muted}>
-                No background location collection. Missing GPS never confirms
-                cancellation.
-              </Text>
+              <Text style={styles.heading}>{t('clearChoices')}</Text>
+              <Text style={styles.body}>{t('modesSummary')}</Text>
+              <Text style={styles.muted}>{t('gpsNotice')}</Text>
             </View>
             <View style={styles.row}>
               {(['en', 'kn', 'hi'] as const).map((lang) => (
@@ -414,9 +409,7 @@ export function CommuterApp({ services }: { services: Services }) {
                 setOnboarded(true);
                 void services.store
                   .setItem('nammamove.onboarded', 'yes')
-                  .catch(() =>
-                    setMessage('Onboarding preference could not be saved.'),
-                  );
+                  .catch(() => setMessage(t('onboardSaveFailed')));
               }}
             />
           </>
@@ -425,10 +418,7 @@ export function CommuterApp({ services }: { services: Services }) {
             <Text accessibilityRole="header" style={styles.title}>
               {t('signIn')}
             </Text>
-            <Text style={styles.body}>
-              Use your Supabase account. Your password is sent only to your
-              configured Auth provider.
-            </Text>
+            <Text style={styles.body}>{t('authNotice')}</Text>
             <Field
               label={t('email')}
               value={email}
@@ -488,13 +478,7 @@ export function CommuterApp({ services }: { services: Services }) {
               />
               <Text style={[styles.body, { flex: 1 }]}>{t('cache')}</Text>
             </View>
-            {Platform.OS === 'web' && (
-              <Notice>
-                Web preview uses memory only: sessions and saved data are
-                cleared on reload. Persistent encrypted offline storage is
-                native-only.
-              </Notice>
-            )}
+            {Platform.OS === 'web' && <Notice>{t('webMemory')}</Notice>}
             <Button
               title={t('clear')}
               secondary
@@ -508,9 +492,7 @@ export function CommuterApp({ services }: { services: Services }) {
                   .health()
                   .then((ok) =>
                     setServiceStatus(
-                      ok
-                        ? 'Backend ready · OTP availability requires a journey request'
-                        : 'Backend unavailable',
+                      ok ? t('backendReady') : t('backendUnavailable'),
                     ),
                   );
               }}
@@ -532,9 +514,7 @@ export function CommuterApp({ services }: { services: Services }) {
                       setLibrary(emptyLibrary());
                       setResult(null);
                     })
-                    .catch(() =>
-                      setMessage('Could not clear this session. Retry.'),
-                    );
+                    .catch(() => setMessage(t('signOutFailed')));
               }}
             />
           </>
@@ -559,7 +539,7 @@ export function CommuterApp({ services }: { services: Services }) {
                   }}
                 />
                 <Button
-                  title={`Remove ${place.name}`}
+                  title={t('remove', { place: place.name })}
                   secondary
                   onPress={() =>
                     void persist({
@@ -591,10 +571,14 @@ export function CommuterApp({ services }: { services: Services }) {
                 <View key={i} style={styles.card}>
                   <Text style={styles.label}>{t('stale')}</Text>
                   <Text style={styles.muted}>
-                    Saved {new Date(item.savedAt).toLocaleString()}
+                    {t('savedAt', {
+                      date: new Date(item.savedAt).toLocaleString(
+                        language === 'en' ? 'en-IN' : `${language}-IN`,
+                      ),
+                    })}
                   </Text>
                   <Button
-                    title={`Open cached journey ${i + 1}`}
+                    title={t('openCached', { number: i + 1 })}
                     secondary
                     onPress={() => openCached(item)}
                   />
@@ -616,7 +600,7 @@ export function CommuterApp({ services }: { services: Services }) {
                 {t('stale')} · {result.savedAt}
               </Notice>
             )}
-            <RouteMap itinerary={detail} enabled={services.mapEnabled} />
+            <RouteMap itinerary={detail} enabled={services.mapEnabled} t={t} />
             <Text style={styles.body}>{t('timing')}</Text>
             {detail.legs.map((leg, i) => (
               <View key={i} style={styles.card}>
@@ -633,8 +617,14 @@ export function CommuterApp({ services }: { services: Services }) {
                 </Text>
                 <Text style={styles.muted}>
                   {leg.mode === 'WALK'
-                    ? `Walk approximately ${Math.round(leg.distance_m)} m between the listed endpoints.`
-                    : `Board ${leg.route_id ?? leg.mode}; trip ${leg.trip_id ?? 'unavailable'}, direction ${leg.direction_id ?? 'unknown'}. Alight at the listed endpoint.`}
+                    ? t('walkInstruction', {
+                        distance: Math.round(leg.distance_m),
+                      })
+                    : t('boardInstruction', {
+                        route: leg.route_id ?? leg.mode,
+                        trip: leg.trip_id ?? t('unavailable'),
+                        direction: leg.direction_id ?? t('unknown'),
+                      })}
                 </Text>
                 <Text style={styles.muted}>
                   {leg.from_lat.toFixed(4)}, {leg.from_lon.toFixed(4)} →{' '}
@@ -647,10 +637,7 @@ export function CommuterApp({ services }: { services: Services }) {
                 {explanation}
               </Text>
             ))}
-            <Notice>
-              Source accessibility is static; live lifts and vehicle positions
-              are unavailable. Do not use this invented network for travel.
-            </Notice>
+            <Notice>{t('accessibilityNotice')}</Notice>
           </>
         ) : result ? (
           <>
@@ -668,8 +655,12 @@ export function CommuterApp({ services }: { services: Services }) {
               </Notice>
             )}
             <Text style={styles.muted}>
-              Ranking: {result.response.preference}. Bounded candidates; no
-              global optimum guarantee. All times IST.
+              {t('ranking', {
+                preference: t(
+                  preferences.find((p) => p === result.response.preference) ??
+                    preference,
+                ),
+              })}
             </Text>
             {result.response.status === 'no_route' ? (
               <Notice>{t('noRoute')}</Notice>
@@ -677,25 +668,37 @@ export function CommuterApp({ services }: { services: Services }) {
               result.response.itineraries.map((journey, i) => (
                 <View key={i} style={styles.card}>
                   <Text style={styles.eyebrow}>
-                    {i === 0 ? 'FIRST FOR YOUR PREFERENCE' : 'ALTERNATIVE'} ·
-                    SIMULATION
+                    {i === 0 ? t('firstPreference') : t('alternative')} ·{' '}
+                    {t('simulation')}
                   </Text>
                   <Text style={styles.heading}>
-                    {Math.round(journey.duration_seconds / 60)} min ·{' '}
+                    {Math.round(journey.duration_seconds / 60)} {t('minutes')} ·{' '}
                     {time(journey.start)}–{time(journey.end)}
                   </Text>
                   <Text style={styles.body}>
-                    {journey.legs.map((leg) => leg.mode).join(' → ')}
+                    {journey.legs
+                      .map((leg) =>
+                        t(
+                          leg.mode === 'BUS'
+                            ? 'bus'
+                            : leg.mode === 'WALK'
+                              ? 'walk'
+                              : 'metro',
+                        ),
+                      )
+                      .join(' → ')}
                   </Text>
                   <Text style={styles.body}>
                     {journey.fare_inr === null
                       ? t('unknownFare')
-                      : `₹${journey.fare_inr} · synthetic fare`}{' '}
+                      : `₹${journey.fare_inr} · ${t('syntheticFare')}`}{' '}
                     · {journey.transfers} {t('transfers')}
                   </Text>
                   <Text style={styles.muted}>
-                    {t('walking')}: {Math.round(journey.walking_m)} m · Initial
-                    wait: {Math.round(journey.initial_wait_seconds / 60)} min
+                    {t('walking')}: {Math.round(journey.walking_m)}{' '}
+                    {t('metres')} · {t('initialWait')}:{' '}
+                    {Math.round(journey.initial_wait_seconds / 60)}{' '}
+                    {t('minutes')}
                   </Text>
                   <Button
                     title={`${t('detail')} ${i + 1}`}
@@ -741,15 +744,12 @@ export function CommuterApp({ services }: { services: Services }) {
               />
             ))}
             {!searchPlaces(search).length && (
-              <Text style={styles.body}>
-                No matching synthetic stop. Only authored stops A–D are
-                available.
-              </Text>
+              <Text style={styles.body}>{t('noMatchingStop')}</Text>
             )}
           </>
         ) : (
           <>
-            <Text style={styles.eyebrow}>YOUR NEXT JOURNEY</Text>
+            <Text style={styles.eyebrow}>{t('nextJourney')}</Text>
             <Text accessibilityRole="header" style={styles.title}>
               {t('welcome')}
             </Text>
@@ -784,12 +784,13 @@ export function CommuterApp({ services }: { services: Services }) {
                   onPress={() => setArriveBy(true)}
                 />
               </View>
-              <TimePicker value={when} onChange={setWhen} label={t('when')} />
-              <Text style={styles.muted}>
-                Fixture example: 26 Oct 2026, 07:55 IST. Date 27 Oct has no
-                daytime service by design. Native picker uses your device
-                timezone; results show IST.
-              </Text>
+              <TimePicker
+                value={when}
+                onChange={setWhen}
+                label={t('when')}
+                t={t}
+              />
+              <Text style={styles.muted}>{t('fixtureExample')}</Text>
             </View>
             <Text accessibilityRole="header" style={styles.heading}>
               {t('network')}
@@ -874,18 +875,17 @@ export function CommuterApp({ services }: { services: Services }) {
             {nearby?.map((place) => (
               <Button
                 key={place.id}
-                title={`${place.name} · approximately ${Math.round(place.distance)} m straight-line`}
+                title={t('nearbyDistance', {
+                  place: place.name,
+                  distance: Math.round(place.distance),
+                })}
                 secondary
                 onPress={() =>
                   setOrigin(fixtureStops.find((stop) => stop.id === place.id)!)
                 }
               />
             ))}
-            <Notice>
-              Only the four authored stops A–D are searchable. Nearby results
-              are synthetic endpoints, not real transport availability. Location
-              is used once, in memory, after permission.
-            </Notice>
+            <Notice>{t('nearbyNotice')}</Notice>
           </>
         )}
         {busy && (

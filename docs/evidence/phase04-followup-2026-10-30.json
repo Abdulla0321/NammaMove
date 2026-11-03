@@ -1,0 +1,239 @@
+{
+  "verification_date": "2026-10-30",
+  "branch": "phase/04-mobile-app",
+  "base_commit": "a7278aaabc999831c26d001a9c7bbd6fbc0c534a",
+  "scope": "Phase 04 blocker fixes on existing branch; no Phase 05, commit, push, merge, switch or stash application.",
+  "previous_audit": "phase04-audit-2026-10-30.json",
+  "checks": {
+    "backend_tests": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_lint": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_format": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_types": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_dependencies": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_tests": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_types": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_lint": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_format": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "routing_contracts": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "expo_compatibility": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "web_export": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "android_js_export": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "git_whitespace": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "private_credential_scan": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "documentation_relative_links": {
+      "exit_code": 0,
+      "status": "passed"
+    }
+  },
+  "mobile_tests": {
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0
+  },
+  "backend_tests": {
+    "passed": 135,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 26.762,
+    "real_postgis_supabase_otp": true
+  },
+  "real_client_integration": {
+    "exit_code": 0,
+    "passed": 11,
+    "genuine_auth_otp": true,
+    "temporary_api_stopped": true
+  },
+  "contract_behavior": {
+    "CRLF_checkout_accepted": true,
+    "semantic_drift_rejected": true
+  },
+  "resolved_findings": [
+    {
+      "id": "P04-A01",
+      "result": "Durable storage completes before state/success update; failure and retry plus rejected consent covered by component tests."
+    },
+    {
+      "id": "P04-A02",
+      "result": "Scoped mobile LF policy and reviewed Prettier formatting. CRLF-equivalent contract accepted; semantic mutation rejected. No semantic backend schema change."
+    },
+    {
+      "id": "P04-A03",
+      "result": "Accidental text and misplaced existing credential repaired in ignored local JSON; original retained privately. All three existing Auth accounts authenticate without server/role changes. Integration parser errors now omit private source excerpts."
+    }
+  ],
+  "localization": {
+    "languages": [
+      "en",
+      "kn",
+      "hi"
+    ],
+    "complete_typed_dictionaries": true,
+    "missing_blank_fallback_tests": true,
+    "placeholder_unicode_tests": true,
+    "localized_component_tests": true,
+    "provider_source_text": "Fixture names, IDs, backend attribution/explanations remain source text; not claimed translated.",
+    "native_speaker_and_device_review_verified": false,
+    "keys_per_language": 106
+  },
+  "dependency_review": {
+    "counts": {
+      "info": 0,
+      "low": 13,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 16
+    },
+    "audit_exit_code": 1,
+    "status": "unresolved",
+    "safe_compatible_fix_available": false,
+    "findings": [
+      {
+        "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+        "package": "zod",
+        "installed_cli_version": "3.25.76",
+        "application_version": "4.6.7",
+        "patched_version": "4.6.6",
+        "limitation": "Expo CLI requires Zod 3; replacing it with Zod 4 or downgrading Expo is not a compatible fix."
+      },
+      {
+        "advisory": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4",
+        "package": "deepmerge",
+        "installed_version": "4.3.1",
+        "patched_version": null,
+        "limitation": "No published patched version; Expo/Jest dependency chain remains affected."
+      }
+    ],
+    "changes": "No unsafe overrides, audit suppression, forced SDK changes or unnecessary lockfile churn."
+  },
+  "build_scope": "Web and Android Hermes JavaScript exports only; no APK/AAB compilation or native install evidence.",
+  "android": {
+    "adb_available": true,
+    "native_end_to_end_verified": false,
+    "APK_AAB_build_verified": false,
+    "required_expo_sdk": "55",
+    "authorized_devices": 0
+  },
+  "unresolved": [
+    "Native device/emulator smoke, secure-storage lifecycle, TalkBack/large-font/keyboard/rotation and optional basemap verification",
+    "Native-speaker Kannada/Hindi review and device font rendering",
+    "Dependency advisories",
+    "Signup email/deep links",
+    "Hosted CI",
+    "Phase 02 source rights and authoritative real Bengaluru coverage"
+  ],
+  "full_phase04_acceptance": false,
+  "lockfile_sha256": "81c728bca1582074eaba8cf0dafe3a0fe1d0abf94c3c07f6cdc42fe71ea36310",
+  "contract_sha256": "58eaf318d3e919519183130ea9ed1e5e63128f27f34b7312b25b0ff062399c6a",
+  "privacy": "No credentials, private fixture content or raw service logs included. Local backups and detailed test logs remain ignored.",
+  "changed_files": [
+    ".gitattributes",
+    "apps/mobile/.env.example",
+    "apps/mobile/.prettierignore",
+    "apps/mobile/.prettierrc.json",
+    "apps/mobile/App.tsx",
+    "apps/mobile/__tests__/core.test.ts",
+    "apps/mobile/__tests__/fixtures/plan.json",
+    "apps/mobile/__tests__/i18n.test.ts",
+    "apps/mobile/__tests__/screens.test.tsx",
+    "apps/mobile/app.config.ts",
+    "apps/mobile/eslint.config.mjs",
+    "apps/mobile/index.ts",
+    "apps/mobile/jest.config.cjs",
+    "apps/mobile/jest.setup.ts",
+    "apps/mobile/package.json",
+    "apps/mobile/scripts/contracts.mjs",
+    "apps/mobile/scripts/integration.mts",
+    "apps/mobile/src/MapFallback.tsx",
+    "apps/mobile/src/RouteMap.native.tsx",
+    "apps/mobile/src/RouteMap.tsx",
+    "apps/mobile/src/StopDiagram.tsx",
+    "apps/mobile/src/TimePicker.tsx",
+    "apps/mobile/src/api.ts",
+    "apps/mobile/src/fixtures.ts",
+    "apps/mobile/src/generated/api.ts",
+    "apps/mobile/src/i18n.ts",
+    "apps/mobile/src/library.ts",
+    "apps/mobile/src/services.ts",
+    "apps/mobile/src/storage.ts",
+    "apps/mobile/src/types.ts",
+    "apps/mobile/src/ui.tsx",
+    "apps/mobile/src/validation.ts",
+    "apps/mobile/tsconfig.json",
+    "docs/DECISIONS.md",
+    "docs/FEATURE_MATRIX.md",
+    "docs/MOBILE.md",
+    "docs/PHASE_STATUS.md",
+    "docs/evidence/phase04-audit-2026-10-30.json",
+    "docs/evidence/phase04-followup-2026-10-30.json",
+    "docs/phases/PHASE_04.md"
+  ],
+  "line_ending_only_files": [
+    "apps/mobile/.env.example",
+    "apps/mobile/.prettierignore",
+    "apps/mobile/__tests__/fixtures/plan.json",
+    "apps/mobile/app.config.ts",
+    "apps/mobile/eslint.config.mjs",
+    "apps/mobile/index.ts",
+    "apps/mobile/jest.config.cjs",
+    "apps/mobile/jest.setup.ts",
+    "apps/mobile/package.json",
+    "apps/mobile/src/RouteMap.tsx",
+    "apps/mobile/src/api.ts",
+    "apps/mobile/src/fixtures.ts",
+    "apps/mobile/src/generated/api.ts",
+    "apps/mobile/src/library.ts",
+    "apps/mobile/src/services.ts",
+    "apps/mobile/src/storage.ts",
+    "apps/mobile/src/types.ts",
+    "apps/mobile/src/ui.tsx",
+    "apps/mobile/src/validation.ts",
+    "apps/mobile/tsconfig.json"
+  ]
+}

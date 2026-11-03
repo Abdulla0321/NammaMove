@@ -65,3 +65,7 @@ Use Supabase public-client auth only, encrypted native SecureStore sessions and 
 
 ## ADR-021 - Evidence-scoped Phase 04 acceptance
 Component accessibility/width/font-scale assertions and web/Android JavaScript exports are not proof of native installation, TalkBack or real basemap behavior. Require physical/emulator end-to-end validation and full locale translation before full acceptance. Retain Phase 02 data-rights/coverage blockers and Phase 03 candidate-ranking limitations. Record the unresolved upstream Expo CLI/Zod advisory; do not force an incompatible SDK downgrade or claim a clean security audit. No Phase 05 work is authorized by these client interfaces.
+
+
+## ADR-022 - Durable client confirmation and portable contract checks (Phase 04 follow-up)
+Update library state and show offline-save success only after the storage adapter resolves successfully. Rejected writes retain prior visible data/consent and report a translated error; generation/user checks suppress stale UI confirmations. Test failure/retry at the component boundary. Scope LF attributes/Prettier to the mobile workspace and compare generated routing contracts after CRLF normalization, preserving semantic drift rejection. Resolve generator paths from the script location. Complete typed locale dictionaries and test missing/blank fallback, interpolation, Unicode and localized screens; source provider text remains attributable and native-speaker/device review stays explicit. No incompatible dependency-major override is accepted merely to remove an audit finding.

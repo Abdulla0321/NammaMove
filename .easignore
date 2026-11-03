@@ -1,0 +1,80 @@
+# EAS uses this file instead of .gitignore; keep the protections below in sync.
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.venv/
+node_modules/
+.expo/
+dist/
+*.py[cod]
+.DS_Store
+
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.pem
+*.key
+*.p12
+*.pfx
+.envrc
+.idea/
+.vscode/
+
+# Private databases, backups and diagnostic output
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.log
+backups/
+
+# Expo platform exports and client coverage
+dist-android/
+coverage/
+
+# Android signing credentials and generated Expo native projects
+*.jks
+*.keystore
+credentials.json
+apps/mobile/android/
+apps/mobile/ios/
+
+# APK upload: omit Git internals and unrelated backend/docs/legacy web sources.
+.git/
+/backend/
+/docs/
+/frontend/
+/.github/
+/AGENTS.md
+/alembic.ini
+/pyproject.toml
+/compose*.yaml
+/.dockerignore
+
+# Windows fs.cp tests directory paths without a trailing slash. Match them before descent.
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.venv
+.expo
+.vscode
+backups
+dist
+dist-android
+coverage
+/apps/mobile/android
+/apps/mobile/ios
+/backend
+/docs
+/frontend
+/.github
+
+# Installable Android build artifacts
+*.apk
+*.aab

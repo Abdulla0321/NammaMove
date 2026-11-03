@@ -35,3 +35,14 @@ backups/
 # Expo platform exports and client coverage
 dist-android/
 coverage/
+
+# Android signing credentials and generated Expo native projects
+*.jks
+*.keystore
+credentials.json
+apps/mobile/android/
+apps/mobile/ios/
+
+# Installable Android build artifacts
+*.apk
+*.aab

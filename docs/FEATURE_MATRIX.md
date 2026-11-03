@@ -21,8 +21,8 @@ Implemented refers to local demo behavior, not production readiness.
 | Departure/arrival-time and journey preferences | Implemented over bounded candidates; no global optimum or real agency schedule claim | 03 |
 | Graph build/versioning/rollback | Pinned image/platform, canonical inputs, source/graph hashes, real build/load and explicit rollback verified | 03 |
 | Routing faults and bounded-load target | Real outage/recovery plus four-concurrent-request authenticated fixture benchmark; production/city-load gates open | 03 |
-| Expo mobile and React web preview/status shell | Implemented; Android/web JS exports and genuine API-client checks passed; native device gates pending | 04 |
-| Offline/manual origin, favorites, languages | Native encrypted consented cache, manual origin, saved places/recents; en/kn/hi fallback architecture tested; device/full translation pending | 04 |
+| Expo mobile and React web preview/status shell | Implemented; Android/web JS exports and genuine API-client checks passed; custom ARM64 APK/Maps and main user-reported device walkthrough pass; remaining acceptance gates pending | 04 |
+| Offline/manual origin, favorites, languages | Native encrypted consented cache, manual origin, saved places/recents; complete en/kn/hi app-owned strings and fallback/localized-screen tests; durable-save failure/retry verified; user confirms main device walkthrough and Kannada/Hindi wording; remaining lifecycle gates pending | 04 |
 | Live tracking and notifications | Planned | 05 |
 | Trusted reports, recovery, congestion control | Planned | 06 |
 | Predictive reliability/ETA ranges | Planned | 07 |
@@ -35,4 +35,9 @@ Phase 01 also implements private-schema RLS/grant definitions, commuter preferen
 
 Latest [Phase 02 acceptance audit](PHASE_02_ACCEPTANCE_AUDIT.md): **87 tests passed, zero skipped**. [Source registry](DATA_SOURCES.md) and [coverage JSON](evidence/phase02-network-coverage.json) record evidence and gaps. Synthetic fallback is limited to pipeline validation and does not satisfy real-provider acceptance.
 
-Phase 03 is user-authorized synthetic development only; [local acceptance scope](phases/PHASE_03.md) and [routing runbook](ROUTING.md) preserve all Phase 02 source/coverage blockers. Phase 04 client engineering is implemented on that synthetic scope; full native device/localization acceptance remains pending. See [mobile runbook](MOBILE.md).
+Phase 03 is user-authorized synthetic development only; [local acceptance scope](phases/PHASE_03.md) and [routing runbook](ROUTING.md) preserve all Phase 02 source/coverage blockers. Phase 04 client engineering is implemented on that synthetic scope; main device/human language walkthrough passes by user report; security, hosted CI and remaining lifecycle acceptance remain pending. See [mobile runbook](MOBILE.md).
+
+
+Phase 04 [2026-10-30 follow-up](evidence/phase04-followup-2026-10-30.json): 38 mobile + 135 backend tests and 11 genuine client checks pass; quality/contract/JS export gates pass. Native acceptance and unresolved dependency advisories remain blockers.
+
+Current Phase 04 evidence (2026-11-03): 52 mobile tests, 135 backend tests and 11 real client checks pass. User reports custom APK/Maps, main device lifecycle/accessibility and Kannada/Hindi review pass. Security, hosted CI and remaining backup/expiry/email/full-disconnection gates remain open; see [resume evidence](evidence/phase04-resume-2026-11-03.json).

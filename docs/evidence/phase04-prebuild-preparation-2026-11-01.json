@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-01",
+  "branch": "phase/04-mobile-app",
+  "scope": "User-authorized next measures: persist documented USB development settings, populate missing EAS development variables and repair upload exclusions; no build.",
+  "local_mobile_environment": {
+    "existing_maps_key_preserved": true,
+    "added_missing_public_variables": [
+      "EXPO_PUBLIC_API_URL",
+      "EXPO_PUBLIC_SUPABASE_URL",
+      "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+    ],
+    "api_origin": "http://127.0.0.1:8000",
+    "auth_origin": "http://127.0.0.1:54321",
+    "auth_key_scope": "Existing local Auth gateway non-secret placeholder; not a hosted-project credential",
+    "file_ignored": true
+  },
+  "eas_environment": {
+    "project": "@abood21s-team/nammamove",
+    "environment": "development",
+    "maps_key_visibility": "Sensitive",
+    "maps_key_reused_from_local": true,
+    "new_google_key_created": false,
+    "existing_cloud_variables_overwritten": false,
+    "variables_verified_nonempty": [
+      "EXPO_PUBLIC_GOOGLE_MAPS_KEY",
+      "EXPO_PUBLIC_API_URL",
+      "EXPO_PUBLIC_SUPABASE_URL",
+      "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+    ],
+    "cloud_only_config_exit": 0,
+    "resolved_maps_plugin_key_matches_local": true,
+    "owner_project_package_unchanged": true
+  },
+  "upload": {
+    "root_easignore_created": true,
+    "previous_gitignore_protections_retained": true,
+    "windows_directory_patterns_without_trailing_slashes": true,
+    "actual_eas_copy_function_passed": true,
+    "copied_file_count": 46,
+    "private_env_signing_backups_caches_git_excluded": true,
+    "backend_docs_legacy_frontend_excluded": true,
+    "mobile_sources_manifests_and_lockfile_present": true,
+    "maps_key_in_filtered_copy": false,
+    "cache_permission_or_content_changed": false,
+    "archive_uploaded": false,
+    "git_clone_performed": false
+  },
+  "checks": {
+    "local_maps_preflight": "passed",
+    "mobile_tests": {
+      "passed": 48,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typecheck": "passed",
+    "lint": "passed",
+    "format": "passed"
+  },
+  "remaining": [
+    "Owner must verify Google Maps SDK enablement, approved billing and Android restrictions matching work.nammamove.commuter and the selected signing SHA-1",
+    "USB phone connection, adb forwarding on 8000/54321/8081, running backend/Auth/OTP and actual APK tile test remain required",
+    "Existing dependency advisories and other Phase 04 native/human acceptance gates remain open"
+  ],
+  "signing_credentials_changed": false,
+  "billing_changed": false,
+  "build_started": false,
+  "full_phase04_acceptance": false,
+  "privacy": "No Maps value, session token, keystore material or user credentials in public evidence. Environment values were transferred to the authorized EAS project without printing them."
+}

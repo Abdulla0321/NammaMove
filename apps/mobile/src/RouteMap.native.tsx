@@ -4,29 +4,31 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import type { MapProps } from './StopDiagram';
 import { StopDiagram } from './StopDiagram';
 import { Button, styles } from './ui';
+import { translator } from './i18n';
 
-export default function RouteMap({ itinerary, enabled }: MapProps) {
+export default function RouteMap({
+  itinerary,
+  enabled,
+  t = translator('en'),
+}: MapProps) {
   const [open, setOpen] = useState(false);
   const first = itinerary.legs[0];
   return (
     <View style={{ gap: 12 }}>
-      <StopDiagram itinerary={itinerary} />
+      <StopDiagram itinerary={itinerary} t={t} />
+      {!enabled && <Text style={styles.muted}>{t('mapUnavailable')}</Text>}
       {enabled && first && (
         <>
-          <Text style={styles.muted}>
-            Optional Google basemap sends the viewed area to the map provider.
-            Lines below connect endpoints approximately; no route geometry was
-            supplied.
-          </Text>
+          <Text style={styles.muted}>{t('mapPrivacy')}</Text>
           <Button
-            title={open ? 'Hide basemap' : 'Show optional basemap'}
+            title={open ? t('hideMap') : t('showMap')}
             secondary
             onPress={() => setOpen(!open)}
           />
           {open && (
             <MapView
-              accessibilityLabel="Synthetic journey on geographic basemap"
-              style={{ height: 280, borderRadius: 20 }}
+              accessibilityLabel={t('mapLabel')}
+              style={{ width: '100%', height: 280, borderRadius: 20 }}
               initialRegion={{
                 latitude: first.from_lat,
                 longitude: first.from_lon + 0.012,
@@ -42,7 +44,16 @@ export default function RouteMap({ itinerary, enabled }: MapProps) {
                       latitude: leg.from_lat,
                       longitude: leg.from_lon,
                     }}
-                    title={`Synthetic step ${i + 1}: ${leg.mode}`}
+                    title={t('mapStep', {
+                      number: i + 1,
+                      mode: t(
+                        leg.mode === 'BUS'
+                          ? 'bus'
+                          : leg.mode === 'WALK'
+                            ? 'walk'
+                            : 'metro',
+                      ),
+                    })}
                   />
                   <Polyline
                     coordinates={[
@@ -60,7 +71,7 @@ export default function RouteMap({ itinerary, enabled }: MapProps) {
                   latitude: itinerary.legs[itinerary.legs.length - 1]!.to_lat,
                   longitude: itinerary.legs[itinerary.legs.length - 1]!.to_lon,
                 }}
-                title="Synthetic destination"
+                title={t('mapDestination')}
               />
             </MapView>
           )}

@@ -13,6 +13,7 @@ import { memoryStore } from '../src/storage';
 import { parsePlan } from '../src/validation';
 import { emptyLibrary } from '../src/types';
 import { libraryKey } from '../src/library';
+import { translator } from '../src/i18n';
 import type { Services } from '../src/services';
 import fixture from './fixtures/plan.json';
 
@@ -331,3 +332,86 @@ test('cached launch/open is timestamped stale and performs no routing call', asy
   ).toBeTruthy();
   expect(services.plan).not.toHaveBeenCalled();
 });
+
+test('failed offline save reports failure, retains prior data and can be retried', async () => {
+  const services = await setup();
+  await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+  await fireEvent(
+    screen.getByRole('switch', {
+      name: 'Allow encrypted on-device journey cache (24 hours)',
+    }),
+    'valueChange',
+    true,
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Plan' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Find journeys' }));
+  await screen.findByText('Your journey options');
+  const before = await services.store.getItem(libraryKey('one'));
+  const write = jest
+    .spyOn(services.store, 'setItem')
+    .mockRejectedValueOnce(new Error('disk full'));
+  await fireEvent.press(screen.getByRole('button', { name: 'Save offline' }));
+  expect(
+    await screen.findByText(
+      'Could not save encrypted device data. Free storage and retry.',
+    ),
+  ).toBeTruthy();
+  expect(screen.queryByText('Saved on this device')).toBeNull();
+  expect(await services.store.getItem(libraryKey('one'))).toBe(before);
+  await fireEvent.press(screen.getByRole('button', { name: 'Save offline' }));
+  expect(await screen.findByText('Saved on this device')).toBeTruthy();
+  expect(write).toHaveBeenCalledTimes(2);
+  const saved = JSON.parse(
+    (await services.store.getItem(libraryKey('one')))!,
+  ) as { journeys: unknown[] };
+  expect(saved.journeys).toHaveLength(1);
+});
+
+test('failed cache-consent write does not enable an unsaved preference', async () => {
+  const services = await setup();
+  await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+  jest
+    .spyOn(services.store, 'setItem')
+    .mockRejectedValueOnce(new Error('disk full'));
+  const label = 'Allow encrypted on-device journey cache (24 hours)';
+  await fireEvent(
+    screen.getByRole('switch', { name: label }),
+    'valueChange',
+    true,
+  );
+  expect(
+    await screen.findByText(
+      'Could not save encrypted device data. Free storage and retry.',
+    ),
+  ).toBeTruthy();
+  expect(screen.getByRole('switch', { name: label }).props.value).toBe(false);
+  expect(await services.store.getItem(libraryKey('one'))).toBeNull();
+});
+
+test.each([
+  ['kn', 'ಕನ್ನಡ'],
+  ['hi', 'हिन्दी'],
+] as const)(
+  '%s localizes planning, journey details and map safety notices',
+  async (language, label) => {
+    await setup();
+    const t = translator(language);
+    await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+    await fireEvent.press(screen.getByRole('button', { name: label }));
+    expect(screen.getByLabelText(t('cache'))).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: t('home') }));
+    expect(screen.getByText(t('notice'))).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: t('plan') }));
+    expect(await screen.findByText(t('alternatives'))).toBeTruthy();
+    await fireEvent.press(
+      screen.getByRole('button', { name: `${t('detail')} 1` }),
+    );
+    expect(screen.getByText(t('mapApproximate'))).toBeTruthy();
+    expect(screen.getByText(t('accessibilityNotice'))).toBeTruthy();
+    expect(
+      screen.queryByText(
+        'Approximate endpoints only; not a street or track path.',
+      ),
+    ).toBeNull();
+  },
+);

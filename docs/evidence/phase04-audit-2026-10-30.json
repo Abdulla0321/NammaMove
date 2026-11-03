@@ -1,0 +1,203 @@
+{
+  "audit_date": "2026-10-30",
+  "branch": "docs/project-prd",
+  "audited_commit": "6fbf1b88d52ae88849f8b7033011d8b317c66518",
+  "scope": "Phase 04 audit; no implementation, credential edits, commit, push, merge or Phase 05 work.",
+  "checks": {
+    "mobile_typecheck": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_lint": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_format": {
+      "exit_code": 1,
+      "status": "failed"
+    },
+    "routing_contracts": {
+      "exit_code": 1,
+      "status": "failed"
+    },
+    "expo_compatibility": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mobile_tests": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "web_export": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "android_js_export": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "dependency_audit": {
+      "exit_code": 1,
+      "counts": {
+        "info": 0,
+        "low": 13,
+        "moderate": 0,
+        "high": 3,
+        "critical": 0,
+        "total": 16
+      },
+      "affected_packages": [
+        "@expo/cli",
+        "@expo/config",
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config",
+        "@expo/prebuild-config",
+        "@jest/core",
+        "@testing-library/react-native",
+        "create-jest",
+        "deepmerge",
+        "expo",
+        "jest",
+        "jest-cli",
+        "jest-config",
+        "jest-expo",
+        "jest-watch-typeahead",
+        "zod"
+      ]
+    },
+    "backend_lint": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_format": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_types": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_dependencies": {
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "backend_tests": {
+      "exit_code": 1,
+      "status": "failed"
+    },
+    "real_client_integration": {
+      "exit_code": 1,
+      "status": "failed"
+    }
+  },
+  "mobile_tests": {
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0
+  },
+  "backend_tests": {
+    "total": 135,
+    "passed": 133,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "failed_tests": [
+      "test_real_auth_routing_api_and_four_concurrent_latency",
+      "test_real_supabase_sign_in_roles_and_persistent_ownership"
+    ],
+    "reason": "Ignored local Auth acceptance JSON is malformed at line 12, column 7; these tests fail before Auth sign-in."
+  },
+  "real_client_integration": {
+    "status": "blocked",
+    "runner_exit_code": 1,
+    "executed_checks": 0,
+    "reason": "Same invalid local Auth fixture; historical eleven passing checks are not a result of this audit."
+  },
+  "service_readiness": {
+    "backend": 200,
+    "auth": 200,
+    "otp": 200
+  },
+  "metro_startup": {
+    "attempted": true,
+    "status": "passed",
+    "device_end_to_end_verified": false,
+    "command": "expo start --offline --port 8081",
+    "node_dns_order": "ipv4first",
+    "earlier_probes": [
+      "Rejected mutually exclusive --offline/--localhost flags; corrected.",
+      "Default localhost advertised a ready URL but 127.0.0.1 probe timed out."
+    ],
+    "http_status": 200,
+    "status_body": "packager-status:running",
+    "android_manifest_http_status": 200,
+    "manifest_sdk": "55.0.0",
+    "temporary_server_stopped": true
+  },
+  "android": {
+    "adb_available": true,
+    "authorized_devices": 0,
+    "emulator_available_at_standard_SDK_path": false,
+    "APK_AAB_build_verified": false,
+    "native_end_to_end_verified": false,
+    "required_expo_sdk": "55"
+  },
+  "line_ending_analysis": {
+    "contract": {
+      "raw_equal": false,
+      "normalized_equal": true
+    },
+    "App_CRLF_count": 919,
+    "formatting": {
+      "checked": 28,
+      "failures_after_LF_normalization": [
+        "eslint.config.mjs",
+        "jest.config.cjs",
+        "scripts/contracts.mjs",
+        "scripts/integration.mts"
+      ]
+    }
+  },
+  "static_findings": [
+    {
+      "id": "P04-A01",
+      "severity": "medium",
+      "status": "unresolved",
+      "source": "apps/mobile/App.tsx",
+      "lines": [
+        211,
+        327,
+        339
+      ],
+      "finding": "persist catches storage errors and returns normally; saveJourney then overwrites the error with the saved-success message. In-memory changes also precede durable storage.",
+      "evidence_kind": "code control-flow review; not a new behavioral failure test"
+    },
+    {
+      "id": "P04-A02",
+      "severity": "gate",
+      "status": "unresolved",
+      "finding": "Prettier check fails in 28 files: 24 pass after LF normalization; four still have formatting differences. Raw generated-contract equality fails although LF-normalized output matches."
+    },
+    {
+      "id": "P04-A03",
+      "severity": "environment",
+      "status": "unresolved",
+      "finding": "Local ignored Auth test fixture is invalid JSON. No credentials or source excerpts are included in public evidence."
+    }
+  ],
+  "unverified": [
+    "physical/emulator end-to-end journey selection",
+    "native secure storage/relaunch/backup/uninstall and offline lifecycle",
+    "TalkBack and real large-font/keyboard/rotation layouts",
+    "optional native basemap and key restrictions",
+    "complete Kannada/Hindi translation",
+    "signup confirmation/deep links",
+    "hosted CI",
+    "real Bengaluru source entitlement and coverage"
+  ],
+  "full_phase04_acceptance": false,
+  "historical_evidence": "phase04-mobile.json (2026-10-27; retained separately)",
+  "lockfile_sha256": "81c728bca1582074eaba8cf0dafe3a0fe1d0abf94c3c07f6cdc42fe71ea36310",
+  "contract_sha256": "721f82b2c16cf97387e1e1277bce988ce74e2ed0a8b16f87a0f152e14ef48ac9",
+  "resolution_evidence": "phase04-followup-2026-10-30.json"
+}

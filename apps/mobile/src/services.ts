@@ -1,5 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import { AppState, Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
+import { canShowBasemap } from './mapRuntime';
 import * as SecureStore from 'expo-secure-store';
 import * as Location from 'expo-location';
 import { createClient } from '@supabase/supabase-js';
@@ -137,6 +139,10 @@ export function createServices(): Services {
         longitude: position.coords.longitude,
       };
     },
-    mapEnabled: !!process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY,
+    mapEnabled: canShowBasemap(
+      Platform.OS,
+      isRunningInExpoGo(),
+      process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY,
+    ),
   };
 }

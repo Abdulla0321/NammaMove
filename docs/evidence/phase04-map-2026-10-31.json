@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-31",
+  "branch": "phase/04-mobile-app",
+  "user_reported_device_results": {
+    "authentication": "passed",
+    "synthetic_A_to_D_planning": "passed",
+    "alternatives": "passed",
+    "journey_details": "passed",
+    "simulation_labels": "passed",
+    "map": "failed; exact visual symptom not yet confirmed"
+  },
+  "observed_environment": {
+    "authorized_android_devices": 1,
+    "expo_go_version": "55.0.7",
+    "custom_app_running": false,
+    "google_play_services_installed": true,
+    "location_permission": "fine/coarse denied; not needed for endpoint basemap",
+    "maps_key_in_project_dotenv": false
+  },
+  "compatibility": {
+    "expo_sdk": 55,
+    "react_native_maps": "1.27.2",
+    "matches_installed_expo_recommendation": true,
+    "expo_go_supported_without_project_key": true,
+    "custom_android_binary_requires_key_and_rebuild": true,
+    "source": "https://docs.expo.dev/versions/v55.0.0/sdk/map-view/",
+    "legacy_key_path_observed_before_preparation": "Installed Expo prebuild/config plugins still consume android.config.googleMaps.apiKey; no native config migration needed."
+  },
+  "coordinates": {
+    "first_origin": [
+      12.97,
+      77.59
+    ],
+    "final_destination": [
+      12.971,
+      77.62
+    ],
+    "valid_bounds": true,
+    "inside_initial_viewport": true,
+    "geometry": "Approximate endpoint links only; no street/track geometry supplied."
+  },
+  "diagnostics": {
+    "adb_exit_code": 0,
+    "captured_lines": 5919,
+    "counts": {
+      "maps_authorization_failure": 0,
+      "native_map_missing": 0,
+      "android_fatal": 0,
+      "maps_related": 12
+    },
+    "scope": "Current Expo Go process retained log buffer only; absence of errors does not verify map rendering."
+  },
+  "diagnostic_interpretation": "Native view-manager generated-setter warnings appear; no captured map authorization error, missing-map-component error or fatal crash. This retained process log buffer does not prove tiles rendered.",
+  "confirmed_code_defect": "Basemap visibility incorrectly required EXPO_PUBLIC_GOOGLE_MAPS_KEY even inside Expo Go. No key is defined in the project dotenv files. This explains an endpoint-only/no-button screen; an independent blank-tile failure remains unverified.",
+  "fixes": [
+    "Detect Expo Go using the existing expo API; allow key-free opt-in basemap there",
+    "Keep custom native build key requirement and web endpoint fallback",
+    "Explain unavailable basemap in en/kn/hi, retain endpoint diagram",
+    "Give native MapView explicit full width and existing fixed height",
+    "Localize endpoint-overview heading"
+  ],
+  "mobile_tests": {
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0
+  },
+  "checks": {
+    "TypeScript": "passed",
+    "ESLint": "passed",
+    "Prettier": "passed",
+    "routing_contracts": "passed",
+    "Expo dependency compatibility from mobile workspace": "passed",
+    "Android Hermes JavaScript export": "passed",
+    "git diff --check": "passed"
+  },
+  "regressions": "Actual service wiring permits key-free Expo Go, custom unconfigured fallback is retained, no location prompt occurs during map availability setup, native component consent/open/hide/fixed viewport and web fallback pass.",
+  "backend": "Not modified or rerun for this client-only map change; preceding 135-pass backend run retained separately.",
+  "post_fix_physical_map_rendering_verified": false,
+  "full_phase04_acceptance": false,
+  "remaining": [
+    "Physical basemap acceptance is blocked by observed Expo Go Maps authorization failure. Retest an appropriately configured custom native build or an upstream repaired compatible Expo Go client.",
+    "If Google logo/blank tiles remain, capture fresh private map SDK logs; do not infer that the gate fix solved a tile-provider failure",
+    "Custom native key/signing/billing configuration and native rebuild/install remain unverified",
+    "Prior dependency, native lifecycle/accessibility and real Bengaluru external-data gates remain open"
+  ],
+  "privacy": "Raw device logs remain ignored under backups. No device serial, map key, credentials or personal location included.",
+  "post_fix_device_result": {
+    "source": "User screenshot and fresh connected-device native SDK logs",
+    "basemap_control": "visible and opens native Google map",
+    "tiles": "failed; blank Google-logo map",
+    "native_error": "Google Android Maps SDK: Authorization failure",
+    "native_application": "host.exp.exponent",
+    "interpretation": "Expo Go native Maps authorization is rejected. The visibility gate fix is verified by the screenshot, but does not fix the host binary Maps credentials. Project JavaScript environment changes cannot replace Expo Go native manifest credentials.",
+    "raw_log": "Ignored private diagnostic only; no API key copied into evidence."
+  },
+  "custom_build_preparation": {
+    "status": "prepared; blocked on manual owner configuration",
+    "library": "react-native-maps 1.27.2",
+    "android_package": "work.nammamove.commuter",
+    "integration": "react-native-maps config plugin androidGoogleMapsApiKey, sourced from existing ignored environment variable",
+    "dev_client_installed": true,
+    "profile": "development/internal APK; missing-key guard",
+    "maps_key_locally_available": false,
+    "signing_sha1_locally_available": false,
+    "remote_cloud_configuration_verified": false,
+    "local_android_sdk_available_at_standard_path": false,
+    "java_home_configured": false,
+    "key_presence_check": "expected blocked exit 1",
+    "missing_key_guard": "expected blocked exit 1",
+    "mobile_tests": {
+      "passed": 45,
+      "failed": 0,
+      "skipped": 0
+    },
+    "quality": "TypeScript/lint/format/contracts/Expo compatibility passed",
+    "owner_key_or_billing_or_signing_created": false,
+    "eas_account_project_linked": false,
+    "build_started": false,
+    "guide": "../ANDROID_MAPS_DEVELOPMENT_BUILD.md",
+    "dependency_audit": "13 low / 3 high affected-package entries, unresolved",
+    "installation_note": "Expo installer hit npm EALLOWSCRIPTS; root workspace npm installation completed with lifecycle scripts disabled. No native build ran."
+  }
+}

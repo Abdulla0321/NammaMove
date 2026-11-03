@@ -164,5 +164,74 @@ test('search and nearby use only authored stops, not real transport inference', 
 test('Kannada/Hindi keys and explicit English fallback are available', () => {
   expect(translator('kn')('home')).toBe('ಯೋಜನೆ');
   expect(translator('hi')('home')).toBe('योजना');
-  expect(translator('kn')('cacheNotice')).toBe(translator('en')('cacheNotice'));
+  expect(translator('kn', {})('cacheNotice')).toBe(
+    translator('en')('cacheNotice'),
+  );
+});
+
+test('health works when the native runtime lacks AbortSignal.timeout', async () => {
+  const original = Object.getOwnPropertyDescriptor(AbortSignal, 'timeout');
+  Object.defineProperty(AbortSignal, 'timeout', {
+    configurable: true,
+    value: undefined,
+  });
+  try {
+    const fetcher = jest.fn().mockResolvedValue(response(200));
+    const client = apiClient(
+      'https://api.example',
+      {
+        token: async () => null,
+        refresh: async () => null,
+      },
+      fetcher,
+    );
+    await expect(client.health()).resolves.toBe(true);
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://api.example/health/ready',
+      expect.objectContaining({ signal: expect.anything() }),
+    );
+  } finally {
+    if (original) Object.defineProperty(AbortSignal, 'timeout', original);
+    else Reflect.deleteProperty(AbortSignal, 'timeout');
+  }
+});
+
+test.each([503, 401])('health HTTP %s remains unavailable', async (status) => {
+  const client = apiClient(
+    'https://api.example',
+    {
+      token: async () => null,
+      refresh: async () => null,
+    },
+    jest.fn().mockResolvedValue(response(status)),
+  );
+  await expect(client.health()).resolves.toBe(false);
+});
+
+test('health times out a stalled request and releases its timer', async () => {
+  jest.useFakeTimers();
+  try {
+    const fetcher = jest.fn(
+      (_url: string, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () =>
+            reject(new Error('aborted')),
+          );
+        }),
+    );
+    const client = apiClient(
+      'https://api.example',
+      {
+        token: async () => null,
+        refresh: async () => null,
+      },
+      fetcher as typeof fetch,
+    );
+    const result = client.health();
+    jest.advanceTimersByTime(5000);
+    await expect(result).resolves.toBe(false);
+    expect(jest.getTimerCount()).toBe(0);
+  } finally {
+    jest.useRealTimers();
+  }
 });

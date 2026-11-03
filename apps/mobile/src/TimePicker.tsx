@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { Platform, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Field, styles } from './ui';
+import { translator, type Translate } from './i18n';
 
 export default function TimePicker({
   value,
   onChange,
   label,
+  t = translator('en'),
 }: {
   value: string;
   onChange(value: string): void;
   label: string;
+  t?: Translate;
 }) {
   const [mode, setMode] = useState<'date' | 'time' | null>(null);
   const parsed = new Date(value);
@@ -26,12 +29,12 @@ export default function TimePicker({
       {Platform.OS !== 'web' && (
         <View style={styles.row}>
           <Button
-            title="Choose date"
+            title={t('chooseDate')}
             secondary
             onPress={() => setMode('date')}
           />
           <Button
-            title="Choose time"
+            title={t('chooseTime')}
             secondary
             onPress={() => setMode('time')}
           />

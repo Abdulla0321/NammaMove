@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-03",
+  "scope": "Phase 04 local synthetic development acceptance recheck",
+  "acceptance": "main physical walkthrough and automated synthetic checks pass; full acceptance pending security, CI and remaining lifecycle gates",
+  "checks": {
+    "mobile_tests": {
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0
+    },
+    "backend_full_suite": {
+      "passed": 135,
+      "failed": 0,
+      "skipped": 0,
+      "disposable_postgis": true,
+      "genuine_supabase": true,
+      "genuine_otp": true
+    },
+    "actual_mobile_client_checks": 11,
+    "typescript": "pass",
+    "eslint": "pass",
+    "prettier": "pass after excluding generated native outputs and formatting eas.json",
+    "contracts_check": "pass",
+    "ruff": "pass",
+    "ruff_format": "pass",
+    "mypy": "pass",
+    "precommit_configuration": "standalone APK/AAB ignore patterns added; guarded EAS development profile restored alongside preview"
+  },
+  "prior_user_evidence": {
+    "arm64_debug_apk": "BUILD SUCCESSFUL and ADB install Success in this chat",
+    "google_maps": "user screenshot confirms tiles and markers after debug SHA-1 restriction update"
+  },
+  "restored_services": [
+    "existing PostgreSQL, Auth and gateway containers",
+    "sealed synthetic OTP container",
+    "non-owner loopback backend",
+    "Metro IPv4 loopback",
+    "USB forwarding 8000,54321,8081"
+  ],
+  "findings": [
+    "Auth initially exited before PostgreSQL startup completed; restarted after database healthy",
+    "OTP cold request returned 503; genuine warmed-up integration passed",
+    "Metro localhost initially bound IPv6 only; restarted with IPv4-first DNS resolution",
+    "Prettier scanned generated Android build output; excluded android/ and ios/"
+  ],
+  "not_yet_verified": [
+    "signup email delivery/deep-link flow, if required by provider configuration",
+    "fully disconnected cold launch, backup/restore and 24-hour native expiry",
+    "hosted CI and dependency security resolution",
+    "real provider licensing and Bengaluru coverage remain externally blocked"
+  ],
+  "git_actions": "none; existing changes preserved",
+  "warnings": [
+    "Starlette HTTPX test-client deprecation",
+    "Alembic geography reflection warning"
+  ],
+  "notes": [
+    "Generated Ninja driver-mode workaround remains temporary and can be overwritten by CMake regeneration",
+    "No account creation, password reset, key change, migrations to the app database or Phase 05 work performed"
+  ],
+  "current_device_evidence": {
+    "launch": "user confirms app launched and working after opening explicit local development link",
+    "signed_in_screens": "user screenshots show Plan, Settings, Saved with A-D and A-C entries",
+    "offline_storage": "user confirms cached card survives relaunch and details open; backend-loss access passes",
+    "backend": "loopback health/readiness HTTP 200; phone planning HTTP 200; user confirms Backend ready after health fix"
+  },
+  "health_fix": {
+    "change": "AbortController plus cleared five-second timer replaces AbortSignal.timeout; supports runtimes without the static API",
+    "verification": "52 mobile tests pass including missing API, HTTP failure, and stalled request; TypeScript and lint pass",
+    "device_result": "user confirms Backend ready after fix"
+  },
+  "security_refresh": {
+    "source": "official npm bulk advisory endpoint, installed lockfile package versions",
+    "affected_advisory_package_names": [
+      "zod",
+      "minimatch",
+      "glob",
+      "deepmerge"
+    ],
+    "status": "unresolved; not a clean audit; raw response stored privately",
+    "note": "bulk endpoint package advisories are not npm propagated affected-package counts",
+    "npm_audit_counts": {
+      "low": 6,
+      "moderate": 47,
+      "high": 3,
+      "critical": 0,
+      "total": 56
+    }
+  },
+  "manual_acceptance_user_reported": {
+    "native_relaunch_and_open_cached_details": "pass",
+    "backend_status_after_health_fix": "pass: backend ready; OTP requires a journey request",
+    "cached_details_with_backend_USB_forward_removed": "pass",
+    "unavailable_status_when_backend_forward_removed": "pass",
+    "sign_out_and_clear_then_sign_back_in": "pass: cached journeys and recent entries absent",
+    "location_denied_manual_origin_and_planning": "pass",
+    "android_back_from_journey_details": "pass",
+    "largest_device_font_plan_details_saved_settings": "pass; exact font multiplier not measured",
+    "keyboard_action_accessibility": "pass",
+    "landscape_rotation_usable": "pass",
+    "limitations": "reported by user on attached physical phone; not independent instrumented verification. Backend-only loss tested with Metro/Auth retained, not fully disconnected cold-start.",
+    "talkback_navigation_names_states_results_errors": "pass per user walkthrough",
+    "kannada_hindi_glyphs_layout_navigation": "pass per user walkthrough",
+    "clear_saved_data_preserves_signed_in_planning": "pass per user walkthrough",
+    "native_speaker_translation_quality": "user confirms natural accurate wording in both Kannada and Hindi",
+    "new_account_signup_and_signin": "user confirms account creation and subsequent sign-in pass; email delivery/deep-link path not independently specified"
+  }
+}
