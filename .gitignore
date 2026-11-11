@@ -46,3 +46,8 @@ apps/mobile/ios/
 # Installable Android build artifacts
 *.apk
 *.aab
+
+# Temporary local landing-page design tooling (not application runtime assets)
+/.agents/skills/design-taste-frontend/
+/.claude/skills/design-taste-frontend/
+/skills-lock.json

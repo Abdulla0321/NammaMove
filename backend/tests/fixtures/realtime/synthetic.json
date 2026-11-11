@@ -1,0 +1,38 @@
+{
+  "header": {
+    "gtfs_realtime_version": "2.0",
+    "incrementality": "FULL_DATASET",
+    "timestamp": "1793779200"
+  },
+  "entity": [
+    {
+      "id": "synthetic-vehicle",
+      "vehicle": {
+        "trip": { "trip_id": "A-D", "start_date": "20261104" },
+        "vehicle": { "id": "authored-bus" },
+        "timestamp": "1793779200",
+        "position": { "latitude": 12.97, "longitude": 77.59 }
+      }
+    },
+    {
+      "id": "synthetic-service",
+      "trip_update": {
+        "trip": { "trip_id": "A-D", "start_date": "20261104" },
+        "timestamp": "1793779200",
+        "delay": 120
+      }
+    },
+    {
+      "id": "synthetic-advisory",
+      "alert": {
+        "informed_entity": [
+          { "trip": { "trip_id": "A-D", "start_date": "20261104" } }
+        ],
+        "effect": "NO_SERVICE",
+        "header_text": {
+          "translation": [ { "text": "Synthetic advisory; not verified cancellation.", "language": "en" } ]
+        }
+      }
+    }
+  ]
+}

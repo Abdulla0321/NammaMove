@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-04",
+  "phase": 5,
+  "status": "in_progress_not_accepted",
+  "branch": "phase/04-mobile-app",
+  "scope": "synthetic-only atomic Redis event-state worker primitives; no runtime API or feed activation",
+  "files": [
+    "backend/app/realtime/redis_state.py",
+    "backend/tests/test_realtime_redis.py",
+    "backend/requirements.txt",
+    "pyproject.toml",
+    "docs/REALTIME.md",
+    "docs/MASTER_PLAN.md",
+    "docs/PHASE_STATUS.md",
+    "docs/phases/PHASE_05.md",
+    "docs/DECISIONS.md"
+  ],
+  "verification": {
+    "new_state_test_cases": 28,
+    "full_backend": {
+      "passed": 214,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 46.53,
+      "genuine_redis_postgis_auth_otp": true,
+      "new_disposable_postgis_database_removed": true
+    },
+    "ruff_check": "pass",
+    "ruff_format": "pass, 83 files",
+    "strict_mypy": "pass, 31 application files",
+    "pip_check": "pass",
+    "git_diff_check": "pass",
+    "editor_diagnostics_new_files": "no errors",
+    "mobile_exports_and_hosted_ci_rerun": false
+  },
+  "redis_environment": {
+    "client_version": "7.4.1",
+    "dependency_requirement": "redis>=6.4,<8",
+    "server_version": "7.4.12",
+    "image": "redis:7-alpine",
+    "image_digest": "sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f",
+    "test_container": "nammamove-phase05-redis-test",
+    "loopback_port": 16379,
+    "rdb_save": "disabled",
+    "appendonly": "no",
+    "volume": "none",
+    "maxmemory_bytes": 33554432,
+    "maxmemory_policy": "noeviction",
+    "credentials_created_or_changed": false,
+    "preexisting_services_changed": false,
+    "disposable_instance_stopped_after_verification": true,
+    "test_cleanup": "unique per-test namespaces only; no FLUSHDB/FLUSHALL"
+  },
+  "behavior_verified": [
+    "simultaneous identical events commit once; concurrent channel updates preserve newer observations",
+    "real WATCH conflicts retry; bounded exhaustion reports contended",
+    "observation-based payload TTL, natural Redis deletion and exact logical fresh/stale/unavailable boundaries",
+    "dedup/order guards survive payload expiry; duplicate/late/out-of-order events do not refresh payload TTL",
+    "configured freshness/retention and capacity limits; mixed policy and receipt-clock regression fail closed",
+    "GPS-jump quarantine, reassignment and source/trip isolation",
+    "sealed synthetic protobuf-to-Redis replay and feed-silence expiry",
+    "missing/stale GPS never cancels; only fresh independent trip evidence can report synthetic cancellation",
+    "simulated observations, uncertain delay predictions and unloaded schedules remain separate",
+    "corruption, missing metadata and connection failures return unavailable/unknown without local stale fallback",
+    "fault injection after a real committed EXEC verifies safe retry after an ambiguous response"
+  ],
+  "actual_outage_restart_experiment": {
+    "target": "only the disposable container created for this task",
+    "while_stopped": "actual reads/writes unavailable; service unknown",
+    "after_nonpersistent_restart": "empty state unknown; fresh independent evidence accepted then duplicate on retry",
+    "limits": "ephemeral state/guards do not survive server loss; not durable exactly-once or production failover evidence"
+  },
+  "remaining": [
+    "whole-feed header ordering, atomic FULL_DATASET replacement and omission withdrawal",
+    "alert interval-end scheduler, bounded background queues, retry/backpressure orchestration",
+    "durable evidence/retention and recovery policy via reviewed migrations",
+    "production provenance/static-snapshot binding, Redis ACL/TLS/security/availability and clock synchronization",
+    "Phase 02 real-data and deferred Phase 04 security/CI/lifecycle acceptance",
+    "authenticated delivery, consent/battery controls and Phase 06 unstarted"
+  ],
+  "git": "existing changes preserved; no switch, stage, commit, push or merge",
+  "production": "no live feeds, production activation, graph mutation, automatic rerouting or credential changes",
+  "warnings": ["existing Starlette HTTPX test-client deprecation", "existing Alembic geography reflection warning"],
+  "reference": "https://redis.io/docs/latest/develop/clients/redis-py/transpipe/"
+}
