@@ -1,7 +1,9 @@
 # Phase status
-Last verified: 2026-11-03 (local synthetic automated checks and user-reported custom Android acceptance; no production deployment).
+Last verified: 2026-11-04 (Phase 05 atomic Redis event-state checks; no production deployment).
 
-Current result: **52 mobile tests, 135 backend tests and 11 genuine mobile-client/Auth/API/OTP checks pass. ARM64 custom APK build/install, Google Maps and the main physical walkthrough pass by user report, including signup/sign-in, cache/relaunch/backend-loss behavior, clearing/sign-out, permissions, TalkBack, layout and Kannada/Hindi wording. Full acceptance remains pending dependency security, hosted CI and remaining lifecycle/expiry/backup/email gates.** See [current resume evidence](evidence/phase04-resume-2026-11-03.json).
+Current result: **Phase 05 atomic Redis event-state slice: 214 backend tests pass with zero failures/skips, including genuine Redis/PostGIS/Auth/OTP. There are 28 new Redis-state cases covering concurrency, expiry, replay and recovery. Ruff lint/format, strict mypy and pip consistency pass.** A separate real Redis stop/restart verifies unavailable/unknown state and cold-cache recovery. See [Redis evidence](evidence/phase05-redis-2026-11-04.json). Whole-feed workers, durable evidence, authenticated delivery and real-feed acceptance remain open.
+
+Prior Phase 04 evidence: 52 mobile tests and 11 genuine mobile-client/Auth/API/OTP checks passed; not rerun for this backend-only slice. ARM64 custom APK build/install, Google Maps and the main physical walkthrough pass by user report, including signup/sign-in, cache/relaunch/backend-loss behavior, clearing/sign-out, permissions, TalkBack, layout and Kannada/Hindi wording. Full acceptance remains pending dependency security, hosted CI and remaining lifecycle/expiry/backup/email gates. See [resume evidence](evidence/phase04-resume-2026-11-03.json).
 
 | Phase | State | Evidence / next gate |
 |---|---|---|
@@ -10,7 +12,7 @@ Current result: **52 mobile tests, 135 backend tests and 11 genuine mobile-clien
 | 02 Bengaluru data | Implemented; acceptance pending external gates | Real community BMRCL import/search plus synthetic/PostGIS/Supabase tests; BMTC rights and complete authoritative coverage unresolved |
 | 03 Multimodal routing | Synthetic scope verified locally; real-network acceptance blocked | Actual OTP, genuine Supabase-authenticated routing, 130 passing tests; Phase 02 external gates remain open |
 | 04 Mobile/web | Automated synthetic and main device walkthrough verified; full acceptance pending | 52 mobile/135 backend/11 real-client checks pass; custom APK/Maps and user-reported walkthrough pass; security/CI and remaining lifecycle gates open |
-| 05 Live tracking | Planned | Licensed realtime replay, freshness and privacy tests |
+| 05 Live tracking | In progress: synthetic replay/adapters and atomic Redis event state | 214 backend tests pass, zero skips; 28 new state cases; production provenance/whole-feed workers/durability/delivery/privacy gates remain open |
 | 06 Disruption recovery | Planned | Trusted evidence, expiry and aggregate congestion tests |
 | 07 Predictive AI | Planned | Held-out baseline/calibration and drift gates |
 | 08 Payments | Planned | Provider sandbox, webhook and ledger invariants |
@@ -295,3 +297,24 @@ User reports TalkBack walkthrough, Kannada/Hindi glyph/layout/navigation, and Cl
 ### Auth and translation confirmation - 2026-11-03
 
 User confirms new-account signup/sign-in and natural accurate Kannada/Hindi wording both pass. This does not independently verify email/deep-link delivery. Completed npm audit reports 6 low/47 moderate/3 high affected-package entries and zero critical; its suggested Expo major upgrade and ESLint downgrade are not applied. Remaining CI, security and native backup/expiry gates stay explicit in resume evidence.
+
+
+## Phase 05 started - 2026-11-03
+
+User requested Phase 05 work with Phase 04 follow-ups deferred. Implemented only the local synthetic replay foundation; no production feed or live endpoint activated. Eighteen new focused safety tests pass; the full backend suite passes 153 tests with zero failures/skips, including real disposable PostGIS, genuine Auth and OTP. Ruff lint/format and strict mypy pass. See evidence/phase05-foundation-2026-11-03.json. Phase 02/04 acceptance, provider rights, Redis/durable workers, delivery and privacy controls remain incomplete. See REALTIME.md and phases/PHASE_05.md. Existing unrelated mobile changes preserved; no branch switch, stage, commit, push or merge performed.
+
+## Phase 05 bounded protobuf adapters - 2026-11-04
+
+Continued on the existing `phase/04-mobile-app` branch and preserved all pre-existing mobile/foundation changes. Added synthetic-only protobuf normalization, sealed authored fixtures and 33 behavioral adapter cases (51 focused cases including the foundation). FULL_DATASET envelopes support explicit vehicle observations, independent trip-level service evidence and advisory exact-trip alerts; unsupported fields/relationships, malformed/oversized payloads, invalid clocks, unknown static fixture trips and excessive fanout reject atomically. Missing GPS/entities and alert effects never cancel service. Header refresh cannot refresh vehicle/trip observations. No network ingestion, graph mutation, runtime endpoint, migration, Redis worker or authenticated delivery was added.
+
+Final full backend run: **186 passed / 0 failed / 0 skipped in 29.33 seconds**, including a new disposable PostGIS database, genuine existing local Supabase and sealed-fixture OTP. The new test database was removed afterwards; existing databases/credentials were unchanged. Ruff lint/format (81 files), strict mypy (30 app files), pip consistency and Git whitespace checks pass. Existing Starlette HTTPX deprecation and Alembic geography-reflection warnings remain. Mobile/JS-export/hosted CI results were not rerun or promoted to current evidence.
+
+See [supported subset and future worker semantics](REALTIME.md) and [sanitized adapter evidence](evidence/phase05-adapters-2026-11-04.json). Full-snapshot replacement/withdrawal and alert interval expiry are future worker requirements, not implemented cache behavior. Phase 02 real-data and deferred Phase 04 acceptance remain open; no live feeds, production activation or automatic rerouting. No staging, commit, push, branch switch or credential changes.
+
+## Phase 05 atomic Redis event state - 2026-11-04
+
+Added synthetic-only Redis WATCH/MULTI/EXEC updates with concurrent-writer protection, bounded retries/capacity, independent channel payload TTLs and retained ordering/dedup guards. Timestamped read snapshots separate observation/receipt age, simulated observed positions, uncertain trip-delay predictions and unloaded schedules. Missing/stale GPS never cancels service; fresh independent trip evidence is required, and stale service evidence becomes unknown. Redis errors, policy/clock mismatch and corrupt state fail closed. Duplicate/replayed updates cannot extend evidence freshness or payload TTL.
+
+Final full backend execution: **214 passed / 0 failed / 0 skipped in 46.53 seconds**, including 28 new state cases and genuine Redis, disposable PostGIS, existing local Supabase and sealed-fixture OTP. The new database was removed afterwards. Real Redis tests used a newly created, loopback-only, nonpersistent 32 MiB/noeviction container with no credentials. Actual stop/restart verified outage reads/writes, unknown cold-cache state and idempotent recovery; only this task's test instance was stopped after verification. No pre-existing services or credentials were changed. Ruff lint/format (83 files), strict mypy (31 app files), pip consistency and Git whitespace checks pass. Existing Starlette HTTPX and Alembic geography warnings remain.
+
+This is an event-state worker primitive, not a whole-feed scheduler, durable ingestion log or complete Phase 05 acceptance. Next: bounded FULL_DATASET ingestion orchestration with header ordering, atomic replacement/omission withdrawal, interval-based alert expiry and bounded queue/retry/backpressure. Authenticated delivery and Phase 06 remain unstarted. Phase 02 real-data gates, deferred Phase 04 acceptance, provenance/privacy and production Redis security/availability gates remain open. Existing mobile/foundation/adapter changes remain preserved; no branch switch, staging, commit, push, merge or credential changes. See [Redis evidence](evidence/phase05-redis-2026-11-04.json).

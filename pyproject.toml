@@ -2,7 +2,7 @@
 testpaths = ["backend/tests"]
 pythonpath = ["backend"]
 addopts = "-ra"
-markers = ["otp: requires a real OTP service and sealed synthetic fixture graph", "postgres: requires a disposable PostgreSQL/PostGIS *_test database", "supabase: requires genuine local Supabase Auth and a non-owner PostgreSQL login"]
+markers = ["otp: requires a real OTP service and sealed synthetic fixture graph", "postgres: requires a disposable PostgreSQL/PostGIS *_test database", "supabase: requires genuine local Supabase Auth and a non-owner PostgreSQL login", "redis: requires an isolated disposable Redis via NAMMAMOVE_TEST_REDIS_URL"]
 
 [tool.ruff]
 target-version = "py312"
