@@ -31,6 +31,7 @@ coverage.xml
 *.backup
 *.log
 backups/
+.otp-build/
 
 # Expo platform exports and client coverage
 dist-android/
