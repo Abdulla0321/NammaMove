@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-04",
+  "phase": 5,
+  "status": "in_progress_not_accepted",
+  "branch": "phase/04-mobile-app",
+  "scope": "bounded synthetic-only GTFS-RT 2.0 FULL_DATASET normalization subset; no network ingestion or delivery",
+  "files": [
+    "backend/app/realtime/gtfs_rt.py",
+    "backend/tests/test_realtime_gtfs_rt.py",
+    "backend/tests/fixtures/realtime/synthetic.json",
+    "backend/tests/fixtures/realtime/manifest.json",
+    "backend/requirements.txt",
+    "backend/requirements-dev.txt",
+    "docs/REALTIME.md",
+    "docs/MASTER_PLAN.md",
+    "docs/PHASE_STATUS.md",
+    "docs/phases/PHASE_05.md",
+    "docs/DECISIONS.md"
+  ],
+  "dependencies": {
+    "gtfs-realtime-bindings": "2.0.0",
+    "protobuf_runtime_exercised": "7.36.2",
+    "protobuf_requirement": ">=6.33.5,<8",
+    "types_protobuf": "development-only >=6,<8",
+    "security_acceptance": "not established by pip consistency or these functional tests"
+  },
+  "verification": {
+    "new_adapter_cases": 33,
+    "focused_adapter_and_foundation": {"passed": 51, "failed": 0, "skipped": 0},
+    "full_backend": {
+      "passed": 186,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 29.33,
+      "genuine_postgis_auth_otp": true,
+      "new_disposable_test_database_removed": true,
+      "existing_database_and_credentials_changed": false
+    },
+    "ruff_check": "pass",
+    "ruff_format": "pass, 81 files",
+    "strict_mypy": "pass, 30 application source files",
+    "pip_check": "pass",
+    "git_diff_check": "pass",
+    "mobile_or_hosted_ci_rerun": false
+  },
+  "safety": [
+    "all normalized outputs retain simulation labels; no source authorization from request flags",
+    "missing GPS or omitted entities never imply cancellation or recovery",
+    "fresh headers never refresh stale vehicle or trip observations",
+    "only explicit independent CANCELED trip-update fixture evidence maps to cancelled service",
+    "NO_SERVICE alerts remain advisory, never verified incident or graph authority",
+    "payload size, entity count, alert fanout, text and observation age are bounded",
+    "unsupported, unknown, differential, deletion and malformed input rejects atomically with sanitized errors",
+    "actual protobuf-to-replay duplicate/order, jump quarantine and reassignment paths tested"
+  ],
+  "fixture": {
+    "provenance": "independently authored synthetic JSON; no licensed feeds or device histories",
+    "seal": "SHA-256 of canonical JSON with sorted keys and compact separators, checked by tests",
+    "canonical_json_sha256": "a4607a4d4beb1c2078b94637fea09c38252a504f4533282c144c9b8b94b3a381"
+  },
+  "remaining": [
+    "full-snapshot state replacement/withdrawal and alert interval-end expiry are worker work",
+    "stop-level timing/uncertainty, frequency trips, broad alert selectors and newer schema fields unsupported",
+    "constructor fixture trip/date matching is not production provenance or active-static-snapshot binding",
+    "Redis TTL/atomic ordering/deduplication, bounded queues and real Redis tests",
+    "durable evidence/retention, authenticated scoped delivery, reconnect/polling and device consent/battery controls",
+    "Phase 02 real-data prerequisites and deferred Phase 04 security/CI/lifecycle acceptance remain open"
+  ],
+  "git": "existing changes preserved; no branch switch, staging, commit or push",
+  "production": "no live feeds, production activation, automatic rerouting, credential changes or application database migrations",
+  "warnings": ["existing Starlette HTTPX test-client deprecation", "existing Alembic geography reflection warning"],
+  "reference": "https://gtfs.org/documentation/realtime/reference/"
+}

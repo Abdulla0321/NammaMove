@@ -1,0 +1,6 @@
+{
+  "data_mode": "simulation",
+  "provenance": "Independently authored NammaMove fixture; invented coordinates and identifiers, no provider feed or device history",
+  "supported_scope": "GTFS-RT 2.0 FULL_DATASET conservative subset",
+  "canonical_json_sha256": "a4607a4d4beb1c2078b94637fea09c38252a504f4533282c144c9b8b94b3a381"
+}
