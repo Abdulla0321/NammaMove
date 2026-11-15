@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from math import ceil
 from threading import Lock
-from typing import Literal, cast
+from typing import Literal, Protocol, cast
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 from redis.exceptions import RedisError, WatchError
@@ -407,6 +407,12 @@ class WorkerResult(_Model):
     retry_scheduled: bool
 
 
+class FeedStore(Protocol):
+    adapter: FixtureGtfsRtAdapter
+
+    def ingest(self, payload: bytes, *, now: datetime) -> FeedOutcome: ...
+
+
 class FullDatasetWorker:
     """Explicit tick-driven local queue: no threads/timers/network start implicitly.
 
@@ -416,7 +422,7 @@ class FullDatasetWorker:
 
     def __init__(
         self,
-        store: RedisFullDataset,
+        store: FeedStore,
         *,
         max_jobs: int = 8,
         max_bytes: int = 2097152,

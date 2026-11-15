@@ -131,6 +131,7 @@ class FixtureBatch(BaseModel):
     feed_version: str | None = None
     fingerprint: str = ""
     snapshot_events: tuple[SnapshotEvent, ...] = ()
+    trip_references: tuple[TripReference, ...] = ()
     notice: str = "Synthetic GTFS-RT subset; no live service or verified incidents."
 
 
@@ -154,6 +155,14 @@ class SnapshotEvent(BaseModel):
     def active(self, now: datetime) -> bool:
         """Evaluate future intervals too; decoding time must not discard them."""
         return not self.intervals or any(period.active(now) for period in self.intervals)
+
+
+class TripReference(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    trip_id: str
+    service_date: date
+    route_id: str | None
+    direction_id: int | None
 
 
 class FixtureGtfsRtAdapter:
@@ -310,6 +319,24 @@ class FixtureGtfsRtAdapter:
             snapshot_events=tuple(snapshot_events),
             feed_version=feed.header.feed_version,
             fingerprint=sha256(json.dumps(canonical, sort_keys=True).encode()).hexdigest(),
+            trip_references=tuple(
+                TripReference(
+                    trip_id=trip.trip_id,
+                    service_date=datetime.strptime(trip.start_date, "%Y%m%d").date(),
+                    route_id=trip.route_id,
+                    direction_id=trip.direction_id,
+                )
+                for entity in feed.entity
+                for trip in (
+                    [entity.vehicle.trip]
+                    if entity.vehicle is not None
+                    else [entity.trip_update.trip]
+                    if entity.trip_update is not None
+                    else [selector.trip for selector in entity.alert.informed_entity]
+                    if entity.alert is not None
+                    else []
+                )
+            ),
         )
 
     def _event(

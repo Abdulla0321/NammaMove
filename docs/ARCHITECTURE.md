@@ -62,6 +62,8 @@ The existing `app.realtime` modules normalize synthetic GTFS-RT and maintain ind
 
 ## Updated journey, wallet and validation design — planned
 
+Phase 05-D adds a synthetic maintenance-only durability boundary, described in [DURABLE_INGESTION.md](DURABLE_INGESTION.md): two private source/evidence tables with RLS and explicit migration, immutable static binding, committed latest checkpoint/watermarks, original-deadline Redis reconstruction, and explicit retention. PostgreSQL is authoritative and Redis remains provisional until commit; durable reads/retries must use the gate. Dedicated non-owner worker/catalog-RLS acceptance and scheduled operations remain pending. This changes no active-journey/financial schema or user flow.
+
 The [PRD v1.1](PRD.md) is the product baseline; this section is the ARD amendment, not an implemented schema or provider integration. Keep the current modular monolith, verified JWT ownership, private-schema RLS, explicit owner migrations and versioned APIs. Existing `JourneyRecord` stores owned historical simulation results; it must not silently become a ticket or an active financial session. Existing routing remains BUS/SUBWAY/WALK until separately accepted mode adapters exist.
 
 | Boundary | Intended model/responsibility | Phase and dependency |

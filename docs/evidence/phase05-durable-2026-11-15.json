@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-15",
+  "phase": "05-D",
+  "status": "synthetic_owner_run_slice_verified_not_full_phase_acceptance",
+  "branch": "phase/05-live-tracking",
+  "head": "7265807",
+  "initial_worktree": "clean",
+  "migration": {
+    "revision": "0003_realtime_durable",
+    "parent": "0002_transit_data",
+    "effects_reviewed_before_execution": true,
+    "tables": ["ingestion_sources", "ingestion_generations"],
+    "scope": "additive private synthetic-only tables, checkpoint/watermark constraints, RLS, API/PUBLIC denial, expiry index",
+    "role_login_or_credential_creation": false,
+    "executed_only_on_new_empty_disposable_test_databases": true,
+    "persistent_application_or_auth_migrations": false,
+    "earlier_api_readiness_revisions": ["0002_transit_data", "0003_realtime_durable"],
+    "genuine_upgrade_downgrade_schema_comparison_and_failed_ddl_rollback": "pass"
+  },
+  "verification": {
+    "existing_phase05c": {"passed": 62, "failed": 0, "skipped": 0, "seconds": 3.33},
+    "new_durable_cases": 33,
+    "full_backend": {
+      "passed": 309,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 92.76,
+      "genuine_redis_postgis_auth_otp": true,
+      "new_disposable_test_database_removed": true
+    },
+    "ruff_check": "pass",
+    "ruff_format": "pass, 92 files",
+    "strict_mypy": "pass, 34 application files",
+    "pip_check": "pass, no broken requirements",
+    "git_diff_check": "pass",
+    "editor_diagnostics": "no errors in durability models, worker, migration or tests",
+    "documentation_relative_file_links": "pass",
+    "mobile_device_and_hosted_ci_rerun": false,
+    "dependency_changes": false
+  },
+  "implemented": [
+    "explicit owner-controlled synthetic source and exact static dataset/checksum/manifest/version/trip/calendar/cache-policy binding",
+    "optional route/direction references must match bound immutable static trip",
+    "bounded per-source advisory locks and transaction-local statement/lock timeouts",
+    "idempotent accepted/rejected/out-of-order/conflict/quarantine metadata without raw feed bodies",
+    "durable accepted header/content/receipt watermark plus independently checked omission/order-guard commitments",
+    "unexpired acceptance evidence must match committed watermark before restart recovery",
+    "one integrity-checked normalized latest checkpoint, original observation/alert TTLs and receipt times",
+    "SQL-commit-gated acceptance; provisional Redis state restored from SQL on durable reads/retries",
+    "concurrent acceptance, SQL rollback and lost-commit-response duplicate-safe retry",
+    "explicit dry-run-first bounded retention deletes expired audit/checkpoint payloads without resetting restart watermarks",
+    "API denial and RLS resistance to spoofed transaction-local app role even after accidental broad grants"
+  ],
+  "privacy_limits": [
+    "latest normalized synthetic checkpoint only, not a historical GPS log or raw feed archive",
+    "metadata evidence defaults to 86400 seconds, bounded 900-86400; maximum 1000 outcomes per registered source",
+    "observation payload deadlines remain at most 900 seconds but physical SQL deletion requires explicit owner retention; no scheduler installed",
+    "watermarks/bindings remain until explicit owner lifecycle review; source count is owner-controlled",
+    "WAL/backups/storage erasure and production retention approval remain pending"
+  ],
+  "restart_drill": {
+    "redis": "exact-ID-checked nammamove-phase05-ingestion-20261111, loopback 16380, nonpersistent",
+    "sql": "new disposable *_test database only, removed afterwards",
+    "actual_stop_start": "pass",
+    "dedicated_redis_stopped_after_verification": true,
+    "observed": ["outage unavailable and queued retry capacity retained", "committed SQL checkpoint restored after actual Redis restart with original observation ages", "queued retry accepted and old replay rejected", "duplicate safe and expired evidence/checkpoint payload retention exercised"],
+    "production_or_postgres_failover_claim": false
+  },
+  "security_boundary": "explicit maintenance schema owner only; no application runtime privilege broadening; separate NOLOGIN worker provisioning script is prepared but not activated; non-owner worker/catalog-RLS acceptance is next",
+  "independent_code_review": "guard commitment and NULL receipt findings fixed with regressions; read-only recheck found no remaining concrete issue",
+  "remaining": [
+    "dedicated non-owner worker identity/provisioning and catalog-RLS acceptance",
+    "scheduled bounded retention and operational recovery acceptance",
+    "durable dispatch/fetch orchestration and distributed queue/ack",
+    "real provider rights/coverage/provenance, broader GTFS-RT support and privacy approval",
+    "Redis ACL/TLS, noeviction/capacity/clock synchronization and availability/failover",
+    "deferred Phase 04 acceptance; authenticated delivery and active journey foundations",
+    "wallet/QR/financial execution and Phase 06 remain unstarted"
+  ],
+  "git_and_credentials": "no branch switch, stage, commit, push, merge, rebase, reset or credential modification; mobile environment not opened/changed",
+  "warnings": ["existing Starlette HTTPX deprecation", "existing Alembic geography reflection warning"]
+}

@@ -1,4 +1,8 @@
 # Phase 01 database and Windows runbook
+
+## Phase 05-D additive worker migration
+
+Revision `0003_realtime_durable` adds two private synthetic worker tables with RLS, bounded checkpoints/evidence and restart watermarks. See the [reviewed effects and owner-only runbook](DURABLE_INGESTION.md). It runs only via explicit owner Alembic commands; no startup table creation. For this implementation, migrations/roundtrip/rollback are exercised only on new disposable `*_test` databases, never persistent application/Auth databases. Earlier APIs accept 0002 and 0003 because the worker tables are additive; durable ingestion requires 0003. Runtime provisioning must deny the new tables. Dedicated non-owner worker provisioning/catalog-RLS acceptance and scheduled retention remain pending; do not run the API as the maintenance owner.
 See [PHASE_01_ACCEPTANCE_WINDOWS.md](PHASE_01_ACCEPTANCE_WINDOWS.md) for the resolved Docker Desktop setup history and the exact real-service acceptance/replay sequence, including safe PowerShell backup/restore commands.
 
 ## Scope and prerequisites

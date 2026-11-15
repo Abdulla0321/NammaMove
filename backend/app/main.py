@@ -100,7 +100,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 spatial = session.scalar(
                     text("SELECT extname FROM pg_extension WHERE extname='postgis'")
                 )
-                if revision != "0002_transit_data" or spatial != "postgis":
+                if (
+                    revision not in {"0002_transit_data", "0003_realtime_durable"}
+                    or spatial != "postgis"
+                ):
                     return JSONResponse({"status": "unavailable"}, status_code=503)
             return JSONResponse({"status": "ready"})
         except SQLAlchemyError:

@@ -3,6 +3,7 @@
 from alembic import context
 from app.config import Settings
 from app.models import Base
+from app.realtime import models as realtime_models  # noqa: F401
 from app.transit import models as transit_models  # noqa: F401
 from sqlalchemy import create_engine, pool
 

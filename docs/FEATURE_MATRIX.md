@@ -17,6 +17,7 @@ Implemented refers to local demo behavior, not production readiness.
 | Read-only coverage and network audit | Real snapshot: 83 stations, 170 platforms, 235 entrances; strong/weak connectivity distinguished | 02 |
 | Approximate timetable labels | Source timepoint and timing_precision exposed; agency_schedule_accuracy_verified=false | 02 |
 | GTFS-RT freshness and whole-feed worker | Synthetic replay/protobuf, atomic Redis generations/omission withdrawal, alert expiry and bounded local queue; genuine Redis evidence; no live source/fetcher | 02/05 |
+| Durable feed evidence, retention and restart watermarks | Owner-run synthetic source/static binding, idempotent metadata/latest checkpoint, guarded Redis rebuild and explicit retention; dedicated non-owner runtime/scheduler/dispatch remain pending | 05-D |
 | OTP schedule/street/accessibility routing | Implemented on owned synthetic graph; actual OTP calendar/direction/transfer/wheelchair tests | 03 |
 | Departure/arrival-time and journey preferences | Implemented over bounded candidates; no global optimum or real agency schedule claim | 03 |
 | Graph build/versioning/rollback | Pinned image/platform, canonical inputs, source/graph hashes, real build/load and explicit rollback verified | 03 |

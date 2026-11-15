@@ -1,0 +1,31 @@
+# Phase 05-D synthetic durable ingestion
+
+## Migration effects reviewed before test execution
+
+`0003_realtime_durable` is additive over `0002_transit_data`: two private tables, an evidence-expiry index, synthetic/checkpoint/watermark constraints, RLS and PUBLIC/API denial. It creates no role/login/credential, changes no existing rows and runs on neither API startup nor worker construction. Its downgrade deletes only the two new tables and their synthetic evidence/checkpoints. Tests use a new empty disposable `*_test` database with a migration-owner connection; no migration against persistent development/Auth databases is authorized or performed here.
+
+The existing API accepts revisions 0002 and 0003, since these private tables are optional for earlier API functions. Durable ingestion itself requires 0003. Frozen older migrations are untouched. `runtime_role.sql` denies the new tables even when its broad initial grants are used. `ingestion_role.sql` is a reviewed, explicit future NOLOGIN group provisioning script, not run by migrations/startup. This slice deliberately requires the maintenance schema owner; a dedicated restricted worker identity/catalog-RLS acceptance is not enabled yet. Supabase exposed schemas must still exclude `nammamove`.
+
+## Authority and ordering
+
+`DurableIngestion(engine, cache, dataset_id)` wraps the existing `RedisFullDataset`, and the existing bounded `FullDatasetWorker` accepts this store. Use an exclusive synthetic Redis namespace; do not bypass the durability gate with standalone writers/readers. `register()` is explicit owner code, not request authorization. It binds one exact source, fixture trip/service-day scope, Redis policy/namespace, immutable validated synthetic static dataset ID/checksum/manifest/version and referenced trip/calendar facts. Binding changes require a separately registered source, not an in-place rebind. It never fetches or activates a feed.
+
+PostgreSQL advisory transaction locks serialize each source with bounded lock/statement timeouts. Accepted/rejected/out-of-order/conflicting/quarantined generation metadata uses deterministic outcome/content identity; duplicate receipts do not create evidence or extend retention. No raw feed bodies/provider text are archived. Invalid/oversized input is bounded; oversized bodies reject before hashing and are not audited. Fixed per-source audit capacity rejects new work until explicit retention; watermarks never reset when audit rows expire.
+
+The sole normalized recovery checkpoint contains the latest generation and original observation/receipt/alert deadlines plus bounded hash/order guards, not a historical location log. It is integrity-hashed and checked against the durable watermark and static binding. Redis changes remain provisional until SQL commits. A crash/SQL failure after a Redis write is not acceptance: every durable read/retry restores the last committed checkpoint while holding the source lock. SQL and Redis are not a distributed transaction. Do not expose standalone cache snapshots as durable reads.
+
+Retained guards have a separate digest in the source watermark and accepted audit evidence, including guards for omitted channels that have no current observation record. An unexpired accepted audit must exist and match the watermark's receipt/header/content/guard digests before recovery. After metadata evidence expires, the durable source watermark and guard commitment remain. These consistency checks are not protection from a malicious database owner rewriting every commitment; owner/worker separation and production trust hardening remain required. When optional GTFS-RT route/direction references are present, they must match the bound immutable static trip as well as its service day.
+
+Recovery validates binding/checkpoint/generation integrity before projecting original-deadline payload TTLs; it never renews GPS/trip evidence. Metadata may be reprojected after payload expiry to enforce durable header ordering. Missing/expired GPS, omitted entities and cache loss remain unknown, never cancellation. Only fresh independent synthetic trip evidence can indicate simulated cancellation; no graph authority is granted. A corrupt Redis manifest fails closed for owner investigation rather than being automatically deleted; an intact but provisional Redis generation can be replaced from committed durable state.
+
+## Retention and operation
+
+Registration defaults to 24-hour metadata evidence, bounded to 900–86400 seconds, and at most 1000 generation rows per source. `retain(now=..., apply=False)` reports this source's expired audit rows and recovery payloads; `apply=True` explicitly deletes expired rows and removes payloads whose original observation/alert deadlines passed. It retains the source binding and header watermark, including after all payloads/audits expire. Source count is owner-controlled. No scheduler is installed: operators must run retention within their approved cadence, and WAL/backups/storage-level erasure require privacy/operations review. These are synthetic development policies, not approved production rider retention.
+
+Use the existing ignored owner configuration privately; never paste URLs, credentials or dump contents into evidence. Owner migrations use `python -m alembic upgrade head` only after reviewing effects and database target. No production activation, wallet, QR, authenticated delivery, active-journey schema or Phase 06 functionality is added.
+
+## Verification
+
+Genuine PostGIS + dedicated Redis tests are in `backend/tests/test_realtime_durable.py`. They require a new empty `NAMMAMOVE_TEST_DATABASE_URL` ending `_test` and loopback-only `NAMMAMOVE_TEST_REDIS_URL`; absent configuration is an explicit skip, not proof. Tests include concurrent/idempotent acceptance, SQL/Redis faults, cache loss/restart recovery, independent expiry, corruption/static mismatch, retention and grants/migration roundtrip. Results are recorded in phase evidence only after execution.
+
+Next: dedicated non-owner worker identity/provisioning acceptance and scheduled retention/operational recovery, then durable dispatch/fetch orchestration before authenticated delivery. Real-source rights, privacy, Redis security/failover and Phase 02/04 acceptance remain external gates.

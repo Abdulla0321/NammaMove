@@ -4,7 +4,7 @@
 
 After ingestion durability/provenance, establish owner-scoped JourneySession/JourneyLeg and revision contracts plus authenticated scoped mobile journey progress, reconnect/polling, consent and low-battery behavior. Preserve existing saved-history/routing contracts; GPS is never check-in/out or completion proof. Ticket issuance, wallet eligibility/holds, QR dual validation, debit and settlement are Phase 08. Phase 06 safe recovery consumes progress foundations only after its gates. See [PRD v1.1](../PRD.md) and [architecture](../ARCHITECTURE.md#updated-journey-wallet-and-validation-design--planned). These additions do not mark Phase 05 accepted.
 
-Status: In progress, synthetic replay, bounded protobuf adapters, atomic Redis event state and bounded whole-feed ingestion (2026-11-12). The user requested Phase 05 work while deferring Phase 04 acceptance follow-ups. This does not accept those gates or authorize live provider activation. See [realtime scope/runbook](../REALTIME.md).
+Status: In progress, synthetic replay/adapters, Redis whole-feed ingestion and owner-run durability/retention/restart watermarks (2026-11-15). Deferred Phase 04 and real-source gates remain open; no live provider activation or full Phase 05 acceptance. See [realtime](../REALTIME.md) and [durability scope](../DURABLE_INGESTION.md).
 
 ## Prerequisites
 Phases 02/04 accepted; authorized realtime feeds; consent and retention policy.
@@ -56,3 +56,11 @@ The phase checkboxes remain incomplete: the queue is process-local/explicitly dr
 Preserved existing whole-feed work, adding per-record normalized-event fingerprints and identity/expiry/scope/receipt/order-guard validation. Valid-JSON corruption fails unavailable/unknown instead of exposing changed cancellation/GPS evidence or acknowledging a false duplicate. Unexpected ordinary processing exceptions now use the finite retry budget and release reserved capacity on exhaustion, with sanitized counters only. Old `full-v1` manifests fail closed under the explicit `full-v2` fixture policy; no automatic reset or migration.
 
 Reverified 128 existing realtime cases; added 13 follow-up cases. Final focused ingestion **62 passed / 0 failed / 0 skipped**; full backend **276 passed / 0 failed / 0 skipped**, including genuine Redis/PostGIS/Auth/OTP. Actual isolated Redis restart and Ruff/format/mypy/pip checks pass. See [follow-up evidence](../evidence/phase05-followup-2026-11-14.json) and ADR-028. Next remains durable ingestion evidence/retention/restart watermarks and trusted source/static-snapshot binding; no session schema, delivery, QR/wallet or Phase 06 code is introduced.
+
+## Phase 05-D - 2026-11-15
+
+Owner-run synthetic source/static-snapshot registration, idempotent accepted/rejected generation metadata, original-deadline latest checkpoint, durable header/receipt/order-guard watermarks and explicit dry-run-first retention now wrap the existing ingestion/cache. PostgreSQL source locks and integrity/static/audit validation gate every Redis recovery/read; SQL failures and ambiguous commits never become unverified cache success. Migration 0003 adds two private RLS-protected tables only; earlier API compatibility is retained. No persistent application/Auth migrations or new credentials.
+
+**309 backend passed / 0 failed / 0 skipped**, including 33 durable cases, genuine PostGIS/Redis/Auth/OTP, upgrade/downgrade/DDL rollback, concurrency, retention, corruption/mismatch, SQL/Redis failures and actual isolated Redis restart recovery. Existing 62 Phase 05-C cases were independently reverified. Ruff lint/format, strict mypy and pip consistency pass. See [evidence](../evidence/phase05-durable-2026-11-15.json), ADR-029 and [runbook](../DURABLE_INGESTION.md).
+
+The worker remains explicit maintenance-owner synthetic code. Next accept a dedicated non-owner worker identity/catalog-RLS/provisioning path and scheduled bounded retention/recovery, then durable dispatch/fetch orchestration. Production rights/privacy/Redis security/failover, authenticated delivery, active journeys and full phase acceptance remain gated. No wallet/QR/payments or Phase 06 implementation.
