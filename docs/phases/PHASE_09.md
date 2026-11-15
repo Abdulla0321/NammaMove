@@ -2,6 +2,10 @@
 
 Status: Planned; not implemented.
 
+## Updated operations requirement (2026-11-14; design only)
+
+Add role-scoped auditable workflows for validation disputes, provider failures, pending checkout, debit/settlement reconciliation and refunds/reservation release. Digital-twin replay must include interrupted journeys, safe early exits, surges and network-capacity externalities, without private rider histories. No fabricated completion/settlement or unreviewed ledger edits. Depend on Phase 08 financial/validation contracts; this is planned scope, not current tooling. See [PRD](../PRD.md) and ADR-027.
+
 ## Prerequisites
 Earlier enabled features accepted; Phase 04 shell and assigned operational owners.
 

@@ -1,6 +1,10 @@
 # Phase 05 - Live tracking and feed reliability
 
-Status: In progress, synthetic replay, bounded protobuf adapters and atomic Redis event-state primitives (2026-11-04). The user requested Phase 05 work while deferring Phase 04 acceptance follow-ups. This does not accept those gates or authorize live provider activation. See [realtime scope/runbook](../REALTIME.md).
+## Updated product dependency (2026-11-14; planned, not implemented)
+
+After ingestion durability/provenance, establish owner-scoped JourneySession/JourneyLeg and revision contracts plus authenticated scoped mobile journey progress, reconnect/polling, consent and low-battery behavior. Preserve existing saved-history/routing contracts; GPS is never check-in/out or completion proof. Ticket issuance, wallet eligibility/holds, QR dual validation, debit and settlement are Phase 08. Phase 06 safe recovery consumes progress foundations only after its gates. See [PRD v1.1](../PRD.md) and [architecture](../ARCHITECTURE.md#updated-journey-wallet-and-validation-design--planned). These additions do not mark Phase 05 accepted.
+
+Status: In progress, synthetic replay, bounded protobuf adapters, atomic Redis event state and bounded whole-feed ingestion (2026-11-12). The user requested Phase 05 work while deferring Phase 04 acceptance follow-ups. This does not accept those gates or authorize live provider activation. See [realtime scope/runbook](../REALTIME.md).
 
 ## Prerequisites
 Phases 02/04 accepted; authorized realtime feeds; consent and retention policy.
@@ -38,3 +42,17 @@ Added synthetic-only GTFS-RT 2.0 FULL_DATASET protobuf normalization for explici
 Implemented bounded WATCH/MULTI/EXEC event-state updates for concurrent synthetic workers, independent payload TTLs and receipt-retained ordering/dedup guards. Timestamped channel snapshots expose freshness, observation/receipt times, synthetic observed positions, uncertain delay predictions and unloaded static schedules separately. Missing/stale GPS never cancels service; stale independent service evidence becomes unknown. Redis errors/corruption fail closed, ambiguous commits can be retried idempotently, and real disposable-server restart recovery was exercised. See [Redis evidence](../evidence/phase05-redis-2026-11-04.json).
 
 The Redis/worker checkbox remains incomplete: no whole-feed FULL_DATASET replacement/withdrawal, alert interval scheduler, bounded background queue or durable evidence worker is implemented. Next implement those ingestion-worker boundaries before any authenticated delivery. Source rights/static-snapshot binding, privacy/retention approval, Redis production security/availability, Phase 02 real-data and deferred Phase 04 acceptance remain open. No live feeds, production activation, automatic rerouting or Phase 06 work.
+
+## Bounded whole-feed ingestion slice - 2026-11-12
+
+Supersedes the preceding whole-feed/queue implementation gap for synthetic scope only. Added atomic FULL_DATASET replacement/empty-feed omission withdrawal, header ordering/exact fixture-version matching, future/disjoint/open alert intervals with read-time expiry and final-end TTL, and an explicit byte/job-bounded local queue with backpressure and bounded deterministic retry. Generation integrity, retained order/receipt guards and conservative same-vehicle gap quarantine prevent partial evidence, false duplicate success, freshness renewal or GPS-check bypass. Omission and feed failure never infer service cancellation/recovery. Existing APIs, Auth, migrations, database schema and mobile code remain unchanged; simulation labels remain mandatory.
+
+Baseline 79 replay/adapter/state cases passed before implementation. Final **263 backend tests passed / zero failed / zero skipped**, including 49 new ingestion cases, genuine Redis/PostGIS/Auth/OTP and actual disposable Redis outage/restart verification. Ruff lint/format, strict mypy and dependency consistency pass. See [ingestion evidence](../evidence/phase05-ingestion-2026-11-12.json).
+
+The phase checkboxes remain incomplete: the queue is process-local/explicitly driven, not durable or production fetch orchestration. Next: durable evidence/retention and restart watermark policy via reviewed migrations, plus trusted source/immutable static-snapshot binding. Source rights, Redis production security/availability, privacy, deferred Phase 04 and Phase 02 gates remain open. Do not start authenticated mobile delivery or Phase 06 yet.
+
+## Integrity/retry follow-up - 2026-11-14
+
+Preserved existing whole-feed work, adding per-record normalized-event fingerprints and identity/expiry/scope/receipt/order-guard validation. Valid-JSON corruption fails unavailable/unknown instead of exposing changed cancellation/GPS evidence or acknowledging a false duplicate. Unexpected ordinary processing exceptions now use the finite retry budget and release reserved capacity on exhaustion, with sanitized counters only. Old `full-v1` manifests fail closed under the explicit `full-v2` fixture policy; no automatic reset or migration.
+
+Reverified 128 existing realtime cases; added 13 follow-up cases. Final focused ingestion **62 passed / 0 failed / 0 skipped**; full backend **276 passed / 0 failed / 0 skipped**, including genuine Redis/PostGIS/Auth/OTP. Actual isolated Redis restart and Ruff/format/mypy/pip checks pass. See [follow-up evidence](../evidence/phase05-followup-2026-11-14.json) and ADR-028. Next remains durable ingestion evidence/retention/restart watermarks and trusted source/static-snapshot binding; no session schema, delivery, QR/wallet or Phase 06 code is introduced.

@@ -4,16 +4,40 @@ Only a conservative v2 FULL_DATASET subset is supported. Decoding is atomic and
 stateless: omitted entities provide no evidence, never cancellation/recovery.
 """
 
+from __future__ import annotations
+
+import json
 from datetime import date, datetime, timezone
 from hashlib import sha256
 from typing import Literal
 
+from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
 from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import DecodeError
+from google.protobuf.message import DecodeError, Message
 from google.transit import gtfs_realtime_pb2  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.realtime.replay import Position, ReplayEvent, Service
+
+
+def _feed_message_type() -> type[Message]:
+    # The pinned 2.0.0 binding predates standard FeedHeader.feed_version (field 4).
+    # Extend ONLY that official optional string in a private descriptor pool;
+    # never modify global descriptors or silently accept other new wire fields.
+    schema = descriptor_pb2.FileDescriptorProto.FromString(
+        gtfs_realtime_pb2.DESCRIPTOR.serialized_pb
+    )
+    header = next(message for message in schema.message_type if message.name == "FeedHeader")
+    if not any(field.number == 4 for field in header.field):
+        header.field.add(name="feed_version", number=4, label=1, type=9)
+    pool = descriptor_pool.DescriptorPool()
+    pool.Add(schema)
+    return message_factory.GetMessageClass(
+        pool.FindMessageTypeByName("transit_realtime.FeedMessage")
+    )
+
+
+_FeedMessage = _feed_message_type()
 
 
 class FeedRejected(ValueError):
@@ -104,7 +128,32 @@ class FixtureBatch(BaseModel):
     header_at: datetime
     feed_age_seconds: float
     events: tuple[ReplayEvent, ...]
+    feed_version: str | None = None
+    fingerprint: str = ""
+    snapshot_events: tuple[SnapshotEvent, ...] = ()
     notice: str = "Synthetic GTFS-RT subset; no live service or verified incidents."
+
+
+class AlertInterval(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    start: int | None = None
+    end: int | None = None
+
+    def active(self, now: datetime) -> bool:
+        """Intervals are start-inclusive and end-exclusive, including open bounds."""
+        return (self.start is None or self.start <= now.timestamp()) and (
+            self.end is None or now.timestamp() < self.end
+        )
+
+
+class SnapshotEvent(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    event: ReplayEvent
+    intervals: tuple[AlertInterval, ...] = ()
+
+    def active(self, now: datetime) -> bool:
+        """Evaluate future intervals too; decoding time must not discard them."""
+        return not self.intervals or any(period.active(now) for period in self.intervals)
 
 
 class FixtureGtfsRtAdapter:
@@ -152,22 +201,26 @@ class FixtureGtfsRtAdapter:
             raise ValueError("Aware receipt clock required")
         if not payload or len(payload) > self.max_bytes:
             raise ValueError("Payload size")
-        message = gtfs_realtime_pb2.FeedMessage()
+        message = _FeedMessage()
         message.ParseFromString(payload)
-        if not message.IsInitialized() or len(message.entity) > self.max_entities:
+        if not message.IsInitialized():
             raise ValueError("Incomplete or oversized feed")
         original = message.SerializeToString(deterministic=True)
         message.DiscardUnknownFields()
         if message.SerializeToString(deterministic=True) != original:
             raise ValueError("Unsupported wire fields")
         feed = _Feed.model_validate(MessageToDict(message, preserving_proto_field_name=True))
+        if len(feed.entity) > self.max_entities:
+            raise ValueError("Oversized feed")
         header_at = datetime.fromtimestamp(feed.header.timestamp, timezone.utc)
         age = (now - header_at).total_seconds()
         if not 0 <= age < self.retention_seconds:
             raise ValueError("Header clock")
         events: list[ReplayEvent] = []
+        snapshot_events: list[SnapshotEvent] = []
         identities: set[str] = set()
         for entity in feed.entity:
+            before = len(events)
             if entity.id in identities or entity.is_deleted is not None:
                 raise ValueError("Duplicate ID or unsupported deletion")
             identities.add(entity.id)
@@ -223,9 +276,21 @@ class FixtureGtfsRtAdapter:
                 for selector in alert.informed_entity:
                     # Validate static selectors even for inactive alerts.
                     event = self._event(entity, selector.trip, feed.header.timestamp, "alert")
+                    snapshot_events.append(
+                        SnapshotEvent(
+                            event=event,
+                            intervals=tuple(
+                                AlertInterval(start=p.start, end=p.end) for p in alert.active_period
+                            ),
+                        )
+                    )
                     if active:
                         events.append(event)
-            if len(events) > self.max_events:
+            else:
+                raise ValueError("Missing channel")
+            if entity.alert is None:
+                snapshot_events.extend(SnapshotEvent(event=e) for e in events[before:])
+            if len(snapshot_events) > self.max_events:
                 raise ValueError("Fanout limit")
         for event in events:
             if (
@@ -233,7 +298,19 @@ class FixtureGtfsRtAdapter:
                 or not 0 <= (now - event.observed_at).total_seconds() < self.retention_seconds
             ):
                 raise ValueError("Observation clock")
-        return FixtureBatch(header_at=header_at, feed_age_seconds=age, events=tuple(events))
+        # Canonical entity order makes transport reordering an identical snapshot.
+        canonical = {
+            "header": feed.header.model_dump(),
+            "entity": [e.model_dump() for e in sorted(feed.entity, key=lambda e: e.id)],
+        }
+        return FixtureBatch(
+            header_at=header_at,
+            feed_age_seconds=age,
+            events=tuple(events),
+            snapshot_events=tuple(snapshot_events),
+            feed_version=feed.header.feed_version,
+            fingerprint=sha256(json.dumps(canonical, sort_keys=True).encode()).hexdigest(),
+        )
 
     def _event(
         self,

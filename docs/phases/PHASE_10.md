@@ -2,6 +2,10 @@
 
 Status: Planned; not implemented.
 
+## Updated integration/pilot gate (2026-11-14; design only)
+
+The limited Bengaluru pilot must validate only explicitly enabled modes and authorized wallet/payment/operator integrations. Review QR/scanner trust, check-in/out and interrupted-journey reconciliation, reservation/debit/refund/settlement separation, consent and data retention. No academic demo entitlement is a genuine BMTC/BMRCL/provider ticket, and a wallet debit is not evidence of bank settlement. Require genuine partner evidence, security/rollback/support readiness and all applicable prior gates; the [PRD v1.1](../PRD.md) amendment authorizes no deployment or real payment activation.
+
 ## Prerequisites
 All applicable phase gates accepted; source/provider permissions and security/privacy review complete.
 

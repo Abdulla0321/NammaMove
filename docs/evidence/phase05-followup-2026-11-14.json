@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-14",
+  "phase": 5,
+  "status": "in_progress_not_accepted",
+  "branch": "phase/05-live-tracking",
+  "head": "bfc8c0ff179c42d8567742040a3be60a3fa90a9e",
+  "origin_main_local_ref": "bfc8c0ff179c42d8567742040a3be60a3fa90a9e",
+  "remote_fetch_performed": false,
+  "scope": "preserve pre-existing whole-feed ingestion; harden synthetic generation integrity and bounded exception recovery; record user-authorized future journey/wallet/QR requirements",
+  "session_files": [
+    "backend/app/realtime/ingestion.py",
+    "backend/tests/test_realtime_ingestion.py",
+    "docs/PRD.md",
+    "docs/ARCHITECTURE.md",
+    "docs/MASTER_PLAN.md",
+    "docs/FEATURE_MATRIX.md",
+    "docs/DECISIONS.md",
+    "docs/REALTIME.md",
+    "docs/PHASE_STATUS.md",
+    "docs/phases/PHASE_05.md",
+    "docs/phases/PHASE_06.md",
+    "docs/phases/PHASE_07.md",
+    "docs/phases/PHASE_08.md",
+    "docs/phases/PHASE_09.md",
+    "docs/phases/PHASE_10.md",
+    "docs/evidence/phase05-followup-2026-11-14.json"
+  ],
+  "preexisting_uncommitted_work": "9 existing changed/untracked files preserved, including gtfs_rt.py and November 12 ingestion evidence; no wholesale replacement",
+  "verification": {
+    "existing_realtime_reverification": {"passed": 128, "failed": 0, "skipped": 0, "seconds": 8.69},
+    "new_followup_cases": 13,
+    "focused_ingestion": {"passed": 62, "failed": 0, "skipped": 0, "seconds": 2.92},
+    "full_backend": {
+      "passed": 276,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 21.89,
+      "genuine_redis_postgis_auth_otp": true,
+      "new_empty_disposable_postgis_test_database": true,
+      "disposable_database_removed": true,
+      "existing_application_database_migrations": false
+    },
+    "ruff_check": "pass",
+    "ruff_format": "pass, 87 files",
+    "strict_mypy": "pass, 32 application files",
+    "pip_check": "pass, no broken requirements",
+    "editor_diagnostics": "no errors in ingestion implementation/tests",
+    "git_diff_check": "pass",
+    "modified_documentation_relative_file_links": "pass",
+    "mobile_device_or_hosted_ci_rerun": false,
+    "dependency_changes": false
+  },
+  "implemented_followup": [
+    "normalized event fingerprints and reconstructed record identity/expiry/scope checks before reads or duplicate acknowledgement",
+    "receipt chronology and observation ordering/receipt-guard consistency checks",
+    "valid-JSON service, position, trip, identity, receipt and future/expired-clock corruption fails unavailable/unknown",
+    "duplicate/unknown-scope/altered-expiry/altered-channel manifest records fail closed",
+    "unexpected ordinary exceptions become sanitized unavailable outcomes with bounded retries, capacity release and worker_error counters",
+    "post-commit unexpected exception retries as an intact duplicate without refreshing receipt time",
+    "explicit full-v2 ephemeral policy rejects old manifests without automatic deletion/reset"
+  ],
+  "redis_restart_drill": {
+    "container": "nammamove-phase05-ingestion-20261111",
+    "exact_container_id_checked": true,
+    "loopback_port": 16380,
+    "configuration_changed": false,
+    "nonpersistent": true,
+    "maxmemory_bytes": 33554432,
+    "policy": "noeviction",
+    "actual_stop_start": "pass: outage unavailable/unknown; retry retains capacity; cold-cache unknown; retry accepted; reconstructed worker duplicate; expired replay rejected",
+    "dedicated_instance_stopped_after_verification": true,
+    "durable_or_production_failover_claim": false
+  },
+  "planned_requirements_not_implemented": {
+    "05": "owner-scoped JourneySession/JourneyLeg revisions and authenticated mobile progress after feed durability/provenance",
+    "06": "trusted safe reachable-exit recovery, passenger confirmation, preserved preferences/accessibility/entitlements/incurred fares, synthetic early-exit fare contracts and network-capacity safety",
+    "07": "calibrated uncertain ETA/transfer risk and safe warnings",
+    "08": "unified simulated then authorized wallet, configurable initial INR 500 minimum plus actual affordability/holds, one demo QR per paid leg with dual validation, provider booking, verified checkout debit, separate settlement/refunds/releases",
+    "09": "validation disputes, provider failures, reconciliation, digital twin and resilience",
+    "10": "security, genuine approved provider integrations and limited Bengaluru pilot"
+  },
+  "remaining": [
+    "durable ingestion evidence/retention and restart watermark policy through reviewed owner-run migrations",
+    "owner-controlled source provenance and immutable static-snapshot/version binding",
+    "production fetching/orchestration, durable work/ack and broader GTFS-RT support",
+    "Redis ACL/TLS, clock synchronization, capacity/security/availability and privacy acceptance",
+    "Phase 02 source rights/coverage and deferred Phase 04 security/CI/lifecycle gates",
+    "nonfinancial active journey/progress foundations and authenticated delivery; no Phase 06 started"
+  ],
+  "unchanged": ["public APIs/routes", "Auth", "database schema/migrations", "routing", "mobile sources/environment", "credentials", "dependency requirements"],
+  "git": "no staging, commit, push, merge, rebase, reset or branch switch",
+  "warnings": ["existing Starlette HTTPX test-client deprecation", "existing Alembic geography reflection warning"]
+}
