@@ -13,6 +13,7 @@ REVOKE UPDATE, DELETE ON nammamove.audit_events, nammamove.disruption_evidence F
 
 -- Durable ingestion is private worker/maintenance state, never commuter API data.
 REVOKE ALL ON nammamove.ingestion_sources, nammamove.ingestion_generations FROM nammamove_api;
+REVOKE ALL ON nammamove.ingestion_workers FROM nammamove_api;
 
 -- Static transit imports are maintenance-owner operations, never API writes.
 REVOKE INSERT, UPDATE, DELETE ON nammamove.gtfs_agencies, nammamove.gtfs_calendar_dates, nammamove.gtfs_frequencies, nammamove.gtfs_routes, nammamove.gtfs_services, nammamove.gtfs_shape_points, nammamove.gtfs_shapes, nammamove.gtfs_stop_times, nammamove.gtfs_stops, nammamove.gtfs_transfers, nammamove.gtfs_trips, nammamove.transit_datasets, nammamove.transit_feeds FROM nammamove_api;

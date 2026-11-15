@@ -101,7 +101,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     text("SELECT extname FROM pg_extension WHERE extname='postgis'")
                 )
                 if (
-                    revision not in {"0002_transit_data", "0003_realtime_durable"}
+                    revision
+                    not in {"0002_transit_data", "0003_realtime_durable", "0004_ingestion_scope"}
                     or spatial != "postgis"
                 ):
                     return JSONResponse({"status": "unavailable"}, status_code=503)

@@ -269,7 +269,7 @@ def test_non_owner_runtime_api_and_pool_identity_reset(postgres, secured):
                         "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='nammamove' AND c.relkind='r' AND c.relrowsecurity"
                     )
                 )
-                == 29
+                == 30
             )
         mine = token()
         other = token(subject=uuid4())

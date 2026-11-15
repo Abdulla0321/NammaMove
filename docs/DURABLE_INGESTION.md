@@ -1,4 +1,32 @@
-# Phase 05-D synthetic durable ingestion
+# Phase 05 synthetic durable ingestion
+
+## Phase 05-E source-scoped workers and scheduled operations
+
+This section supersedes the owner-only/unscheduled limitations in the historical Phase 05-D description below. Additive [0004](../backend/migrations/versions/0004_ingestion_scope.py) leaves [0003](../backend/migrations/versions/0003_realtime_durable.py) frozen. It adds private owner-assigned `ingestion_workers`, a security-barrier scope view, restrictive RLS and database-clock-expired evidence deletion. No roles, credentials, assignments or registrations are created by migration. Downgrade removes only these additions, preserving 0003 sources/evidence. API readiness accepts 0002/0003/0004. No persistent application/Auth migration is performed.
+
+The explicit [provisioning script](../backend/sql/ingestion_role.sql) grants a NOLOGIN group required static/private SELECT, generation INSERT, expired-generation DELETE, and UPDATE only on source watermark/checkpoint columns. The owner alone registers sources and assigns exact database-role/source pairs. Workers cannot insert sources, alter bindings/dataset IDs/retention policies, update generation evidence or change assignments. Use a dedicated non-owner/non-superuser/non-BYPASSRLS login without API, owner or other worker-login membership. The shared group has no assignment and fails closed when selected directly. Remove assignments before reusing a dropped role name.
+
+Scope uses actual `current_user`, never caller-set user/role/source GUCs. Restrictive policies intersect existing permissive catalog policies on **all 13 static tables**, including under spoofed admin GUCs and accidental SELECT grants. An owner-executed security-barrier view joins assignments/sources/datasets, filters by invoker `current_user`, and exposes only assigned source/dataset/feed IDs. Unlike a SECURITY DEFINER function, a view does not change `current_user`. Its sole PUBLIC privilege is SELECT; normal API callers need no private table access to evaluate catalog RLS. Existing verified API behavior stays covered by regressions. Keep the schema outside Supabase exposed schemas.
+
+Existing source locks and exact static checksum/manifest/version/trip/calendar/cache-policy/namespace validation gate all operations. Generation DELETE additionally requires `expires_at <= statement_timestamp()`; a future caller clock cannot authorize deletion of unexpired evidence. Workers remain trusted to process their own assigned synthetic evidence: this isolates sources, not a malicious worker's fabricated own checkpoint. Owners remain trusted.
+
+[IngestionMaintenance](../backend/app/realtime/maintenance.py) is explicit operator code for one preconfigured source: call `tick(now=...)`, or `run(stop_event, max_ticks=...)`. Nothing starts with the API. Each due tick performs at most one retention and one recovery transaction using the existing source lock, 2-second statement/1-second lock timeouts, at most 1000 evidence rows and bounded checkpoint/Redis attempts. Default cadence is 60 seconds (range 1–900). Retry delays are 1/2/4/8 seconds, maximum five attempts (default four), then wait for the next cadence. A tick never sleeps. The stoppable loop checks once per second and requires a finite 1–86400 tick budget. Ordinary exceptions become sanitized results; interruptions propagate. A mutex serializes same-instance ticks; independent instances serialize SQL through source advisory locks. Local retry/due state resets on reconstruction; there is no durable scheduler/leader election.
+
+Retention preserves watermarks; recovery preserves original receipt times and observation/alert deadlines. Retry/reconstruction cannot renew GPS/service TTLs. Missing/stale evidence remains unknown. Physical SQL deletion requires this explicit operating cadence; no installed service, approved production policy or WAL/backup erasure is claimed.
+
+Genuine [PostGIS/Redis worker tests](../backend/tests/test_realtime_worker.py) use non-owner `SET ROLE` execution without creating passwords. They cover spoofing, static/source isolation, prohibited changes, future-expiry deletion denial, retry/stop/concurrent ticks and migration rollback. Full regressions retain normal API RLS and Alembic schema comparison. This does not certify deployment login credentials or multi-host operations.
+
+## Durable dispatch and fetch orchestration — DESIGN ONLY
+
+No dispatcher, durable job table, fetcher, endpoint or network client is implemented here. The current local queue loses bytes on process death; producers must resubmit. Proposed next slice:
+
+1. Owner-configured source/static binding and allowlisted synthetic producer; no request-supplied URL or authorization. Bound redirects, response bytes/timeouts, concurrency and per-source/global capacity before fetching. Real sources remain gated.
+2. Review an additive job schema with source/content identity, original receipt/deadline, finite attempts, due time and lease token/expiry. Claim using SQL row locks; compare tokens before acknowledgement. Crash/reclaim can redeliver: reuse durable idempotency and acknowledge only after generation commit, without an exactly-once claim.
+3. Decide payload privacy explicitly: producer resubmission without crash survival, or an authorized bounded short-lived encrypted spool with deletion tests. Metadata cannot reconstruct lost bytes. Never silently archive raw feeds/GPS history in jobs, logs, backups or dead letters.
+4. Retry only unavailable/contention within finite deadlines/attempts; invalid/conflicting/outdated feeds terminate. Preserve original TTLs across lease expiry/restart/ambiguous commit. Admission must respect downstream capacity and retained ordering guards.
+5. Acceptance must exercise two claimants, stale acknowledgement/lease expiry, crashes around admission/commit, real SQL/Redis loss, bounded capacity/exhaustion, original TTL, expired spool/job deletion, cross-source/spoofing denial and actual service restart. Future delivery needs its own authorization/outbox design; dispatch does not authorize graph closure or rerouting.
+
+Production rights/privacy, Redis ACL/TLS/failover, Phase 02/04 gates, authenticated delivery and active journeys remain open. Dispatch design is not implementation evidence.
 
 ## Migration effects reviewed before test execution
 
@@ -28,4 +56,4 @@ Use the existing ignored owner configuration privately; never paste URLs, creden
 
 Genuine PostGIS + dedicated Redis tests are in `backend/tests/test_realtime_durable.py`. They require a new empty `NAMMAMOVE_TEST_DATABASE_URL` ending `_test` and loopback-only `NAMMAMOVE_TEST_REDIS_URL`; absent configuration is an explicit skip, not proof. Tests include concurrent/idempotent acceptance, SQL/Redis faults, cache loss/restart recovery, independent expiry, corruption/static mismatch, retention and grants/migration roundtrip. Results are recorded in phase evidence only after execution.
 
-Next: dedicated non-owner worker identity/provisioning acceptance and scheduled retention/operational recovery, then durable dispatch/fetch orchestration before authenticated delivery. Real-source rights, privacy, Redis security/failover and Phase 02/04 acceptance remain external gates.
+The Phase 05-E section above supersedes this historical owner-only next step. Next implementation is durable dispatch/fetch orchestration following its design/privacy gates, before authenticated delivery. Real-source rights, privacy, Redis security/failover and Phase 02/04 acceptance remain external gates.

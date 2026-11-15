@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-15",
+  "phase": "05-E",
+  "status": "synthetic_source_scoped_worker_verified_not_full_phase_acceptance",
+  "branch": "phase/05-live-tracking",
+  "head_before_and_after": "a7c66e2",
+  "initial_worktree": "clean",
+  "baseline_tests_reported_by_user": 309,
+  "git_mutations": false,
+  "migration": {
+    "revision": "0004_ingestion_scope",
+    "location": "backend/migrations/versions/0004_ingestion_scope.py",
+    "parent": "0003_realtime_durable",
+    "frozen_parent_location": "backend/migrations/versions/0003_realtime_durable.py",
+    "parent_unchanged": true,
+    "effects_reviewed_before_execution": true,
+    "adds": [
+      "private owner-assigned ingestion_workers table with source FK and ORM metadata",
+      "owner-executed security-barrier ingestion_worker_scope view filtered by invoker current_user",
+      "restrictive source policies and restrictive scope across all 13 static catalog tables",
+      "worker generation DELETE only after database statement_timestamp expiry"
+    ],
+    "rls_table_count": 30,
+    "roles_credentials_or_assignments_created_by_migration": false,
+    "only_new_empty_disposable_test_databases_migrated": true,
+    "persistent_application_or_auth_migrations": false,
+    "genuine_upgrade_downgrade_alembic_schema_comparison_failed_ddl_rollback": "pass",
+    "api_readiness_revisions": ["0002_transit_data", "0003_realtime_durable", "0004_ingestion_scope"]
+  },
+  "implemented": [
+    "non-owner execution scoped to actual current_user and explicit owner assignment, never spoofable identity GUCs",
+    "restrictive catalog isolation despite existing permissive admin/user policies and accidental SELECT grants",
+    "normal verified API catalog behavior preserved",
+    "owner-exclusive source registration, immutable static/cache binding, assignment and retention-policy changes",
+    "column-limited checkpoint/watermark updates; no generation UPDATE or source DELETE",
+    "database-clock denial of unexpired generation deletion, tested with genuinely future-expiry evidence",
+    "explicit per-source maintenance tick and finite stoppable loop, no API startup hook",
+    "bounded retry/cadence, sanitized simulation-labeled results and same-instance mutex",
+    "independent schedulers serialize source SQL through advisory locks",
+    "retention rollback on SQL failure and retry without renewing original TTLs/watermarks"
+  ],
+  "verification": {
+    "runner": "ignored backups/phase05-adapter-verify.py, inspected before execution; creates/removes a fresh *_test database per invocation",
+    "first_full_backend": {"passed": 325, "failed": 0, "skipped": 0, "seconds": 186.77},
+    "final_full_backend": {"passed": 330, "failed": 0, "skipped": 0, "seconds": 257.06},
+    "new_worker_maintenance_cases": 21,
+    "final_focused_after_simulation_label_addition": {"passed": 21, "failed": 0, "skipped": 0, "seconds": 79.68},
+    "genuine_postgis_redis_supabase_auth_otp": true,
+    "all_new_disposable_test_databases_removed": true,
+    "temporary_nologin_test_roles_removed": true,
+    "nonowner_permission_method": "genuine PostgreSQL SET ROLE on pooled sessions, asserting current_user; no login password created or deployment credential certified",
+    "ruff_check": "pass",
+    "ruff_format_check": "pass, 95 files",
+    "strict_mypy": "pass, 35 application files",
+    "pip_check": "pass, no broken requirements",
+    "git_diff_check": "pass",
+    "editor_diagnostics": "no errors in durable, maintenance, models, 0004 migration or worker tests",
+    "transient_failures": [
+      "After adding the simulation result field, mypy rejected **dict[str,int] as potentially supplying that Literal field; changed to explicit evidence/payload integer arguments and reran successfully."
+    ],
+    "final_test_failures": 0,
+    "final_test_skips": 0,
+    "existing_warnings": ["Starlette HTTPX TestClient deprecation", "Alembic unrecognized PostGIS geography reflection"],
+    "mobile_hosted_ci_production_login_or_failover_verification": false,
+    "dependency_changes": false
+  },
+  "actual_restart_drill": {
+    "runner": "ignored backups/phase05-durable-restart.py inspected before execution; extended with explicit maintenance outage/recovery ticks",
+    "container": "nammamove-phase05-ingestion-20261111",
+    "exact_container_id_checked": true,
+    "redis": "loopback 16380, dedicated nonpersistent fixture service",
+    "actual_stop_start": "pass",
+    "maintenance_tick_during_outage": "retry",
+    "maintenance_tick_after_restart": "completed",
+    "original_observation_and_receipt_ages": "preserved",
+    "queue_retry_capacity_old_replay_duplicate_and_expired_retention": "pass",
+    "drill_identity": "maintenance owner; separate genuine non-owner cold-cache recovery is covered by worker tests",
+    "disposable_database_removed": true,
+    "dedicated_redis_restored_to_original_stopped_state": true,
+    "production_failover_claim": false
+  },
+  "delivery": {
+    "repository_files_added_or_modified": 16,
+    "ignored_local_helpers_modified": ["backups/phase05-adapter-verify.py", "backups/phase05-durable-restart.py"],
+    "dispatch_fetch": "DESIGN ONLY in docs/DURABLE_INGESTION.md; no dispatcher, job schema, fetcher or endpoint implemented",
+    "credentials_created_or_changed": false,
+    "mobile_changes": false,
+    "next_slice": "review payload privacy/resubmission versus bounded spool, then implement source-scoped durable dispatch leases/admission/ack/retry with crash tests"
+  },
+  "limits_and_blockers": [
+    "synthetic-only engineering; no live source activation or full Phase 05 acceptance",
+    "maintenance must be explicitly operated; no installed scheduler service or durable local retry state",
+    "database owners and workers processing their own assigned evidence remain trusted",
+    "current queue loses bytes on process death; dispatch payload privacy and durable lease design remain unimplemented",
+    "real provider rights/coverage, production privacy/retention and WAL/backup erasure remain open",
+    "Redis ACL/TLS/security/failover and operational deployment acceptance remain open",
+    "Phase 02 external and deferred Phase 04 gates remain open",
+    "authenticated delivery, active journeys, consent/battery, wallet/QR and Phase 06 remain unimplemented"
+  ]
+}

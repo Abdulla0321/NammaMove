@@ -1,4 +1,4 @@
-"""Synthetic owner-run durability gate around the existing whole-feed worker.
+"""Synthetic source-scoped durability gate around the existing whole-feed worker.
 
 PostgreSQL is authoritative. Redis writes are provisional until SQL commits;
 all durable reads re-project the committed checkpoint under the same source lock.
@@ -33,7 +33,7 @@ class _Checkpoint(BaseModel):
 
 
 class DurableIngestion:
-    """Bounded maintenance-owner fixture worker; preserve existing event/cache APIs.
+    """Bounded owner-registered fixture worker; preserve existing event/cache APIs.
 
     Use an exclusive Redis namespace for this durable source. Callers must not
     bypass this gate with standalone cache writers/readers. No SQL transaction
@@ -172,7 +172,6 @@ class DurableIngestion:
 
     def _source(self, db: Session, now: datetime) -> IngestionSource:
         self._lock(db)
-        self._owner(db)
         source = db.get(IngestionSource, self.adapter.source_id, populate_existing=True)
         if (
             source is None
@@ -389,7 +388,7 @@ class DurableIngestion:
         return FeedSnapshot(tracking=TrackingSnapshot(storage_status="unavailable"))
 
     def retain(self, *, now: datetime, apply: bool = False) -> dict[str, int]:
-        """Owner-run bounded retention, dry-run by default; never reset watermarks."""
+        """Source-scoped bounded retention, dry-run by default; preserve watermarks."""
         _aware(now)
         with Session(self.engine) as db, db.begin():
             source = self._source(db, now)

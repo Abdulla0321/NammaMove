@@ -39,6 +39,16 @@ class IngestionSource(Base):
     )
 
 
+class IngestionWorker(Base):
+    """Owner-assigned actual database identities; never JWT or GUC authority."""
+
+    __tablename__ = "ingestion_workers"
+    worker_name: Mapped[str] = mapped_column(String(63), primary_key=True)
+    source_id: Mapped[str] = mapped_column(
+        ForeignKey(FK + "ingestion_sources.id", ondelete="RESTRICT"), primary_key=True
+    )
+
+
 class IngestionGeneration(Base):
     __tablename__ = "ingestion_generations"
     source_id: Mapped[str] = mapped_column(

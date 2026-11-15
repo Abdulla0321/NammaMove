@@ -4,7 +4,7 @@
 
 After ingestion durability/provenance, establish owner-scoped JourneySession/JourneyLeg and revision contracts plus authenticated scoped mobile journey progress, reconnect/polling, consent and low-battery behavior. Preserve existing saved-history/routing contracts; GPS is never check-in/out or completion proof. Ticket issuance, wallet eligibility/holds, QR dual validation, debit and settlement are Phase 08. Phase 06 safe recovery consumes progress foundations only after its gates. See [PRD v1.1](../PRD.md) and [architecture](../ARCHITECTURE.md#updated-journey-wallet-and-validation-design--planned). These additions do not mark Phase 05 accepted.
 
-Status: In progress, synthetic replay/adapters, Redis whole-feed ingestion and owner-run durability/retention/restart watermarks (2026-11-15). Deferred Phase 04 and real-source gates remain open; no live provider activation or full Phase 05 acceptance. See [realtime](../REALTIME.md) and [durability scope](../DURABLE_INGESTION.md).
+Status: In progress, synthetic replay/adapters, Redis whole-feed ingestion, source-scoped non-owner durable workers and explicit scheduled bounded retention/recovery (2026-11-15). Dispatch/fetch is design-only. Deferred Phase 04 and real-source gates remain open; no live provider activation or full Phase 05 acceptance. See [realtime](../REALTIME.md) and [durability scope](../DURABLE_INGESTION.md).
 
 ## Prerequisites
 Phases 02/04 accepted; authorized realtime feeds; consent and retention policy.
@@ -56,6 +56,14 @@ The phase checkboxes remain incomplete: the queue is process-local/explicitly dr
 Preserved existing whole-feed work, adding per-record normalized-event fingerprints and identity/expiry/scope/receipt/order-guard validation. Valid-JSON corruption fails unavailable/unknown instead of exposing changed cancellation/GPS evidence or acknowledging a false duplicate. Unexpected ordinary processing exceptions now use the finite retry budget and release reserved capacity on exhaustion, with sanitized counters only. Old `full-v1` manifests fail closed under the explicit `full-v2` fixture policy; no automatic reset or migration.
 
 Reverified 128 existing realtime cases; added 13 follow-up cases. Final focused ingestion **62 passed / 0 failed / 0 skipped**; full backend **276 passed / 0 failed / 0 skipped**, including genuine Redis/PostGIS/Auth/OTP. Actual isolated Redis restart and Ruff/format/mypy/pip checks pass. See [follow-up evidence](../evidence/phase05-followup-2026-11-14.json) and ADR-028. Next remains durable ingestion evidence/retention/restart watermarks and trusted source/static-snapshot binding; no session schema, delivery, QR/wallet or Phase 06 code is introduced.
+
+## Phase 05-E - source-scoped worker and scheduled maintenance - 2026-11-15
+
+Owner-registered synthetic sources now run with explicitly assigned non-owner database roles. Additive [0004](../../backend/migrations/versions/0004_ingestion_scope.py) leaves 0003 frozen and adds owner-only assignments, source-restrictive RLS and restrictive scope on all 13 catalog tables. Spoofed user/admin/source GUCs cannot broaden access. Workers cannot alter registration/static bindings/policy, and can delete generation evidence only after database-clock expiry. Existing verified API behavior is preserved.
+
+Explicit per-source maintenance ticks and a finite stoppable loop apply bounded retention/recovery with finite retries, original TTLs, local mutex and database source locks. Nothing runs at API startup. Durable dispatch/fetch is [design only](../DURABLE_INGESTION.md#durable-dispatch-and-fetch-orchestration--design-only), the next implementation slice after payload/privacy and lease/admission decisions. No persistent migrations, credentials, mobile, delivery, wallet/QR, live source or Phase 06 changes. Full Phase 05 acceptance remains gated.
+
+Verification and exact failures/skips are recorded in [Phase 05-E evidence](../evidence/phase05-worker-2026-11-15.json).
 
 ## Phase 05-D - 2026-11-15
 
