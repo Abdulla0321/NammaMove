@@ -465,7 +465,12 @@ def test_runtime_grants_and_rls_deny_all_durable_data(postgres):
                 if statement.strip():
                     connection.execute(text(statement))
             connection.execute(text(f"SET LOCAL ROLE {role}"))
-            for table in ("ingestion_sources", "ingestion_generations"):
+            for table in (
+                "ingestion_sources",
+                "ingestion_generations",
+                "ingestion_workers",
+                "ingestion_dispatch",
+            ):
                 for privilege in ("SELECT", "INSERT", "UPDATE", "DELETE"):
                     assert not connection.scalar(
                         text("SELECT has_table_privilege(current_user,:table,:privilege)"),

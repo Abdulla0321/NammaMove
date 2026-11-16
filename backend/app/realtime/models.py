@@ -19,6 +19,9 @@ class IngestionSource(Base):
     data_mode: Mapped[str] = mapped_column(String(10), default="simulation")
     evidence_seconds: Mapped[int] = mapped_column(Integer)
     max_generations: Mapped[int] = mapped_column(Integer)
+    dispatch_capacity: Mapped[int] = mapped_column(Integer, default=8, server_default="8")
+    dispatch_attempts: Mapped[int] = mapped_column(Integer, default=3, server_default="3")
+    dispatch_lease_seconds: Mapped[int] = mapped_column(Integer, default=10, server_default="10")
     header_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fingerprint: Mapped[str | None] = mapped_column(String(64))
     received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -26,6 +29,10 @@ class IngestionSource(Base):
     checkpoint_digest: Mapped[str | None] = mapped_column(String(64))
     guards_digest: Mapped[str | None] = mapped_column(String(64))
     __table_args__ = (
+        CheckConstraint(
+            "dispatch_capacity BETWEEN 1 AND 32 AND dispatch_attempts BETWEEN 1 AND 5 AND dispatch_lease_seconds BETWEEN 1 AND 60",
+            name="ingestion_dispatch_bounds",
+        ),
         CheckConstraint("data_mode = 'simulation'", name="ingestion_source_simulation"),
         CheckConstraint(
             "evidence_seconds BETWEEN 900 AND 86400 AND max_generations BETWEEN 1 AND 1000",
@@ -36,6 +43,42 @@ class IngestionSource(Base):
             name="ingestion_watermark_complete",
         ),
         CheckConstraint("length(checkpoint) <= 4194304", name="ingestion_checkpoint_bound"),
+    )
+
+
+class IngestionDispatch(Base):
+    """Bounded references only; the source checkpoint remains payload authority."""
+
+    __tablename__ = "ingestion_dispatch"
+    source_id: Mapped[str] = mapped_column(
+        ForeignKey(FK + "ingestion_sources.id", ondelete="RESTRICT"), primary_key=True
+    )
+    identity: Mapped[str] = mapped_column(String(64), primary_key=True)
+    header_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    binding_digest: Mapped[str] = mapped_column(String(64))
+    guards_digest: Mapped[str] = mapped_column(String(64))
+    data_mode: Mapped[str] = mapped_column(String(10), default="simulation")
+    state: Mapped[str] = mapped_column(String(12), default="pending")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    token: Mapped[UUID | None] = mapped_column(Uuid)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        CheckConstraint("data_mode = 'simulation'", name="dispatch_simulation"),
+        CheckConstraint(
+            "state IN ('pending','leased','completed','superseded','expired','exhausted','invalid') AND attempts BETWEEN 0 AND 5",
+            name="dispatch_state",
+        ),
+        CheckConstraint(
+            "received_at >= header_at AND expires_at > received_at AND expires_at <= received_at + interval '86400 seconds'",
+            name="dispatch_expiry",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "(state = 'leased' AND token IS NOT NULL AND lease_until IS NOT NULL) OR (state <> 'leased' AND token IS NULL AND lease_until IS NULL)",
+            name="dispatch_lease",
+        ),
     )
 
 
