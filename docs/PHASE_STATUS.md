@@ -348,3 +348,17 @@ Confirmed clean `phase/05-live-tracking` at `7265807` before work. Reverified al
 Final suite: **309 passed / 0 failed / 0 skipped in 92.76 seconds**, including **33 new Phase 05-D cases**, existing replay/adapter/state/62 ingestion cases and genuine Redis/PostGIS/Auth/OTP. New disposable test databases were removed. Ruff lint/format (92 files), strict mypy (34 app files), pip consistency and whitespace checks pass. Existing Starlette HTTPX and Alembic geography-reflection warnings remain. Mobile/device/hosted CI were not rerun or claimed current. Actual exact-ID-checked isolated Redis stop/start verifies durable SQL checkpoint restoration, original ages, outage retry capacity, old-replay rejection, duplicate safety and retention after cache restart.
 
 This is a maintenance-owner local synthetic slice, not an enabled non-owner runtime, persistent schema upgrade, scheduled retention, distributed queue/fetch service or full Phase 05 acceptance. Next: dedicated non-owner worker identity/catalog-RLS/provisioning acceptance and scheduled bounded retention/recovery operations, then durable dispatch/fetch orchestration before authenticated delivery. Real rights/coverage, privacy, Redis ACL/TLS/failover and deferred Phase 04 gates remain open. No mobile/environment/credential edits, live feed, wallet/QR or Phase 06 work, and no branch switch/stage/commit/push/merge/rebase/reset. See ADR-029, [runbook](DURABLE_INGESTION.md) and [evidence](evidence/phase05-durable-2026-11-15.json).
+
+## Local operator prototype - 2026-11-18
+
+A separate loopback-only demo command serves a synthetic fleet console and API for the Whitefield to KSR Bengaluru fixture. It exercises route selection, assigned-vehicle acceptance, boarding and exit validations, one demo wallet, per-vehicle credits and reconciliation. See the [prototype guide](OPERATOR_PROTOTYPE.md). This experiment does not advance Phase 08 or 09 acceptance.
+
+### Mapbox-backed operator simulation
+
+The standalone operator app now calls Mapbox Geocoding and Directions when its server token is configured. The console renders street geometry and clock-driven simulated position on Mapbox GL JS. Scan validation checks simulated arrival before debit. The Metro path, vehicle supply, operational data and fares are synthetic. Provider acceptance requires a real Mapbox token and a browser with WebGL2. See the [operator runbook](OPERATOR_PROTOTYPE.md).
+
+Verification on Windows: 175 backend tests passed and 189 external-service tests skipped. The Mapbox tests use mock transport to verify request parameters, geometry interpolation, early checkout rejection and debit on validated arrival. No Mapbox token was configured in this environment.
+
+### Durable simulation runs
+
+Moved the operator backend, console and requirements under backend/app/simulation. The standalone SQLite store persists concurrent run definitions. UUID and tick IDs identify historical positions reconstructed from the saved timeline, including across restarts. The street interpolation uses Mapbox durations where they align with the geometry. Verified 176 backend tests passed, with 189 external-service tests skipped. Ruff, mypy and JavaScript syntax checks passed. Mapbox was tested through mock transport. The interactive wallet remains local and in memory. This work does not constitute live transit or payment acceptance.

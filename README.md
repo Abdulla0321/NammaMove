@@ -54,3 +54,7 @@ An opt-in authenticated OTP adapter now plans over independently authored bus/me
 
 ## Commuter client (Phase 04)
 The Expo Android-first app and React web preview live in [apps/mobile](apps/mobile/). Run `npm ci`, then follow [MOBILE.md](docs/MOBILE.md) for public-only environment values, non-owner backend startup, emulator/USB networking, fixture journeys and device acceptance. Client checks: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run build`. Android JS export is available separately; no APK/device certification or live Bengaluru coverage is claimed.
+
+## Local operator prototype
+
+See the [Mapbox operator simulation and API handoff](docs/OPERATOR_PROTOTYPE.md) for Bengaluru street routing, an interactive map, server-timed vehicle movement, QR validation and a simulated wallet.
