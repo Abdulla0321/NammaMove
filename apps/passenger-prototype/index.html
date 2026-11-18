@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102e29">
+<title>NammaMove · Passenger prototype</title>
+<style>
+:root{color-scheme:light;--ink:#142f29;--muted:#526861;--paper:#f4f6ef;--white:#fffefa;--line:#dbe5db;--green:#16634d;--dark:#102e29;--lime:#d5f283;--purple:#5c468d;--orange:#805322;font-family:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#e0e9df;color:var(--ink);font-size:15px}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8971c6;outline-offset:3px}button:disabled{opacity:.55;cursor:default}h1,h2,h3,p{margin:0}h1{font-size:clamp(2.35rem,9vw,3.2rem);line-height:1.02;letter-spacing:-.065em}h2{font-size:1.48rem;letter-spacing:-.04em}small,.muted{color:var(--muted)}[hidden]{display:none!important}
+.app{max-width:490px;min-height:100dvh;margin:auto;background:var(--paper);position:relative;box-shadow:0 0 85px #203f3026}.mast{background:var(--dark);color:#fff;padding:21px 22px 23px}.brand{display:flex;gap:10px;align-items:center;justify-content:space-between}.wordmark{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.2rem;letter-spacing:-.05em}.logo{background:var(--lime);color:var(--dark);width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:900}.badge{border:1px solid #ffffff42;border-radius:999px;padding:5px 9px;color:#e4f3dc;font-size:.73rem}.hero{margin-top:25px;display:grid;gap:10px}.hero p{color:#cde2d7}.screen{padding:18px 18px 22px;display:grid;gap:14px;align-content:start}.card{background:var(--white);border:1px solid var(--line);border-radius:19px;padding:15px;display:grid;gap:11px}.split{display:flex;align-items:center;justify-content:space-between;gap:10px}.meta{font-size:.81rem;color:var(--muted)}.label{display:grid;gap:4px;font-size:.81rem;font-weight:700}.label select{width:100%;border:1px solid var(--line);background:#f1f5ed;padding:10px;border-radius:9px;color:var(--ink);min-height:44px}.action,.quiet,.chip{border-radius:12px;padding:10px 13px;min-height:43px;font-weight:750}.action{background:var(--dark);color:white;border:1px solid var(--dark)}.action.lime{background:var(--lime);color:var(--dark);border-color:#c4e470}.quiet,.chip{border:1px solid var(--line);background:var(--white);color:var(--ink)}.chip{min-height:37px;padding:6px 11px;border-radius:999px;font-size:.8rem}.chip[aria-pressed=true]{background:#e0efdf;border-color:#59917b}.chips{display:flex;gap:7px;flex-wrap:wrap}.route{width:100%;text-align:left;cursor:pointer;color:inherit}.route[aria-pressed=true]{border:2px solid var(--green);padding:14px;background:#fbfff2}.route strong{font-size:1rem}.price{font-weight:850;font-size:1.16rem;white-space:nowrap}.modes{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.pill{font-size:.72rem;padding:4px 8px;border-radius:7px;background:#e8efe4;font-weight:750}.pill.metro{background:#eee8fb;color:var(--purple)}.pill.taxi{background:#f6eadc;color:var(--orange)}.pill.bus{background:#e0edf8;color:#255278}
+.map-shell{position:relative;overflow:hidden;border-radius:18px;background:#e8efe4;border:1px solid var(--line)}canvas{display:block;width:100%;height:295px}.map-caption{position:absolute;left:10px;bottom:10px;padding:5px 8px;background:#fffefaee;border-radius:6px;font-size:.7rem;color:var(--muted)}.map-control{position:absolute;right:9px;top:9px}.phase{font-size:.73rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.09em}.bar{height:7px;border-radius:5px;background:#dce9db;overflow:hidden}.bar span{display:block;height:100%;background:var(--green)}.legs{list-style:none;padding:0;margin:0;display:grid;gap:0}.legs li{display:grid;grid-template-columns:22px 1fr auto;align-items:start;gap:7px;padding:10px 0;border-bottom:1px solid var(--line)}.legs li:last-child{border:0}.legs li b{display:block;font-size:.87rem}.bullet{width:16px;height:16px;margin-top:2px;border:2px solid #a6baac;border-radius:50%;display:grid;place-items:center;font-size:.62rem}.current .bullet{background:var(--green);border-color:var(--green);color:white}.done .bullet{color:var(--green)}.legs small{font-size:.74rem}.navbar{position:sticky;bottom:0;background:#fffefa;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);z-index:2;padding:7px 11px max(7px,env(safe-area-inset-bottom))}.navbar button{border:0;background:none;color:var(--muted);min-height:48px;border-radius:11px;font-weight:750;font-size:.84rem}.navbar button[aria-current=page]{background:#e6efe4;color:var(--ink)}.navbar span{display:block;font-size:1.14rem}.notice{padding:10px 12px;background:#e7f2e3;color:#224a3a;border-radius:11px;font-size:.83rem}.notice:empty{display:none}.receipt{display:grid;gap:0}.receipt div{padding:9px 0;border-bottom:1px solid var(--line)}.receipt div:last-child{border:0}.amount{font-size:2.25rem;letter-spacing:-.06em;font-weight:850}.dialog-actions{display:grid;gap:8px}.qr{width:146px;aspect-ratio:1;display:block;margin:0 auto;image-rendering:pixelated}.ticket{border-top:5px solid var(--purple)}.ticket h3{font-size:1.2rem}.mini{font-size:.77rem;color:var(--muted)}.speed{border:1px solid var(--line);background:#f1f5ed;color:var(--ink);padding:7px;border-radius:9px;min-height:38px}.sr{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="mast">
+<div class="brand"><div class="wordmark"><span class="logo" aria-hidden="true">N↗</span>NammaMove</div><span class="badge">Passenger simulation</span></div>
+<div class="hero" id="hero"><p>Bengaluru</p><h1>Find your<br>way across town.</h1></div>
+</header>
+<main id="main">
+<section id="plan" class="screen" aria-label="Plan a journey">
+<form id="search" class="card">
+<label class="label">From<select id="origin"><option>Whitefield</option><option>Hope Farm</option></select></label>
+<label class="label">To<select id="destination"><option>KSR Bengaluru</option><option>Majestic</option></select></label>
+<button class="action" type="submit">Find routes ↗</button>
+</form>
+<div class="split"><h2>Route options</h2><small id="route-count"></small></div>
+<div class="chips" id="filters" aria-label="Sort routes">
+<button class="chip" type="button" data-sort="recommended" aria-pressed="true">Recommended</button>
+<button class="chip" type="button" data-sort="price" aria-pressed="false">Cheapest</button>
+<button class="chip" type="button" data-sort="time" aria-pressed="false">Fastest</button>
+</div>
+<div class="screen" id="routes" style="padding:0"></div>
+<section class="card" id="preview">
+<h2>Selected itinerary</h2><ol class="legs" id="preview-legs"></ol>
+<div class="split"><span class="meta">Estimated fare</span><span class="price" id="preview-fare"></span></div>
+<button class="action lime" id="start" type="button">Start journey ↗</button>
+</section>
+</section>
+<section id="trip" class="screen" aria-label="Active journey" hidden>
+<div class="split"><div><p class="phase" id="trip-phase"></p><h2 id="trip-destination">Your journey</h2></div><label class="mini">Clock <select id="speed" class="speed"><option value="1">1×</option><option value="90" selected>90×</option><option value="180">180×</option></select></label></div>
+<div class="map-shell" id="map-shell"><canvas id="map" role="img" aria-label="Illustrated Bengaluru route and simulated position"></canvas><span class="map-caption">Illustrated route · simulated position</span><button class="chip map-control" id="recenter" type="button">Recenter</button></div>
+<p class="notice" id="empty">Choose a route to begin your journey.</p>
+<div id="trip-content" hidden>
+<div class="card" id="leg-panel">
+<div class="split"><strong id="leg-title"></strong><span class="mini" id="remaining"></span></div>
+<p class="meta" id="instruction"></p>
+<div class="bar" aria-hidden="true"><span id="progress"></span></div>
+<button id="leg-action" class="action lime" type="button"></button>
+</div>
+<section id="ticket-panel" class="card ticket" style="margin-top:12px" hidden>
+<div class="split"><h3 id="ticket-title">Boarding pass</h3><button class="chip" id="close-ticket" type="button">Close</button></div>
+<p id="ticket-context" class="meta"></p>
+<img id="qr" class="qr" alt="Example QR pass for the simulated scanner">
+<p class="mini">Prototype pass · present it at the assigned boarding or exit point.</p>
+<button class="action" id="scan" type="button"></button>
+</section>
+<section class="card" style="margin-top:12px"><h3>Journey steps</h3><ol class="legs" id="journey-legs"></ol><p id="trip-reference" class="mini"></p><button class="quiet" id="cancel" type="button">End journey</button></section>
+</div>
+</section>
+<section id="wallet" class="screen" aria-label="Demo wallet" hidden>
+<section class="card"><div class="split"><h2>NammaMove wallet</h2><span class="pill">Demo INR</span></div><p class="meta">Available balance</p><p class="amount" id="balance"></p><p class="meta" id="hold"></p></section>
+<section class="card"><h2>Journey receipt</h2><div class="receipt" id="receipt"></div><p class="mini">Validated exits post the fare once. Walking legs are free.</p></section>
+<button class="quiet" id="reset" type="button">Reset prototype data</button>
+</section>
+<p class="notice" id="notice" role="status" style="margin:0 18px 16px"></p>
+</main>
+<nav class="navbar" aria-label="Passenger navigation">
+<button type="button" data-view="plan" aria-current="page"><span aria-hidden="true">⌕</span>Plan</button>
+<button type="button" data-view="trip"><span aria-hidden="true">↗</span>Journey</button>
+<button type="button" data-view="wallet"><span aria-hidden="true">▤</span>Wallet</button>
+</nav>
+</div>
+<script>
+'use strict';
+const by = id => document.getElementById(id);
+const storeKey = 'nammamove.passenger.prototype.v1';
+const Modes = {walk:'Walk', taxi:'Taxi', metro:'Metro', bus:'BMTC'};
+const colors = {walk:'#30664c', taxi:'#93602d', metro:'#7251ab', bus:'#276594'};
+const starts = {Whitefield:[.88,.67], 'Hope Farm':[.92,.55]};
+const ends = {'KSR Bengaluru':[.12,.46], Majestic:[.18,.39]};
+const station = [.76,.46], majestic = [.18,.39];
+const money = value => '₹' + value.toLocaleString('en-IN');
+const fresh = () => ({balance:750, trip:null, speed:90});
+let state;
+try { state = JSON.parse(localStorage.getItem(storeKey)) || fresh(); } catch { state = fresh(); }
+let view = 'plan', sort = 'recommended', selected = 'walk-metro', routes = [], offset = [0,0], drag = null;
+let noticeTimer;
+function save(){ try { localStorage.setItem(storeKey, JSON.stringify(state)); } catch {} }
+function notify(message){ by('notice').textContent = message; clearTimeout(noticeTimer); if(message) noticeTimer=setTimeout(()=>{by('notice').textContent='';},7000); }
+const leg = (mode, from, to, minutes, fare, path) => ({mode,from,to,minutes,fare,path});
+function buildRoutes(from,to){
+  const a=starts[from], b=ends[to];
+  const walkIn=leg('walk',from,'Whitefield Metro',from==='Hope Farm'?5:8,0,[a,[.85,.56],[.81,.56],[.81,.46],station]);
+  const taxiIn=leg('taxi',from,'Whitefield Metro',4,35,[a,[.85,.61],[.76,.61],station]);
+  const metro=leg('metro','Whitefield Metro','Majestic',43,60,[station,[.68,.43],[.59,.43],[.54,.34],[.48,.34],[.42,.39],[.30,.39],majestic]);
+  const walkOut=to==='Majestic'?[]:[leg('walk','Majestic',to,5,0,[majestic,[.18,.46],b])];
+  const road=[a,[.84,.70],[.66,.70],[.56,.58],[.39,.58],[.30,.5],[.22,.5],b];
+  return [
+    ['walk-metro','Walk + Purple Line','Low walking effort after boarding',[walkIn,metro,...walkOut]],
+    ['bus','BMTC direct','Fewer transfers',[leg('bus',from,to,79,30,road)]],
+    ['cab','Direct taxi','Door-to-door ride',[leg('taxi',from,to,44,285,road)]],
+    ['cab-metro','Taxi + Purple Line','Shorter walk to the station',[taxiIn,metro,...walkOut]]
+  ].map(([id,name,note,legs])=>({id,name,note,legs,from,to, fare:legs.reduce((v,l)=>v+l.fare,0), minutes:legs.reduce((v,l)=>v+l.minutes,0)}));
+}
+function modePills(route){return route.legs.map(l=>'<span class="pill '+l.mode+'">'+Modes[l.mode]+'</span>').join('<span aria-hidden="true">›</span>');}
+function legsMarkup(route,index=-1,terminal=false){return route.legs.map((l,i)=>{
+  const done=i<index||terminal, active=i===index&&!terminal;
+  return '<li class="'+(active?'current':done?'done':'')+'"><span class="bullet" aria-hidden="true">'+(done?'✓':active?'•':'')+'</span><span><b>'+Modes[l.mode]+' · '+l.to+'</b><small>'+l.from+' → '+l.to+'</small></span><small>'+l.minutes+' min</small></li>';
+}).join('');}
+function showRoutes(){
+  const ordered=[...routes];
+  if(sort==='price') ordered.sort((a,b)=>a.fare-b.fare);
+  if(sort==='time') ordered.sort((a,b)=>a.minutes-b.minutes);
+  by('route-count').textContent=ordered.length+' options';
+  by('routes').innerHTML=ordered.map(r=>'<button class="card route" type="button" data-route="'+r.id+'" aria-pressed="'+(r.id===selected)+'"><span class="split"><strong>'+r.name+'</strong><span class="price">'+money(r.fare)+'</span></span><span class="modes">'+modePills(r)+'</span><span class="meta">'+r.minutes+' min · '+r.note+'</span></button>').join('');
+  const route=routes.find(r=>r.id===selected);
+  by('preview-legs').innerHTML=legsMarkup(route);
+  by('preview-fare').textContent=money(route.fare);
+}
+function search(){ routes=buildRoutes(by('origin').value,by('destination').value);selected='walk-metro';showRoutes(); }
+function show(next){
+  view=next;
+  for(const name of ['plan','trip','wallet']) by(name).hidden=name!==next;
+  by('hero').hidden=next!=='plan';
+  document.querySelectorAll('[data-view]').forEach(btn=>{if(btn.dataset.view===next)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');});
+  if(next==='trip') renderTrip();
+  if(next==='wallet') renderWallet();
+  window.scrollTo(0,0);
+}
+function setStage(stage){
+  Object.assign(state.trip,{stage,stamp:Date.now(),elapsed:0});
+  by('ticket-panel').hidden=true;
+  save();
+}
+function enterLeg(){
+  const trip=state.trip, active=trip.route.legs[trip.index];
+  setStage(!active?'complete':active.mode==='walk'?'moving':'waiting');
+  if(active?.mode==='metro') notify('Transfer ahead. Simulated metro pickup in 2 minutes.');
+}
+function startTrip(){
+  if(state.trip&&!['complete','cancelled'].includes(state.trip.stage)){show('trip');notify('Your active journey is already open.');return;}
+  const route=routes.find(r=>r.id===selected);
+  if(state.balance<Math.max(500,route.fare)){notify('A demo balance of at least ₹500 and enough to cover the fare is required.');return;}
+  const id=globalThis.crypto?.randomUUID?.()??'trip-'+Date.now().toString(36);
+  state.trip={id,route,index:0,entries:[],hold:route.fare};
+  offset=[0,0];enterLeg();show('trip');
+}
+function elapsed(){
+  const t=state.trip;
+  return t?.stage==='moving'?t.elapsed+Math.max(0,Date.now()-t.stamp)*state.speed/1000:0;
+}
+function progress(){
+  const t=state.trip, active=t?.route.legs[t.index];
+  if(t?.stage==='cancelled')return t.finalProgress??0;
+  if(t?.stage==='arrived'||t?.stage==='complete')return 1;
+  return active&&t.stage==='moving'?Math.min(1,elapsed()/(active.minutes*60)):0;
+}
+function tick(){
+  if(state.trip?.stage==='moving'&&progress()>=1){setStage('arrived');if(view==='trip') renderTrip();}
+  if(view==='trip'&&state.trip){drawMap();updateProgress();}
+}
+function completeLeg(){
+  const t=state.trip, l=t.route.legs[t.index];
+  if(t.stage!=='arrived')return;
+  if(l.fare&&!t.entries.some(e=>e.index===t.index)){
+    t.entries.push({index:t.index,mode:l.mode,amount:l.fare,ref:t.id+':'+(t.index+1)});
+    state.balance-=l.fare;t.hold-=l.fare;
+  }
+  t.index++;enterLeg();renderTrip();
+}
+function displayPass(){
+  const t=state.trip,l=t.route.legs[t.index],exit=t.stage==='arrived';
+  by('ticket-title').textContent=exit?'Exit pass':'Boarding pass';
+  by('ticket-context').textContent=Modes[l.mode]+' · '+(exit?l.to:l.from)+' · Leg '+(t.index+1);
+  by('scan').textContent=exit?'Simulate exit scan':'Simulate boarding scan';
+  by('ticket-panel').hidden=false;
+  by('ticket-panel').scrollIntoView({block:'nearest'});
+  by('scan').focus({preventScroll:true});
+}
+function updateProgress(){
+  const t=state.trip,l=t?.route.legs[t.index];
+  by('progress').style.width=progress()*100+'%';
+  by('remaining').textContent=t?.stage==='moving'&&l?Math.max(1,Math.ceil((l.minutes*60-elapsed())/60))+' min left':'';
+}
+function renderTrip(){
+  const t=state.trip,l=t?.route.legs[t.index];
+  by('empty').hidden=!!t;by('trip-content').hidden=!t;by('map-shell').hidden=!t;
+  if(!t)return;
+  by('speed').value=String(state.speed);
+  by('trip-destination').textContent=t.route.to;
+  const status={waiting:'Ready to board',moving:'On your way',arrived:'At the next stop',complete:'Journey complete',cancelled:'Journey ended'};
+  by('trip-phase').textContent=status[t.stage];
+  by('leg-title').textContent=l?Modes[l.mode]+' · '+l.to:'You reached '+t.route.to;
+  by('instruction').textContent=t.stage==='waiting'?'Wait at '+l.from+' and show your pass to the assigned validator.':t.stage==='arrived'?(l.mode==='walk'?'Confirm that you reached this stop.':'Show your exit pass to complete this leg.') : t.stage==='moving'?'Follow the position marker along the highlighted route.':t.stage==='complete'?'Your receipt is ready in Wallet.':'Unused reserved fare has been released.';
+  by('leg-action').hidden=t.stage==='moving'||t.stage==='cancelled';
+  by('leg-action').textContent=t.stage==='complete'?'View receipt':t.stage==='waiting'?'Open boarding pass':l?.mode==='walk'?'Confirm arrival':'Open exit pass';
+  by('journey-legs').innerHTML=legsMarkup(t.route,t.index,t.stage==='complete');
+  by('trip-reference').textContent='Journey '+t.id;
+  by('cancel').hidden=['complete','cancelled'].includes(t.stage);
+  updateProgress();drawMap();
+}
+function renderWallet(){
+  const t=state.trip, hold=t?.hold||0;
+  by('balance').textContent=money(state.balance-hold);
+  by('hold').textContent=money(hold)+' reserved · '+money(state.balance)+' total demo balance';
+  const rows=t?.entries.map(e=>'<div class="split"><span>'+Modes[e.mode]+' · Leg '+(e.index+1)+'</span><strong>'+money(e.amount)+'</strong></div>')||[];
+  if(rows.length)rows.push('<div class="split"><strong>Total charged</strong><strong>'+money(t.entries.reduce((n,e)=>n+e.amount,0))+'</strong></div>');
+  by('receipt').innerHTML=rows.join('')||'<p class="meta">No fares charged on this journey yet.</p>';
+}
+function position(points,fraction){
+  const lengths=points.slice(1).map((p,i)=>Math.hypot(p[0]-points[i][0],p[1]-points[i][1]));
+  let remaining=fraction*lengths.reduce((sum,n)=>sum+n,0);
+  for(let i=0;i<lengths.length;i++){
+    if(remaining<=lengths[i]&&lengths[i]>0){const x=remaining/lengths[i];return points[i].map((n,k)=>n+(points[i+1][k]-n)*x);}
+    remaining-=lengths[i];
+  }
+  return points.at(-1);
+}
+function drawMap(){
+  const t=state.trip,c=by('map');if(!t||!c.clientWidth)return;
+  const w=c.clientWidth,h=c.clientHeight,scale=Math.min(devicePixelRatio||1,2);
+  if(c.width!==Math.round(w*scale)||c.height!==Math.round(h*scale)){c.width=Math.round(w*scale);c.height=Math.round(h*scale);}
+  const ctx=c.getContext('2d');
+  ctx.setTransform(scale,0,0,scale,0,0);ctx.fillStyle='#e8efe4';ctx.fillRect(0,0,w,h);
+  const project=p=>[p[0]*w+offset[0],p[1]*h+offset[1]];
+  function line(points,color,width,dash=[]){ctx.beginPath();points.forEach((p,i)=>{const [x,y]=project(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.lineWidth=width;ctx.strokeStyle=color;ctx.lineJoin='round';ctx.lineCap='round';ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);}
+  for(let i=0;i<12;i++){const x=i/10;line([[x,-1],[x-.18,2]],'#f8faf4',5);}
+  for(let i=0;i<10;i++){const y=i/8;line([[-1,y],[2,y+.14]],'#f8faf4',5);}
+  line([[-.2,.18],[.28,.26],[.63,.14],[1.2,.27]],'#c2deda',19);
+  ctx.font='600 11px system-ui';ctx.fillStyle='#526861';
+  for(const [label,p] of [['MAJESTIC',[.08,.32]],['INDIRANAGAR',[.44,.27]],['WHITEFIELD',[.72,.78]]])ctx.fillText(label,...project(p));
+  t.route.legs.forEach((l,i)=>{line(l.path,'#fffefa',9);line(l.path,colors[l.mode],i===t.index?5:3,l.mode==='walk'?[5,4]:[]);});
+  const terminal=t.stage==='complete';
+  const active=t.route.legs[Math.min(t.index,t.route.legs.length-1)];
+  const [x,y]=project(position(active.path,terminal?1:progress()));
+  const end=t.route.legs.at(-1).path.at(-1);
+  ctx.beginPath();ctx.arc(...project(end),6,0,Math.PI*2);ctx.fillStyle='#5c468d';ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.fillStyle='#fffefa';ctx.fill();ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fillStyle='#124e40';ctx.fill();ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#d5f283';ctx.fill();
+}
+by('search').addEventListener('submit',event=>{event.preventDefault();search();});
+by('routes').addEventListener('click',event=>{const button=event.target.closest('[data-route]');if(button){selected=button.dataset.route;showRoutes();by('routes').querySelector('[aria-pressed="true"]').focus({preventScroll:true});}});
+by('filters').addEventListener('click',event=>{const button=event.target.closest('[data-sort]');if(!button)return;sort=button.dataset.sort;by('filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));showRoutes();});
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>show(button.dataset.view)));
+by('start').onclick=startTrip;
+by('leg-action').onclick=()=>{const t=state.trip;if(t.stage==='complete'){show('wallet');return;}const l=t.route.legs[t.index];if(t.stage==='arrived'&&l.mode==='walk')completeLeg();else if(['waiting','arrived'].includes(t.stage))displayPass();};
+by('scan').onclick=()=>{if(state.trip.stage==='waiting'){setStage('moving');renderTrip();notify('Boarding validated. Your leg has started.');}else if(state.trip.stage==='arrived'){completeLeg();notify('Exit validated. Fare recorded in your wallet.');}};
+by('close-ticket').onclick=()=>{by('ticket-panel').hidden=true;by('leg-action').focus();};
+by('speed').onchange=event=>{const t=state.trip;if(t?.stage==='moving'){t.elapsed=elapsed();t.stamp=Date.now();}state.speed=Number(event.target.value);save();};
+by('cancel').onclick=()=>{if(confirm('End this journey and release unused reserved fare?')){state.trip.finalProgress=progress();state.trip.hold=0;setStage('cancelled');renderTrip();notify('Journey ended. Unused fare released.');}};
+by('reset').onclick=()=>{if(confirm('Clear this prototype’s trip and wallet data?')){state=fresh();save();show('plan');notify('Prototype reset.');}};
+by('recenter').onclick=()=>{offset=[0,0];drawMap();};
+by('map').style.touchAction='none';
+by('map').onpointerdown=e=>{drag=[e.clientX-offset[0],e.clientY-offset[1]];by('map').setPointerCapture(e.pointerId);};
+by('map').onpointermove=e=>{if(drag){offset=[e.clientX-drag[0],e.clientY-drag[1]];drawMap();}};
+by('map').onpointerup=by('map').onpointercancel=()=>{drag=null;};
+window.addEventListener('resize',drawMap);
+by('qr').src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzdtbSIgaGVpZ2h0PSIzN21tIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzNyAzNyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCw0SDVWNUg0ek01LDRINlY1SDV6TTYsNEg3VjVINnpNNyw0SDhWNUg3ek04LDRIOVY1SDh6TTksNEgxMFY1SDl6TTEwLDRIMTFWNUgxMHpNMTIsNEgxM1Y1SDEyek0xMyw0SDE0VjVIMTN6TTE0LDRIMTVWNUgxNHpNMTYsNEgxN1Y1SDE2ek0xNyw0SDE4VjVIMTd6TTE4LDRIMTlWNUgxOHpNMjEsNEgyMlY1SDIxek0yNiw0SDI3VjVIMjZ6TTI3LDRIMjhWNUgyN3pNMjgsNEgyOVY1SDI4ek0yOSw0SDMwVjVIMjl6TTMwLDRIMzFWNUgzMHpNMzEsNEgzMlY1SDMxek0zMiw0SDMzVjVIMzJ6TTQsNUg1VjZINHpNMTAsNUgxMVY2SDEwek0xNCw1SDE1VjZIMTR6TTE4LDVIMTlWNkgxOHpNMjEsNUgyMlY2SDIxek0yNiw1SDI3VjZIMjZ6TTMyLDVIMzNWNkgzMnpNNCw2SDVWN0g0ek02LDZIN1Y3SDZ6TTcsNkg4VjdIN3pNOCw2SDlWN0g4ek0xMCw2SDExVjdIMTB6TTEyLDZIMTNWN0gxMnpNMTcsNkgxOFY3SDE3ek0xOSw2SDIwVjdIMTl6TTIxLDZIMjJWN0gyMXpNMjIsNkgyM1Y3SDIyek0yMyw2SDI0VjdIMjN6TTI0LDZIMjVWN0gyNHpNMjYsNkgyN1Y3SDI2ek0yOCw2SDI5VjdIMjh6TTI5LDZIMzBWN0gyOXpNMzAsNkgzMVY3SDMwek0zMiw2SDMzVjdIMzJ6TTQsN0g1VjhINHpNNiw3SDdWOEg2ek03LDdIOFY4SDd6TTgsN0g5VjhIOHpNMTAsN0gxMVY4SDEwek0xMyw3SDE0VjhIMTN6TTE2LDdIMTdWOEgxNnpNMTcsN0gxOFY4SDE3ek0xOSw3SDIwVjhIMTl6TTIxLDdIMjJWOEgyMXpNMjIsN0gyM1Y4SDIyek0yNCw3SDI1VjhIMjR6TTI2LDdIMjdWOEgyNnpNMjgsN0gyOVY4SDI4ek0yOSw3SDMwVjhIMjl6TTMwLDdIMzFWOEgzMHpNMzIsN0gzM1Y4SDMyek00LDhINVY5SDR6TTYsOEg3VjlINnpNNyw4SDhWOUg3ek04LDhIOVY5SDh6TTEwLDhIMTFWOUgxMHpNMTMsOEgxNFY5SDEzek0xNSw4SDE2VjlIMTV6TTE3LDhIMThWOUgxN3pNMTgsOEgxOVY5SDE4ek0yMiw4SDIzVjlIMjJ6TTI2LDhIMjdWOUgyNnpNMjgsOEgyOVY5SDI4ek0yOSw4SDMwVjlIMjl6TTMwLDhIMzFWOUgzMHpNMzIsOEgzM1Y5SDMyek00LDlINVYxMEg0ek0xMCw5SDExVjEwSDEwek0xMiw5SDEzVjEwSDEyek0xNSw5SDE2VjEwSDE1ek0xNiw5SDE3VjEwSDE2ek0yMSw5SDIyVjEwSDIxek0yMiw5SDIzVjEwSDIyek0yNiw5SDI3VjEwSDI2ek0zMiw5SDMzVjEwSDMyek00LDEwSDVWMTFINHpNNSwxMEg2VjExSDV6TTYsMTBIN1YxMUg2ek03LDEwSDhWMTFIN3pNOCwxMEg5VjExSDh6TTksMTBIMTBWMTFIOXpNMTAsMTBIMTFWMTFIMTB6TTEyLDEwSDEzVjExSDEyek0xNCwxMEgxNVYxMUgxNHpNMTYsMTBIMTdWMTFIMTZ6TTE4LDEwSDE5VjExSDE4ek0yMCwxMEgyMVYxMUgyMHpNMjIsMTBIMjNWMTFIMjJ6TTI0LDEwSDI1VjExSDI0ek0yNiwxMEgyN1YxMUgyNnpNMjcsMTBIMjhWMTFIMjd6TTI4LDEwSDI5VjExSDI4ek0yOSwxMEgzMFYxMUgyOXpNMzAsMTBIMzFWMTFIMzB6TTMxLDEwSDMyVjExSDMxek0zMiwxMEgzM1YxMUgzMnpNMTMsMTFIMTRWMTJIMTN6TTIyLDExSDIzVjEySDIyek00LDEySDVWMTNINHpNNiwxMkg3VjEzSDZ6TTEwLDEySDExVjEzSDEwek0xMSwxMkgxMlYxM0gxMXpNMTMsMTJIMTRWMTNIMTN6TTE5LDEySDIwVjEzSDE5ek0yMywxMkgyNFYxM0gyM3pNMjQsMTJIMjVWMTNIMjR6TTI3LDEySDI4VjEzSDI3ek0zMCwxMkgzMVYxM0gzMHpNMzIsMTJIMzNWMTNIMzJ6TTQsMTNINVYxNEg0ek02LDEzSDdWMTRINnpNOCwxM0g5VjE0SDh6TTksMTNIMTBWMTRIOXpNMTEsMTNIMTJWMTRIMTF6TTE0LDEzSDE1VjE0SDE0ek0xOCwxM0gxOVYxNEgxOHpNMTksMTNIMjBWMTRIMTl6TTIwLDEzSDIxVjE0SDIwek0yMiwxM0gyM1YxNEgyMnpNMjMsMTNIMjRWMTRIMjN6TTI2LDEzSDI3VjE0SDI2ek0yNywxM0gyOFYxNEgyN3pNMjksMTNIMzBWMTRIMjl6TTMwLDEzSDMxVjE0SDMwek0zMiwxM0gzM1YxNEgzMnpNNSwxNEg2VjE1SDV6TTcsMTRIOFYxNUg3ek04LDE0SDlWMTVIOHpNMTAsMTRIMTFWMTVIMTB6TTEzLDE0SDE0VjE1SDEzek0xNiwxNEgxN1YxNUgxNnpNMTcsMTRIMThWMTVIMTd6TTE4LDE0SDE5VjE1SDE4ek0xOSwxNEgyMFYxNUgxOXpNMjEsMTRIMjJWMTVIMjF6TTIzLDE0SDI0VjE1SDIzek0yNCwxNEgyNVYxNUgyNHpNMjUsMTRIMjZWMTVIMjV6TTI2LDE0SDI3VjE1SDI2ek0yNywxNEgyOFYxNUgyN3pNMjgsMTRIMjlWMTVIMjh6TTMwLDE0SDMxVjE1SDMwek0zMiwxNEgzM1YxNUgzMnpNNCwxNUg1VjE2SDR6TTUsMTVINlYxNkg1ek02LDE1SDdWMTZINnpNNywxNUg4VjE2SDd6TTgsMTVIOVYxNkg4ek0xMywxNUgxNFYxNkgxM3pNMjAsMTVIMjFWMTZIMjB6TTIzLDE1SDI0VjE2SDIzek0yNSwxNUgyNlYxNkgyNXpNMjksMTVIMzBWMTZIMjl6TTMxLDE1SDMyVjE2SDMxek00LDE2SDVWMTdINHpNNSwxNkg2VjE3SDV6TTcsMTZIOFYxN0g3ek05LDE2SDEwVjE3SDl6TTEwLDE2SDExVjE3SDEwek0xMiwxNkgxM1YxN0gxMnpNMTMsMTZIMTRWMTdIMTN6TTE2LDE2SDE3VjE3SDE2ek0yMCwxNkgyMVYxN0gyMHpNMjMsMTZIMjRWMTdIMjN6TTI2LDE2SDI3VjE3SDI2ek0yOSwxNkgzMFYxN0gyOXpNNSwxN0g2VjE4SDV6TTcsMTdIOFYxOEg3ek04LDE3SDlWMThIOHpNMTIsMTdIMTNWMThIMTJ6TTEzLDE3SDE0VjE4SDEzek0xOSwxN0gyMFYxOEgxOXpNMjAsMTdIMjFWMThIMjB6TTIxLDE3SDIyVjE4SDIxek0yMywxN0gyNFYxOEgyM3pNMjQsMTdIMjVWMThIMjR6TTI1LDE3SDI2VjE4SDI1ek0yNiwxN0gyN1YxOEgyNnpNMjcsMTdIMjhWMThIMjd6TTMyLDE3SDMzVjE4SDMyek00LDE4SDVWMTlINHpNNiwxOEg3VjE5SDZ6TTgsMThIOVYxOUg4ek0xMCwxOEgxMVYxOUgxMHpNMTIsMThIMTNWMTlIMTJ6TTEzLDE4SDE0VjE5SDEzek0xNCwxOEgxNVYxOUgxNHpNMTUsMThIMTZWMTlIMTV6TTE3LDE4SDE4VjE5SDE3ek0xOCwxOEgxOVYxOUgxOHpNMTksMThIMjBWMTlIMTl6TTIzLDE4SDI0VjE5SDIzek0yNSwxOEgyNlYxOUgyNXpNMjYsMThIMjdWMTlIMjZ6TTI3LDE4SDI4VjE5SDI3ek0yOCwxOEgyOVYxOUgyOHpNMzAsMThIMzFWMTlIMzB6TTMyLDE4SDMzVjE5SDMyek04LDE5SDlWMjBIOHpNMTEsMTlIMTJWMjBIMTF6TTEzLDE5SDE0VjIwSDEzek0xNCwxOUgxNVYyMEgxNHpNMTUsMTlIMTZWMjBIMTV6TTE2LDE5SDE3VjIwSDE2ek0xOCwxOUgxOVYyMEgxOHpNMjIsMTlIMjNWMjBIMjJ6TTI0LDE5SDI1VjIwSDI0ek0yNSwxOUgyNlYyMEgyNXpNMjYsMTlIMjdWMjBIMjZ6TTI5LDE5SDMwVjIwSDI5ek0zMSwxOUgzMlYyMEgzMXpNNCwyMEg1VjIxSDR6TTUsMjBINlYyMUg1ek03LDIwSDhWMjFIN3pNOSwyMEgxMFYyMUg5ek0xMCwyMEgxMVYyMUgxMHpNMTYsMjBIMTdWMjFIMTZ6TTE5LDIwSDIwVjIxSDE5ek0yMCwyMEgyMVYyMUgyMHpNMjMsMjBIMjRWMjFIMjN6TTI0LDIwSDI1VjIxSDI0ek0yNiwyMEgyN1YyMUgyNnpNMjcsMjBIMjhWMjFIMjd6TTI5LDIwSDMwVjIxSDI5ek0zMCwyMEgzMVYyMUgzMHpNMzEsMjBIMzJWMjFIMzF6TTMyLDIwSDMzVjIxSDMyek01LDIxSDZWMjJINXpNNiwyMUg3VjIySDZ6TTcsMjFIOFYyMkg3ek05LDIxSDEwVjIySDl6TTExLDIxSDEyVjIySDExek0xMiwyMUgxM1YyMkgxMnpNMTQsMjFIMTVWMjJIMTR6TTE2LDIxSDE3VjIySDE2ek0xOCwyMUgxOVYyMkgxOHpNMTksMjFIMjBWMjJIMTl6TTIwLDIxSDIxVjIySDIwek0yMiwyMUgyM1YyMkgyMnpNMjMsMjFIMjRWMjJIMjN6TTI0LDIxSDI1VjIySDI0ek0yNSwyMUgyNlYyMkgyNXpNMjYsMjFIMjdWMjJIMjZ6TTI5LDIxSDMwVjIySDI5ek0zMCwyMUgzMVYyMkgzMHpNMzIsMjFIMzNWMjJIMzJ6TTQsMjJINVYyM0g0ek01LDIySDZWMjNINXpNNiwyMkg3VjIzSDZ6TTgsMjJIOVYyM0g4ek0xMCwyMkgxMVYyM0gxMHpNMTIsMjJIMTNWMjNIMTJ6TTE1LDIySDE2VjIzSDE1ek0xNiwyMkgxN1YyM0gxNnpNMTgsMjJIMTlWMjNIMTh6TTE5LDIySDIwVjIzSDE5ek0yMSwyMkgyMlYyM0gyMXpNMjMsMjJIMjRWMjNIMjN6TTI1LDIySDI2VjIzSDI1ek0yNiwyMkgyN1YyM0gyNnpNMjcsMjJIMjhWMjNIMjd6TTMwLDIySDMxVjIzSDMwek0zMiwyMkgzM1YyM0gzMnpNNiwyM0g3VjI0SDZ6TTcsMjNIOFYyNEg3ek05LDIzSDEwVjI0SDl6TTEzLDIzSDE0VjI0SDEzek0xNCwyM0gxNVYyNEgxNHpNMTYsMjNIMTdWMjRIMTZ6TTE4LDIzSDE5VjI0SDE4ek0xOSwyM0gyMFYyNEgxOXpNMjMsMjNIMjRWMjRIMjN6TTI0LDIzSDI1VjI0SDI0ek0yNSwyM0gyNlYyNEgyNXpNMjYsMjNIMjdWMjRIMjZ6TTI4LDIzSDI5VjI0SDI4ek0yOSwyM0gzMFYyNEgyOXpNMzIsMjNIMzNWMjRIMzJ6TTQsMjRINVYyNUg0ek01LDI0SDZWMjVINXpNNiwyNEg3VjI1SDZ6TTgsMjRIOVYyNUg4ek0xMCwyNEgxMVYyNUgxMHpNMTYsMjRIMTdWMjVIMTZ6TTE5LDI0SDIwVjI1SDE5ek0yMywyNEgyNFYyNUgyM3pNMjQsMjRIMjVWMjVIMjR6TTI1LDI0SDI2VjI1SDI1ek0yNiwyNEgyN1YyNUgyNnpNMjcsMjRIMjhWMjVIMjd6TTI4LDI0SDI5VjI1SDI4ek0yOSwyNEgzMFYyNUgyOXpNMTIsMjVIMTNWMjZIMTJ6TTEzLDI1SDE0VjI2SDEzek0xNCwyNUgxNVYyNkgxNHpNMTUsMjVIMTZWMjZIMTV6TTE4LDI1SDE5VjI2SDE4ek0xOSwyNUgyMFYyNkgxOXpNMjAsMjVIMjFWMjZIMjB6TTIxLDI1SDIyVjI2SDIxek0yMiwyNUgyM1YyNkgyMnpNMjQsMjVIMjVWMjZIMjR6TTI4LDI1SDI5VjI2SDI4ek0yOSwyNUgzMFYyNkgyOXpNMzAsMjVIMzFWMjZIMzB6TTQsMjZINVYyN0g0ek01LDI2SDZWMjdINXpNNiwyNkg3VjI3SDZ6TTcsMjZIOFYyN0g3ek04LDI2SDlWMjdIOHpNOSwyNkgxMFYyN0g5ek0xMCwyNkgxMVYyN0gxMHpNMTIsMjZIMTNWMjdIMTJ6TTEzLDI2SDE0VjI3SDEzek0xNCwyNkgxNVYyN0gxNHpNMTYsMjZIMTdWMjdIMTZ6TTE4LDI2SDE5VjI3SDE4ek0xOSwyNkgyMFYyN0gxOXpNMjAsMjZIMjFWMjdIMjB6TTIxLDI2SDIyVjI3SDIxek0yMiwyNkgyM1YyN0gyMnpNMjQsMjZIMjVWMjdIMjR6TTI2LDI2SDI3VjI3SDI2ek0yOCwyNkgyOVYyN0gyOHpNMzIsMjZIMzNWMjdIMzJ6TTQsMjdINVYyOEg0ek0xMCwyN0gxMVYyOEgxMHpNMTUsMjdIMTZWMjhIMTV6TTE2LDI3SDE3VjI4SDE2ek0xOCwyN0gxOVYyOEgxOHpNMjIsMjdIMjNWMjhIMjJ6TTIzLDI3SDI0VjI4SDIzek0yNCwyN0gyNVYyOEgyNHpNMjgsMjdIMjlWMjhIMjh6TTI5LDI3SDMwVjI4SDI5ek0zMiwyN0gzM1YyOEgzMnpNNCwyOEg1VjI5SDR6TTYsMjhIN1YyOUg2ek03LDI4SDhWMjlIN3pNOCwyOEg5VjI5SDh6TTEwLDI4SDExVjI5SDEwek0xNCwyOEgxNVYyOUgxNHpNMTcsMjhIMThWMjlIMTd6TTE4LDI4SDE5VjI5SDE4ek0xOSwyOEgyMFYyOUgxOXpNMjAsMjhIMjFWMjlIMjB6TTIzLDI4SDI0VjI5SDIzek0yNCwyOEgyNVYyOUgyNHpNMjUsMjhIMjZWMjlIMjV6TTI2LDI4SDI3VjI5SDI2ek0yNywyOEgyOFYyOUgyN3pNMjgsMjhIMjlWMjlIMjh6TTMxLDI4SDMyVjI5SDMxek00LDI5SDVWMzBINHpNNiwyOUg3VjMwSDZ6TTcsMjlIOFYzMEg3ek04LDI5SDlWMzBIOHpNMTAsMjlIMTFWMzBIMTB6TTE0LDI5SDE1VjMwSDE0ek0xNSwyOUgxNlYzMEgxNXpNMTYsMjlIMTdWMzBIMTZ6TTE3LDI5SDE4VjMwSDE3ek0xOSwyOUgyMFYzMEgxOXpNMjIsMjlIMjNWMzBIMjJ6TTI0LDI5SDI1VjMwSDI0ek0yNSwyOUgyNlYzMEgyNXpNMjcsMjlIMjhWMzBIMjd6TTI4LDI5SDI5VjMwSDI4ek0yOSwyOUgzMFYzMEgyOXpNMzIsMjlIMzNWMzBIMzJ6TTQsMzBINVYzMUg0ek02LDMwSDdWMzFINnpNNywzMEg4VjMxSDd6TTgsMzBIOVYzMUg4ek0xMCwzMEgxMVYzMUgxMHpNMTIsMzBIMTNWMzFIMTJ6TTEzLDMwSDE0VjMxSDEzek0xNCwzMEgxNVYzMUgxNHpNMTUsMzBIMTZWMzFIMTV6TTE2LDMwSDE3VjMxSDE2ek0xOSwzMEgyMFYzMUgxOXpNMjEsMzBIMjJWMzFIMjF6TTIyLDMwSDIzVjMxSDIyek0yNSwzMEgyNlYzMUgyNXpNMjcsMzBIMjhWMzFIMjd6TTI4LDMwSDI5VjMxSDI4ek0yOSwzMEgzMFYzMUgyOXpNMzEsMzBIMzJWMzFIMzF6TTMyLDMwSDMzVjMxSDMyek00LDMxSDVWMzJINHpNMTAsMzFIMTFWMzJIMTB6TTE0LDMxSDE1VjMySDE0ek0xNSwzMUgxNlYzMkgxNXpNMTcsMzFIMThWMzJIMTd6TTE4LDMxSDE5VjMySDE4ek0yMCwzMUgyMVYzMkgyMHpNMjQsMzFIMjVWMzJIMjR6TTI1LDMxSDI2VjMySDI1ek0yNywzMUgyOFYzMkgyN3pNMjksMzFIMzBWMzJIMjl6TTQsMzJINVYzM0g0ek01LDMySDZWMzNINXpNNiwzMkg3VjMzSDZ6TTcsMzJIOFYzM0g3ek04LDMySDlWMzNIOHpNOSwzMkgxMFYzM0g5ek0xMCwzMkgxMVYzM0gxMHpNMTIsMzJIMTNWMzNIMTJ6TTE0LDMySDE1VjMzSDE0ek0xNiwzMkgxN1YzM0gxNnpNMTksMzJIMjBWMzNIMTl6TTIwLDMySDIxVjMzSDIwek0yNCwzMkgyNVYzM0gyNHpNMjYsMzJIMjdWMzNIMjZ6TTI4LDMySDI5VjMzSDI4ek0yOSwzMkgzMFYzM0gyOXpNMzIsMzJIMzNWMzNIMzJ6IiBpZD0icXItcGF0aCIgZmlsbD0iIzAwMDAwMCIgZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIHN0cm9rZT0ibm9uZSIgLz48L3N2Zz4=';
+search();
+if(state.trip&&!['complete','cancelled'].includes(state.trip.stage))show('trip');
+setInterval(tick,80);
+</script>
+</body>
+</html>
