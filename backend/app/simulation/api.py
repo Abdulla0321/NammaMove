@@ -13,8 +13,9 @@ from time import monotonic, time
 from typing import Annotated, Literal
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse, Response
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from .driver_auth import DriverSessions
@@ -267,6 +268,10 @@ def create_demo(
     started: float | None = None
     ApiKey = Annotated[str | None, Header(alias="X-Demo-Key")]
     StaffToken = Annotated[str | None, Header(alias="X-Staff-Token")]
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(_: Request, __: RequestValidationError) -> JSONResponse:
+        return JSONResponse({"detail": "Invalid request"}, status_code=422)
 
     def authorize(value: str | None, expected: str | None) -> None:
         if not expected or not value or not compare_digest(value.encode(), expected.encode()):
