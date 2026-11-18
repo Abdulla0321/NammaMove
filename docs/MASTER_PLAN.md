@@ -28,6 +28,19 @@ Plan and recover feasible Bengaluru multimodal journeys. Missing GPS is uncertai
 10: Production Docker and hardened GitHub Actions CI/CD.
 Only install dependencies when their phase needs them.
 
+## Updated journey/wallet dependencies (2026-11-14; planned requirements)
+
+The [PRD v1.1](PRD.md) and [architecture amendment](ARCHITECTURE.md#updated-journey-wallet-and-validation-design--planned) record the intended continuous Bengaluru journey across bus/metro/walk and partner-supported auto/cab/bikes. The unified wallet and one-QR dual-validation academic demonstration are required future scope, not current functionality.
+
+| Phase | Additional intended scope | Gate |
+|---|---|---|
+| 05 | Feed reliability/durable provenance; owner-scoped JourneySession/JourneyLeg and authenticated mobile progress foundations | No financial execution or GPS-inferred completion; current focus remains synthetic ingestion reliability |
+| 06 | Safe reachable-exit, preference/accessibility-preserving confirmed reroute; synthetic fare-aware revisions | Trusted evidence, user choice/cooldown and network-capacity tests; preserve tickets/incurred fares |
+| 07 | Uncertain ETA and transfer-risk warnings | Calibrated held-out evaluation; prediction is not verification |
+| 08 | Simulated wallet with configurable INR 500 minimum/affordability/holds; demo dual validation; approved booking, debit, refunds and separate settlement | Academic no-money/no-genuine-ticket boundary, then authorized partner/operator agreements and financial/validation tests |
+| 09 | Validation disputes, provider failures, reconciliation and digital-twin resilience | Auditable operations, support/restore and retention evidence |
+| 10 | Security, authorized integrations and limited Bengaluru pilot | All applicable provider/source/privacy/release gates; no deployment authorization here |
+
 ## Delivery policy
 Each phase specifies prerequisites, tasks, deliverables, edge cases, tests and completion criteria. Update PHASE_STATUS.md with evidence. Configuring CI is not proof of a successful hosted run. Use licensed or synthetic fixtures; distinguish mock integration from live pilot validation. Cross-cutting safety gates remain release blockers.
 
@@ -37,5 +50,5 @@ Typed validated boundaries; versioned API/data contracts; migrations and transac
 ## Measurement
 Track GPS-attributable false cancellation (target zero), incident precision, feed age, ETA interval calibration, transfer success, accessibility failures, oscillations and aggregate network load delta. Establish replay baselines before live use. Provisional p95 routing target is under 2 seconds; operations/release phases must validate availability and recovery budgets against measured pilot workloads.
 
-## Current Phase 01 boundary
-Phase 01 is accepted locally: 45 tests pass with zero skips, including real PostgreSQL/PostGIS migrations/RLS/grants, backup/restore and genuine Supabase Auth. See PHASE_STATUS.md and DATABASE.md for scope and production limits. Phase 02 now implements the versioned static catalog and import/search foundation; full acceptance remains gated on documented provider rights, fresh datasets and coverage/quality evidence. See [TRANSIT_DATA.md](TRANSIT_DATA.md). Phase 03 synthetic schedule-routing work is explicitly user-authorized and locally validated; real-provider gates remain open. Phase 04 commuter-client engineering now uses those synthetic contracts, with device/localization acceptance pending. The user subsequently authorized Phase 05 synthetic engineering while deferring Phase 04 acceptance: bounded replay/protobuf adapters and atomic Redis event-state work are in progress; live tracking and later live features remain unstarted. See REALTIME.md for the limited scope.
+## Current engineering boundary
+Phase 01 is accepted locally: 45 tests pass with zero skips, including real PostgreSQL/PostGIS migrations/RLS/grants, backup/restore and genuine Supabase Auth. See PHASE_STATUS.md and DATABASE.md for scope and production limits. Phase 02 implements static catalog/import/search, with provider rights and authoritative coverage gates open. Phase 03 routing and Phase 04 clients remain bounded to their documented synthetic/acceptance scope. User-authorized Phase 05 engineering includes replay/protobuf adapters, atomic Redis event state, whole-feed ingestion, owner-registered durable evidence/static binding/restart watermarks, source-scoped non-owner workers, explicit scheduled bounded retention/recovery and bounded metadata dispatch of committed synthetic generations with durable leases/retries. Next is operational multi-source orchestration/global admission; raw-ingress durability and fetch remain separately gated. No live provider activation, authenticated delivery, wallet/QR or Phase 06. See [realtime](REALTIME.md), [durability boundary](DURABLE_INGESTION.md) and phase status.

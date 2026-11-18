@@ -2,6 +2,10 @@
 
 Status: Planned; not implemented.
 
+## Updated journey dependency (2026-11-14; design only)
+
+Consume privacy-approved Phase 05 observation/progress contracts and Phase 06 outcomes to estimate ETA/transfer risk with calibrated uncertainty and safe warnings. Predictions cannot authorize ticket validation, early-exit completion, wallet debit, provider settlement or service cancellation from missing GPS. Retain the baseline, held-out, drift and rollback gates below; no ML implementation is added by the [PRD v1.1](../PRD.md) amendment.
+
 ## Prerequisites
 Quality-controlled Phase 05 history and Phase 06 outcomes; consent and evaluation plan.
 

@@ -3,8 +3,8 @@
 | Attribute | Value |
 |---|---|
 | Product | NammaMove |
-| Document version | 1.0 |
-| Updated | 2026-10-29 |
+| Document version | 1.1 |
+| Updated | 2026-11-14 |
 | Status | Requirements baseline for review; not a production acceptance certificate |
 | Primary market | Bengaluru commuters |
 | Primary client | Android-first React Native / Expo application |
@@ -59,11 +59,11 @@ Commuter metadata must never grant moderator or administrator authority. Product
 | Authorized Bengaluru pilot | Reviewed source rights, demonstrable current coverage, operationally validated routing/accessibility, accepted client/security/operations gates and explicit pilot approval |
 | Later product capabilities | Licensed live feeds, trusted recovery, evaluated ML, authorized payments and full operations tooling in their assigned phases |
 
-The first routing mode set is bus, metro and walking. Cycles, contracted cabs, micromobility, voice interaction and turn-by-turn guidance remain conditional backlog items requiring approved scope, usable data, permissions and independent acceptance. A diagram of endpoints is not turn-by-turn navigation.
+The implemented routing mode set remains bus, metro and walking. The intended continuous Bengaluru journey includes BMTC bus, Namma Metro, walking and supported autos, cabs and bikes, conditional on usable data, operator agreements and mode-specific acceptance. Booking/payment adapters belong to Phase 08, not the current synthetic Phase 05 slice. Voice interaction and turn-by-turn guidance remain conditional backlog items; a diagram of endpoints is not turn-by-turn navigation.
 
 ### Non-goals and exclusions
 
-No unrestricted scraping, default access to agency datasets, fabricated live transport information, guaranteed arrival, guaranteed cheapest fare or guaranteed accessibility is implied. There is no current production payment service, autonomous incident authority, unrestricted location tracking, city-scale congestion guarantee or approved deployment. Monetization, subscriptions, advertising and commercial settlement terms are undecided and must not be silently added to the rider experience.
+No unrestricted scraping, default access to agency datasets, fabricated live transport information, guaranteed arrival, guaranteed cheapest fare or guaranteed accessibility is implied. There is no current production payment service, autonomous incident authority, unrestricted location tracking, city-scale congestion guarantee or approved deployment. The unified wallet is a required intended product component (Phase 08); partner selection, commercial settlement terms, monetization, subscriptions and advertising remain undecided. No wallet, ticket or payment flow is implemented by this requirements update.
 
 ## 5. Non-negotiable safety rules
 
@@ -87,6 +87,12 @@ No unrestricted scraping, default access to agency datasets, fabricated live tra
 6. **Follow a journey, later:** opt into authorized live information, see freshness and uncertainty, and receive scoped boarding/alighting or service notices where supported.
 7. **Recover, later:** receive an explanation of verified disruption impact, compare feasible alternatives and confirm a change. If no safe alternative exists, explain waiting or official-support options without promising emergency response.
 8. **Pay, later:** use an authorized provider, obtain entitlement only after verified success, and access receipts/refund support with explicit restrictions.
+
+### Intended continuous journey (planned, not implemented)
+
+Enter pickup/drop-off; choose cheapest/fastest/fewer-transfer/less-walking, accessibility and mode preferences; compare timings, fares, walking, transfers and boarding instructions. After selection, verify wallet eligibility and affordability before confirmation, reserve configured funds, then start the journey. Issue each mode's valid entitlement at the provider-approved point. Each paid leg progresses through independently verified check-in, travel and check-out; debit only after verified completion/authorized early exit. Provider settlement remains separate. Activate the next appropriate leg or finish the journey. Trusted changes offer explained alternatives without discarding the original journey or passenger choice.
+
+Academic demonstrations use explicitly simulated balances, settlements and non-genuine demo entitlements only: no deposits, transfers or fabricated operator-valid tickets. Production requires an authorized wallet/payment partner and operator support for each enabled mode. GPS is never proof of check-in, check-out or completion.
 
 ## 7. Functional requirements
 
@@ -139,10 +145,12 @@ Priority describes the gate for the relevant phase: **Must** blocks acceptance, 
 |---|---|---|---|
 | LIVE-01 | Conditional / 05 | Ingest authorized GTFS-Realtime positions, trip updates and alerts with independent event/freshness state | Duplicate/reordered/skewed/spoofed telemetry is handled; missing GPS never cancels service |
 | LIVE-02 | Must / 05 | Provide authenticated scoped updates, reconnect/polling fallback, explicit opt-in and low-battery behavior | Unauthorized subscriptions fail; outage and backgrounding/privacy tests pass |
+| LIVE-03 | Must / 05 foundation | Owner-scoped JourneySession/JourneyLeg state and revision contracts, without ticket/payment execution | Preserve original itinerary/preferences, completed/current legs and independently verified progress; not yet implemented |
 | REC-01 | Must / 06 | Maintain evidence provenance, confidence, independent verification, expiry, resolution and audit | Unverified/expired evidence cannot authorize graph closures; conflicting reports are moderated |
 | REC-02 | Must / 06 | Deduplicate/rate-limit reports and protect moderator/operator actions | Abuse, forged-role, rumor-storm and concurrent-report scenarios pass |
 | REC-03 | Must / 06 | Replan from reachable boarding/alighting positions with accessibility, minimum benefit, cooldown and rider confirmation | Mid-vehicle, concurrent-disruption, no-alternative and oscillation replays pass |
 | REC-04 | Must / 06 | Account for aggregate demand and downstream capacity | Automatic recovery remains disabled until network-impact tests demonstrate the approved no-projected-congestion-increase gate |
+| REC-05 | Must / 06; execution 08 | Compare remaining/additional/total projected fare, time, walking, transfers and modes from the next safe reachable exit/onward pickup point; preserve hard accessibility and preferences | Never suggest leaving a moving vehicle; rejection keeps the current journey; accepted revisions preserve entitlements/incurred fare, use authorized early exit, disclose/confirm new charges and never count pending refunds as received |
 
 ### 7.6 Prediction, payments and operations — planned
 
@@ -151,10 +159,16 @@ Priority describes the gate for the relevant phase: **Must** blocks acceptance, 
 | AI-01 | Must / 07 | Evaluate ETA ranges, transfer risk and no-show probability against declared non-ML baselines | Temporal held-out tests, leakage checks, calibration and route/operator slices pass; probability is not cancellation proof |
 | AI-02 | Must / 07 | Version data/features/models, monitor drift, bound inference and retain fallback/rollback | Missing features or inference outages yield explained baseline behavior |
 | PAY-01 | Conditional / 08 | Integrate approved payment/ticket providers without storing card credentials | Agreements and sandbox evidence precede any production integration |
-| PAY-02 | Must / 08 | Enforce idempotent payment/entitlement/refund transitions and verified webhooks | No ticket before verified success; retries cannot double-charge/issue; forged/replayed events fail |
+| PAY-02 | Must / 08 | Enforce separate idempotent reservation/payment/entitlement/refund transitions and verified callbacks | Provider-approved issuance authorization is required; check-in does not debit; verified completion triggers at most one debit; retries cannot double-charge/issue; forged/replayed events fail |
 | PAY-03 | Must / 08 | Reconcile ledger/provider state; support receipts, expiry and explicit offline ticket restrictions | Timeout-after-charge, refunds, duplicate QR and reconciliation scenarios pass |
+| WAL-01 | Must / 08 | Unified Wallet with configurable initial minimum INR 500 before confirmation, actual affordability and configured holds for planned paid legs | Minimum and available unheld funds checked atomically; no oversubscribed balance under concurrent confirmations; only simulated balances in academic mode |
+| WAL-02 | Must / 08 | Separate balance, held funds, debited funds, pending settlement and provider-settled states; provider-specific fares/adjustments, refunds and hold release | Auditable/idempotent records; debit never implies immediate bank settlement; pending refunds are not spendable credit |
+| QR-01 | Must / 08 academic | One demo ticket QR per paid leg: first authorized scan CHECKED_IN/IN_PROGRESS; second authorized scan CHECKED_OUT/COMPLETED, then idempotent fare workflow | Validate passenger, ticket, active leg, boarding/exit context and scanner authority; reject forgery, wrong user/leg and replay; ticket/payment validity independent; interrupted checkout awaits authoritative reconciliation |
+| QR-02 | Conditional / 08 production | Metro operator QR/gates; bus operator validation; auto/cab/bike-taxi provider pickup/completion; rental-bike unlock/return | QR only where partner-supported; no BMTC/BMRCL/provider acceptance claim without genuine evidence |
+| FARE-01 | Must / 06 contract, 08 execution | Authorized early-exit fare/refund policy, with configurable full agreed fixed fare on an early-ended academic ride | Academic rule visible/configurable; production applies disclosed operator rules, preserves tickets/prior payments and audits confirmed revisions |
 | OPS-01 | Must / 09 | Provide audited role-scoped feed, incident, support and privacy-safe observability tools | Role isolation, redaction and actionable owned alerts pass review |
 | OPS-02 | Must / 09 | Bound queues/rates/concurrency; exercise replay, load, failure recovery and restore | Incident storms, dependency outages and restore drills meet approved budgets |
+| OPS-03 | Must / 09 | Validation disputes, provider failures, unsettled transactions, refunds and digital-twin recovery scenarios | Role-scoped auditable support/reconciliation; no fabricated completion or settlement |
 | REL-01 | Must / 10 | Use reviewed artifacts, secrets, migration gates, staging, canaries and rollback | Source/security/pilot approvals and restore/rollback evidence precede release; no unapproved live claims |
 
 ## 8. Data, architecture and integration constraints
@@ -164,6 +178,8 @@ Use a modular FastAPI backend before introducing independent services. React Nat
 OTP owns schedule/street search; application boundaries validate returned feasibility, scope and provenance. Version graphs independently from database schema and later models. Redis is a Phase 05 ephemeral cache/queue, never the sole store for financial records or incident authority. Python scikit-learn/XGBoost arrive in Phase 07 after usable history and evaluation design. Docker and GitHub Actions introduce reproducibility progressively; production deployment belongs to Phase 10.
 
 Domain records include commuters/preferences, transit operators/networks/stops/routes/trips/calendars/snapshots, journeys, vehicles, disruptions/evidence, notifications and audit. Payments/tickets/ledger and ML model lineage are later additions. A schema entity or placeholder does not mean the associated live workflow is implemented.
+
+Planned JourneySession lifecycle: PLANNED → CONFIRMED → IN_PROGRESS → COMPLETED, plus explicit cancellation/interruption/failure paths. JourneyLeg separates ticket issuance, check-in, travel, check-out, fare calculation, wallet debit and provider settlement. Revisions retain original itinerary/preferences, completed legs, current leg, next reachable boarding/alighting point, entitlements, incurred fare, remaining projected fare and revised timing/walking/transfers. Phase 05 may establish nonfinancial ownership/progress contracts; Phase 06 may use synthetic fare-policy contracts; actual validation/financial orchestration is Phase 08. See [architecture](ARCHITECTURE.md#updated-journey-wallet-and-validation-design--planned).
 
 Preserve legacy simulation API compatibility. Current authenticated routing is `/v1/routing/plan`; the fixture endpoint is opt-in and disabled in production. Current catalog and synthetic OTP data are separate; an approved real-network integration must establish consistent identifier/version mapping and tested coverage before enabling a real pilot. See [database](DATABASE.md), [transit](TRANSIT_DATA.md), [routing](ROUTING.md) and [mobile](MOBILE.md) runbooks.
 
@@ -228,7 +244,7 @@ This snapshot is based on repository evidence, not a fresh execution of the full
 - Phase 04 records 31 mobile tests, 135 backend tests and 11 real client/Auth/API/OTP checks passing in the latest recorded evidence. Browser Auth preflight required an explicit local gateway fix; this is documented rather than hidden by server-to-server tests.
 - Native startup/end-to-end, TalkBack, native storage lifecycle, maps, complete Kannada/Hindi translation and signup delivery/deep links remain acceptance gaps. On 2026-10-29, USB authorization/forwarding and backend/Auth/OTP health were checked, but the phone smoke test was blocked by mismatched Expo Go and unavailable Metro. A connected phone and exported bundle are not a passing native smoke test.
 - An upstream Expo CLI/Zod dependency advisory and hosted CI verification remain open in the recorded Phase 04 evidence. This document does not re-evaluate advisory status or claim a clean security audit.
-- Phases 05–10 remain planned. No live Bengaluru coverage, congestion-safe automatic recovery, accepted predictive model, production ticketing or approved deployment is claimed.
+- Phase 05 now has synthetic replay, protobuf normalization, Redis event state and whole-feed/local-queue evidence (2026-11-12: 263 backend passes including genuine Redis/PostGIS/Auth/OTP). That is historical evidence here, not fresh execution for this document. Durable evidence/provenance, authenticated delivery and Phase 05 acceptance remain open. Phases 06–10 remain planned; no live Bengaluru coverage, congestion-safe recovery, accepted predictive model, wallet payments, production ticketing or approved deployment is claimed.
 
 Consult [phase status](PHASE_STATUS.md), [Phase 02 audit](PHASE_02_ACCEPTANCE_AUDIT.md), [source registry](DATA_SOURCES.md) and [Phase 04 evidence](evidence/phase04-mobile.json) for provenance and measured limits.
 
@@ -258,3 +274,7 @@ A product release requires evidence for every enabled Must requirement, approval
 Before an authorized pilot, complete real-data rights/coverage review, native end-to-end and accessibility acceptance, security/privacy/dependency review, all applicable integration tests, monitoring/support ownership and successful rollback/restore drills. Release notes must state actual geographic/mode coverage and distinguish disabled future features.
 
 Changes to modes, source rights, trust authority, retention, financial behavior, SLOs or release gates require a PRD update and a linked architecture decision where relevant. Update the feature matrix and phase evidence with actual results. Do not commit credentials or raw rider/provider data as proof. Approval of this requirements document is separate from authorization to deploy, merge or begin the next phase.
+
+### 2026-11-14 requirements amendment
+
+Version 1.1 records the user-authorized continuous journey, central wallet, configurable INR 500 default, dual-validation demo and fare-aware recovery baseline, not implemented capabilities. Dependencies: 05 feed reliability/durable provenance and scoped progress/delivery foundations; 06 trusted safe confirmed recovery with synthetic financial contracts; 07 calibrated predictions; 08 simulated then authorized wallet/QR/booking/financial orchestration; 09 disputes/reconciliation/digital twin/resilience; 10 security/provider approvals and limited Bengaluru pilot. See ADR-027 and the phase plans.

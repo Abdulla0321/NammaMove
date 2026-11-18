@@ -2,6 +2,10 @@
 
 Status: Planned; not implemented.
 
+## Updated recovery requirement (2026-11-14; design only)
+
+Use authorized verified disruptions or sufficiently supported delays affecting remaining legs. Identify the next safe reachable exit/onward pickup; never suggest exiting a moving vehicle. Preserve preferences and hard accessibility. Compare remaining time, additional/total projected fare, walking, transfers and modes; require explicit accept/reject. Rejection preserves the current journey. Acceptance retains original/completed/current legs, purchased entitlements, incurred/remaining fares and timing in an auditable revision; use operator-supported early exit and confirm any new charges/entitlements. Never assume a pending refund arrived. Academic synthetic fare contracts may configure full agreed fixed fare on early-ended rides; production uses disclosed authorized operator rules. Actual check-out/debit/refund orchestration stays Phase 08. No GPS-loss rerouting; cooldown and aggregate network-capacity gates still apply. See [PRD](../PRD.md) and ADR-027.
+
 ## Prerequisites
 Phases 03?05 operational; moderator/operator roles; capacity baseline.
 

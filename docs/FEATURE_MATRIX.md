@@ -16,7 +16,8 @@ Implemented refers to local demo behavior, not production readiness.
 | Official complete BMTC/BMRCL datasets | Partial topology corroboration; current schedules, exhaustive inventory and public-use content rights unresolved | 02 |
 | Read-only coverage and network audit | Real snapshot: 83 stations, 170 platforms, 235 entrances; strong/weak connectivity distinguished | 02 |
 | Approximate timetable labels | Source timepoint and timing_precision exposed; agency_schedule_accuracy_verified=false | 02 |
-| GTFS-RT freshness contract | Synthetic boundary tests; no live ingestion worker | 02/05 |
+| GTFS-RT freshness and whole-feed worker | Synthetic replay/protobuf, atomic Redis generations/omission withdrawal, alert expiry and bounded local queue; genuine Redis evidence; no live source/fetcher | 02/05 |
+| Durable feed evidence, retention and restart watermarks | Owner-run synthetic source/static binding, idempotent metadata/latest checkpoint, guarded Redis rebuild and explicit retention; dedicated non-owner runtime/scheduler/dispatch remain pending | 05-D |
 | OTP schedule/street/accessibility routing | Implemented on owned synthetic graph; actual OTP calendar/direction/transfer/wheelchair tests | 03 |
 | Departure/arrival-time and journey preferences | Implemented over bounded candidates; no global optimum or real agency schedule claim | 03 |
 | Graph build/versioning/rollback | Pinned image/platform, canonical inputs, source/graph hashes, real build/load and explicit rollback verified | 03 |
@@ -24,10 +25,16 @@ Implemented refers to local demo behavior, not production readiness.
 | Expo mobile and React web preview/status shell | Implemented; Android/web JS exports and genuine API-client checks passed; custom ARM64 APK/Maps and main user-reported device walkthrough pass; remaining acceptance gates pending | 04 |
 | Offline/manual origin, favorites, languages | Native encrypted consented cache, manual origin, saved places/recents; complete en/kn/hi app-owned strings and fallback/localized-screen tests; durable-save failure/retry verified; user confirms main device walkthrough and Kannada/Hindi wording; remaining lifecycle gates pending | 04 |
 | Live tracking and notifications | Planned | 05 |
+| JourneySession/JourneyLeg and authenticated progress | Planned nonfinancial foundation; existing saved journey history is not an active session | 05 |
 | Trusted reports, recovery, congestion control | Planned | 06 |
+| Preference/fare-aware confirmed early-exit recovery | Planned synthetic policy contracts; preserve tickets/incurred fares and safe reachable exits | 06; execution 08 |
 | Predictive reliability/ETA ranges | Planned | 07 |
 | Authorized ticketing/payments/refunds | Planned | 08 |
+| Unified wallet: default INR 500 minimum, affordability, holds, debit and separate settlement | Required intended scope; configurable, academic simulation first; no money flow implemented | 08 |
+| One QR per paid leg, dual check-in/check-out validation | Planned academic demo only; provider-specific production authorization required | 08 |
+| Supported auto/cab/bike booking/entitlements | Planned conditional partner adapters; current router modes unchanged | 08 |
 | Operations, replay and resilience | Planned | 09 |
+| Validation disputes and provider/financial reconciliation | Planned; auditable support, not ad-hoc balance adjustment | 09 |
 | Deployment and approved pilot | Planned | 10 |
 | Lint/format/type/test and CI configuration | Local checks recorded in PHASE_STATUS | 00 |
 
