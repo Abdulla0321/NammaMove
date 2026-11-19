@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NammaMove · Driver and validator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e4ede8;color:#142f29;font:16px system-ui}
+main{max-width:500px;margin:auto;min-height:100vh;background:#f6f8f1}
+header{padding:28px 22px;background:#102e29;color:#fff}h1{margin:8px 0 0;font-size:2rem}
+small{color:#cbe9ce}section,form{margin:16px;padding:17px;display:grid;gap:12px;border:1px solid #cfded3;background:white;border-radius:17px}
+label{display:grid;gap:5px;font-weight:650}input,button{font:inherit;padding:11px;border:1px solid #9bb5a7;border-radius:9px;min-width:0}
+button{background:#155646;color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.55;cursor:default}
+p,h2{margin:0}#status{padding:0 18px;color:#174d3c}[hidden]{display:none!important}
+</style>
+<main>
+<header><small>NammaMove · Simulation</small><h1>Driver &amp; station validator</h1></header>
+<form id="login">
+<label>Username<input id="username" name="username" required maxlength="80" autocomplete="username"></label>
+<label>Password<input id="password" name="password" type="password" required maxlength="256" autocomplete="current-password"></label>
+<button>Sign in</button>
+</form>
+<section id="shift" hidden>
+<h2 id="provider"></h2><p id="assignment">Waiting for an assigned leg.</p>
+<button id="accept" hidden>Accept leg</button>
+<form id="scanner" hidden style="margin:0">
+<label>Passenger QR payload<input id="ticket" maxlength="128" required autocomplete="off"></label>
+<label id="image-label" hidden>Scan a QR image<input id="image" type="file" accept="image/*" capture="environment"></label>
+<button id="validate">Validate scan</button>
+</form>
+<button id="logout">Sign out</button>
+</section>
+<p id="status" role="status"></p>
+</main>
+<script>
+const get = id => document.getElementById(id);
+let staff, assignment, polling = false;
+async function api(path, body) {
+  const response = await fetch('/demo/v1' + path, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: {'Content-Type': 'application/json', ...(staff ? {'X-Staff-Token': staff.session} : {})},
+    cache: 'no-store',
+    body: JSON.stringify(body)
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    if (staff && response.status === 401) signOut();
+    throw new Error(typeof result.detail === 'string' ? result.detail : 'Invalid request');
+  }
+  return result;
+}
+async function run(work) {
+  get('status').textContent = '';
+  try { await work(); }
+  catch (error) { get('status').textContent = error.message; }
+}
+function signOut() {
+  staff = assignment = undefined;
+  get('shift').hidden = true;
+  get('login').hidden = false;
+  get('ticket').value = '';
+}
+function path() { return '/fleet/' + staff.vehicle; }
+async function refresh() {
+  if (!staff || polling) return;
+  const signedIn = staff;
+  polling = true;
+  try {
+    const result = await api(path() + '/assignment');
+    if (staff !== signedIn) return;
+    const next = result.assignment;
+    if (assignment?.journey_id !== next?.journey_id || assignment?.leg_index !== next?.leg_index) {
+      get('ticket').value = '';
+    }
+    assignment = next;
+    get('assignment').textContent = next
+      ? next.origin + ' → ' + next.destination + ' · ' + next.minutes + ' min · ₹' + next.fare_inr
+        + ' · ' + (next.motion?.phase ?? next.stage)
+      : 'Waiting for an assigned leg.';
+    get('accept').hidden = next?.stage !== 'ready';
+    get('scanner').hidden = !next || next.stage === 'ready';
+    get('validate').disabled = next?.stage === 'boarded' && next.motion?.phase === 'moving';
+    get('validate').textContent = next?.stage === 'boarded' ? 'Validate exit' : 'Validate boarding';
+  } finally { polling = false; }
+}
+function leg() {
+  if (!assignment) throw new Error('No active assignment.');
+  return {journey_id: assignment.journey_id, leg_index: assignment.leg_index};
+}
+get('login').onsubmit = event => {
+  event.preventDefault();
+  run(async () => {
+    const password = get('password').value;
+    get('password').value = '';
+    staff = await api('/staff/login', {username: get('username').value.trim(), password});
+    get('provider').textContent = staff.operator;
+    get('login').hidden = true;
+    get('shift').hidden = false;
+    await refresh();
+  });
+};
+get('logout').onclick = () => { signOut(); get('status').textContent = 'Signed out.'; };
+get('accept').onclick = () => run(async () => {
+  await api(path() + '/accept', leg());
+  await refresh();
+  get('status').textContent = 'Accepted. Ask the passenger to show the boarding QR.';
+});
+get('scanner').onsubmit = event => {
+  event.preventDefault();
+  run(async () => {
+    const action = assignment?.stage === 'boarded' ? 'exit' : 'board';
+    await api(path() + '/scan', {...leg(), ticket: get('ticket').value.trim(), action});
+    get('ticket').value = '';
+    await refresh();
+    get('status').textContent = action === 'board' ? 'Boarding validated. Journey leg started.' : 'Exit validated. Fare recorded.';
+  });
+};
+if ('BarcodeDetector' in window) {
+  get('image-label').hidden = false;
+  get('image').onchange = () => run(async () => {
+    const file = get('image').files[0];
+    get('image').value = '';
+    if (!file) return;
+    const bitmap = await createImageBitmap(file);
+    try {
+      const results = await new BarcodeDetector({formats: ['qr_code']}).detect(bitmap);
+      if (results.length !== 1) throw new Error('Choose an image containing one QR code.');
+      get('ticket').value = results[0].rawValue;
+    } finally { bitmap.close(); }
+  });
+}
+setInterval(() => { if (staff) refresh().catch(error => { get('status').textContent = error.message; }); }, 1200);
+</script>
+</html>

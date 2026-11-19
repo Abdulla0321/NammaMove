@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NammaMove Operator Console</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.35.0/mapbox-gl.css" rel="stylesheet">
+<script defer src="https://api.mapbox.com/mapbox-gl-js/v3.35.0/mapbox-gl.js"></script>
+<style>
+:root{font:16px system-ui;color:#172e29;background:#edf3ef}
+body{max-width:1080px;margin:auto;padding:30px 20px}
+header{background:#123832;color:#fff;padding:28px;border-radius:20px}
+header p{color:#b8e5ce;margin:0}
+h1{margin:8px 0}
+h2{font-size:1.2rem;margin-top:0}
+main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+section{background:#fff;padding:20px;border-radius:16px;border:1px solid #d9e5dc;min-width:0}
+input,button,select{font:inherit;border-radius:8px;padding:8px 12px;border:1px solid #a4bcb0;max-width:100%;box-sizing:border-box}
+button{background:#205c48;color:#fff;cursor:pointer;margin:4px 3px 4px 0}
+button:hover{background:#174636}
+button:disabled{opacity:.5;cursor:default}
+label{display:block;margin:8px 0}
+[hidden]{display:none}
+input,select{display:block;width:100%;margin-top:3px}
+article{padding:10px 0;border-top:1px solid #d9e5dc}
+output{display:block;overflow-wrap:anywhere}
+#status{min-height:1.5em;margin:12px 0 0;color:#234b3f}
+#map{height:420px;background:#e7f0e9;border-radius:12px;overflow:hidden}
+.map-panel{grid-column:1 / -1}
+.legend{font-size:.9rem;color:#395b51}
+.passenger{max-width:720px}
+.passenger main{grid-template-columns:1fr}
+.passenger [data-operator]{display:none}
+.passenger header{background:#102e29}
+.passenger #available-summary{font-size:1.25rem}
+.passenger #map{height:330px}
+.passenger article{border:1px solid #d9e5dc;border-radius:12px;padding:13px;margin-top:10px}
+.passenger article ul{padding-left:18px;color:#395b51;font-size:.88rem}
+@media(max-width:700px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><p>Simulated fleet · Demo INR</p><h1 id="page-title">NammaMove Operator Console</h1><p>Bengaluru route and fleet simulation</p></header>
+<p id="local-file" role="alert" hidden>
+  Start the NammaMove operator server, then open <a href="http://127.0.0.1:8001/">http://127.0.0.1:8001/</a> to enter your console key.
+</p>
+<div id="console-controls">
+<label><span id="access-label">Console API key</span><input id="key" type="password" autocomplete="off"></label>
+<button id="connect">Connect console</button>
+<a href="/driver" target="_blank" rel="noopener">Open driver sign-in ↗</a>
+<div id="status" role="status"></div>
+<section aria-label="Trip and wallet summary">
+<strong id="available-summary">Wallet · connect to view demo balance</strong>
+<p id="trip-summary">Choose a route to see total time and fare.</p>
+</section>
+<main>
+<section class="map-panel">
+<h2 id="map-title">Fleet map</h2>
+<label>Mapbox browser token<input id="map-token" type="password" placeholder="pk.…" autocomplete="off"></label>
+<button id="load-map">Load Mapbox map</button>
+<p class="legend">Green: Mapbox street route · Dashed purple: approximate simulated rail path</p>
+<div id="map-status" role="status"></div>
+<div id="map" aria-label="Bengaluru fleet map"></div>
+</section>
+<section class="map-panel" data-operator>
+<h2>Simulation tracking</h2>
+<label>Simulation speed
+<select id="run-speed">
+  <option value="1">Wall clock (1×)</option>
+  <option value="30" selected>Accelerated (30×)</option>
+  <option value="120">Accelerated (120×)</option>
+</select>
+</label>
+<label>Simulation ID<input id="run-id" autocomplete="off"></label>
+<button id="follow-run">Track simulation</button>
+<button id="recent-runs">Find saved runs</button>
+<button id="stop-follow">Return to operator journey</button>
+<label>Position tick<input id="replay-tick" type="number" min="0" step="1" value="0"></label>
+<button id="seek-run">Replay tick</button>
+<button id="live-run">Resume tracking</button>
+<div id="run-list"></div>
+<output id="sample-id"></output>
+</section>
+<section>
+<h2>Passenger route options</h2>
+<label>From<input id="origin" value="Whitefield"></label>
+<label>To<input id="destination" value="KSR Bengaluru"></label>
+<button id="plan">Find routes</button>
+<div id="routes"></div>
+</section>
+<section>
+<h2>Journey progress</h2>
+<p id="journey">No active journey</p>
+<div id="progress"></div>
+</section>
+<section data-operator>
+<h2>Fleet and scanner</h2>
+<div id="fleet"></div>
+<label>Scanner vehicle<select id="vehicle" aria-label="Scanner vehicle"></select></label>
+<label>Vehicle scanner key<input id="scanner" type="password" autocomplete="off"></label>
+<button id="accept">Accept leg</button>
+<label>Passenger ticket token<input id="ticket" autocomplete="off"></label>
+<label id="qr-reader" hidden>Read ticket from QR image<input id="qr-file" type="file" accept="image/*"></label>
+<button id="board">Validate boarding</button>
+<button id="exit">Validate exit</button>
+</section>
+<section>
+<h2 id="wallet-title">Wallet and reconciliation</h2>
+<p id="wallet">Connect to view balances.</p>
+<div id="credits" data-operator></div>
+<h3>Fare history</h3>
+<ol id="ledger"></ol>
+</section>
+</main>
+</div>
+<script>
+const get = id => document.getElementById(id);
+const passengerView = location.pathname === '/passenger';
+if (passengerView) {
+  document.body.classList.add('passenger');
+  document.title = 'NammaMove · Passenger';
+  get('page-title').textContent = 'Plan your Bengaluru journey';
+  get('access-label').textContent = 'Passenger access key';
+  get('connect').textContent = 'Connect passenger dashboard';
+  get('map-title').textContent = 'Journey map';
+  get('wallet-title').textContent = 'Journey wallet';
+}
+if (location.protocol === 'file:') {
+  get('local-file').hidden = false;
+  get('console-controls').hidden = true;
+}
+let state;
+let qrUrl;
+let map;
+let marker;
+let visibleRoute;
+let polling = false;
+let motionEpoch = 0;
+let followedRun = null;
+let runPolling = false;
+let runEpoch = 0;
+let replaying = false;
+const money = value => '₹' + value;
+function element(tag, text) {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  return node;
+}
+async function api(path, payload, credential = get('key').value) {
+  const response = await fetch('/demo/v1' + path, {
+    method: payload === undefined ? 'GET' : 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Demo-Key': credential},
+    body: JSON.stringify(payload),
+    cache: 'no-store'
+  });
+  const body = await response.json();
+  if (!response.ok) throw new Error(typeof body.detail === 'string' ? body.detail : 'Invalid request');
+  return body;
+}
+async function run(task) {
+  get('status').textContent = '';
+  try { await task(); }
+  catch (error) { get('status').textContent = error.message; }
+}
+const emptyFeatures = () => ({type: 'FeatureCollection', features: []});
+function drawRoute(route) {
+  visibleRoute = route;
+  if (!map?.getSource('route')) return;
+  const data = emptyFeatures();
+  const bounds = new mapboxgl.LngLatBounds();
+  for (const leg of route?.legs ?? []) {
+    if (!leg.path?.length) continue;
+    for (const point of leg.path) bounds.extend(point);
+    data.features.push({
+      type: 'Feature', properties: {source: leg.source},
+      geometry: {type: 'LineString', coordinates: leg.path}
+    });
+  }
+  map.getSource('route').setData(data);
+  if (!bounds.isEmpty()) map.fitBounds(bounds, {padding: 45, maxZoom: 16, duration: 450});
+}
+function showMotion(motion) {
+  const speed = state?.simulation_speed ?? 1;
+  const description = motion?.simulation_id
+    ? (motion.phase === 'complete' ? 'Simulation complete' : 'Simulation moving') + ' · leg ' + (motion.leg_index + 1)
+    : motion?.phase === 'waiting' ? 'Awaiting boarding'
+    : motion?.phase === 'arrived' ? 'Arrived · ready for leg confirmation'
+    : motion ? 'Moving · ' + motion.remaining_simulation_seconds + ' simulated seconds remaining'
+    : 'No active mapped leg';
+  get('map-status').textContent = description + ' · ' + (followedRun?.speed ?? speed) + '× clock';
+  if (!map || !motion) {
+    marker?.remove();
+    marker = null;
+    return;
+  }
+  if (!marker) marker = new mapboxgl.Marker({color: '#155b51'});
+  marker.setLngLat(motion.position).addTo(map);
+  marker.getElement().setAttribute('aria-label', (motion.vehicle ?? 'Walking passenger') + ' simulated position');
+}
+get('load-map').onclick = () => run(async () => {
+  const token = get('map-token').value.trim();
+  if (!token.startsWith('pk.')) throw new Error('Enter a public Mapbox token starting with pk.');
+  if (!window.mapboxgl || !mapboxgl.supported()) throw new Error('Mapbox GL could not load or WebGL2 is unavailable.');
+  marker?.remove();
+  marker = null;
+  map?.remove();
+  map = new mapboxgl.Map({
+    accessToken: token, container: 'map', style: 'mapbox://styles/mapbox/streets-v12',
+    center: [77.66, 12.975], zoom: 10
+  });
+  map.addControl(new mapboxgl.NavigationControl());
+  map.on('error', () => { get('status').textContent = 'Mapbox could not load all map resources. Check the public token and connection.'; });
+  map.once('load', () => {
+    map.addSource('route', {type: 'geojson', data: emptyFeatures()});
+    map.addLayer({id: 'street', source: 'route', type: 'line',
+      filter: ['!=', ['get', 'source'], 'simulated_rail'],
+      paint: {'line-color': '#08785d', 'line-width': 5}});
+    map.addLayer({id: 'rail', source: 'route', type: 'line',
+      filter: ['==', ['get', 'source'], 'simulated_rail'],
+      paint: {'line-color': '#7539a3', 'line-width': 4, 'line-dasharray': [2, 2]}});
+    drawRoute(visibleRoute);
+    showMotion(followedRun ? followedRun.sample : state?.motion);
+  });
+});
+async function pollMotion() {
+  if (followedRun || polling || state?.routing_source !== 'mapbox' || !state.journey || state.journey.stage === 'complete') return;
+  polling = true;
+  const epoch = motionEpoch;
+  try {
+    const motion = await api('/map/progress');
+    if (epoch === motionEpoch && !followedRun) {
+      if (!motion || motion.journey_id !== state.journey.id || motion.leg_index !== state.journey.leg_index) await refresh();
+      else {
+        state.motion = motion;
+        showMotion(motion);
+      }
+    }
+  } catch {
+    if (epoch === motionEpoch) get('map-status').textContent = 'Position updates interrupted. Reconnecting…';
+  } finally {
+    polling = false;
+  }
+}
+setInterval(pollMotion, 1000);
+let statusPolling = false;
+setInterval(async () => {
+  if (!state || statusPolling) return;
+  statusPolling = true;
+  try {
+    const current = await api('/journey/status');
+    const local = state.journey;
+    if (current?.id !== local?.id || current?.stage !== local?.stage || current?.leg_index !== local?.leg_index) {
+      await refresh();
+    }
+  } catch {
+    // Keep the last visible state while the local service is unavailable.
+  } finally { statusPolling = false; }
+}, 1200);
+async function pollRun() {
+  if (!followedRun || replaying || runPolling || followedRun.sample?.phase === 'complete') return;
+  const id = followedRun.id;
+  const epoch = runEpoch;
+  runPolling = true;
+  try {
+    const sample = await api('/simulations/' + id + '/position');
+    if (epoch !== runEpoch) return;
+    showRunSample(sample);
+  } catch (error) {
+    if (epoch === runEpoch) get('map-status').textContent = error.message;
+  } finally {
+    runPolling = false;
+  }
+}
+function showRunSample(sample) {
+  followedRun.sample = sample;
+  get('sample-id').textContent = 'Position sample ' + sample.id + ' · '
+    + (sample.vehicle ?? 'Walking') + ' · ' + new Date(sample.observed_at * 1000).toLocaleTimeString();
+  showMotion(sample);
+}
+function trackRun(run) {
+  runEpoch++;
+  replaying = false;
+  followedRun = run;
+  get('run-id').value = run.id;
+  get('sample-id').textContent = 'Tracking ' + run.id;
+  drawRoute({legs: run.legs.map(leg => ({path: leg.points, source: leg.source}))});
+  showMotion(null);
+  return pollRun();
+}
+setInterval(pollRun, 1000);
+get('follow-run').onclick = () => run(async () => {
+  const id = get('run-id').value.trim();
+  await trackRun(await api('/simulations/' + encodeURIComponent(id)));
+});
+get('recent-runs').onclick = () => run(async () => {
+  const ids = await api('/simulations');
+  const buttons = ids.map(id => {
+    const button = element('button', id);
+    button.onclick = () => run(async () => { await trackRun(await api('/simulations/' + id)); });
+    return button;
+  });
+  get('run-list').replaceChildren(...(buttons.length ? buttons : [element('p', 'No saved runs yet.')]));
+});
+get('stop-follow').onclick = () => run(async () => {
+  runEpoch++;
+  followedRun = null;
+  get('sample-id').textContent = '';
+  drawRoute(undefined);
+  await refresh();
+});
+get('seek-run').onclick = () => run(async () => {
+  if (!followedRun) throw new Error('Track a simulation before replaying a position.');
+  const tick = get('replay-tick').valueAsNumber;
+  if (!Number.isSafeInteger(tick) || tick < 0) throw new Error('Enter a non-negative position tick.');
+  const id = followedRun.id;
+  const epoch = ++runEpoch;
+  replaying = true;
+  const page = await api('/simulations/' + id + '/positions?after=' + (tick - 1) + '&limit=1');
+  if (epoch !== runEpoch) return;
+  if (!page.samples.length) {
+    replaying = false;
+    throw new Error('That tick is outside the recorded timeline.');
+  }
+  showRunSample(page.samples[0]);
+  get('map-status').textContent = 'Replaying tick ' + tick;
+});
+get('live-run').onclick = () => run(async () => {
+  if (!followedRun) return;
+  runEpoch++;
+  replaying = false;
+  followedRun.sample = null;
+  await pollRun();
+});
+function activeLeg() {
+  const journey = state?.journey;
+  if (!journey || journey.stage === 'complete') throw new Error('Choose a journey first');
+  return {journey_id: journey.id, leg_index: journey.leg_index};
+}
+async function refresh() {
+  motionEpoch++;
+  state = await api('/state');
+  const {journey, fleet, ledger, operator_credits_inr} = state;
+  get('available-summary').textContent = money(state.available_inr) + ' available · ' + money(state.held_inr) + ' reserved · demo wallet';
+  if (journey) {
+    const duration = journey.route.legs.reduce((total, leg) => total + leg.minutes, 0);
+    const fare = journey.route.legs.reduce((total, leg) => total + leg.fare_inr, 0);
+    get('trip-summary').textContent = journey.route.name + ' · Estimated journey time ' + duration + ' min · Estimated fare ' + money(fare);
+  }
+  if (!followedRun && journey && (visibleRoute?.id !== journey.route.id || journey.stage === 'complete' || !visibleRoute)) {
+    drawRoute(journey.route);
+  }
+  if (!followedRun) showMotion(state.motion);
+  const selected = get('vehicle').value;
+  get('vehicle').replaceChildren();
+  get('fleet').replaceChildren();
+  for (const vehicle of fleet) {
+    const option = element('option', vehicle.operator);
+    option.value = vehicle.id;
+    get('vehicle').append(option);
+    const card = element('article', vehicle.operator + ' · ' + vehicle.assignment + ' · ' + vehicle.driver);
+    const button = element('button', 'Load scanner key');
+    button.onclick = () => run(async () => {
+      const credential = await api('/fleet/' + vehicle.id + '/credential');
+      get('vehicle').value = vehicle.id;
+      get('scanner').value = credential.scanner_key;
+    });
+    card.append(document.createElement('br'), button);
+    get('fleet').append(card);
+  }
+  if (selected) get('vehicle').value = selected;
+  get('progress').replaceChildren();
+  if (qrUrl) URL.revokeObjectURL(qrUrl);
+  get('journey').textContent = journey ? journey.route.name + ' · ' + journey.stage : 'No active journey';
+  const leg = journey?.route.legs[journey.leg_index];
+  if (leg) {
+    get('progress').append(element('p', leg.origin + ' → ' + leg.destination + ' · ' + leg.minutes + ' min'));
+    if (!leg.vehicle) {
+      const walk = element('button', 'Complete walk');
+      walk.onclick = () => run(async () => { await api('/walk', activeLeg()); await refresh(); });
+      get('progress').append(walk);
+    } else if (journey.stage === 'ready') {
+      const operator = fleet.find(item => item.id === leg.vehicle).operator;
+      get('progress').append(element('p', operator + ' is next. Awaiting vehicle acceptance.'));
+    }
+    if (journey.ticket) {
+      const ticket = element('output', journey.ticket);
+      ticket.setAttribute('aria-label', 'Passenger ticket token');
+      get('progress').append(element('p', 'Passenger ticket token'), ticket);
+      const image = element('img', '');
+      image.alt = 'Passenger ticket QR code';
+      image.width = 160;
+      get('progress').append(image);
+      fetch('/demo/v1/ticket/qr', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-Demo-Key': get('key').value},
+        body: JSON.stringify(activeLeg()),
+        cache: 'no-store'
+      }).then(async response => {
+        if (!response.ok) throw new Error('QR image unavailable. Use the passenger ticket token.');
+        const blob = await response.blob();
+        if (image.isConnected) {
+          qrUrl = URL.createObjectURL(blob);
+          image.src = qrUrl;
+        }
+      }).catch(error => {
+        if (image.isConnected) image.replaceWith(element('p', error.message));
+      });
+    }
+  }
+  get('wallet').textContent = money(state.balance_inr) + ' balance · ' + money(state.held_inr)
+    + ' held · ' + money(state.available_inr) + ' available';
+  get('credits').replaceChildren(...(passengerView ? [] : fleet.map(vehicle =>
+    element('p', vehicle.operator + ' credit · ' + money(operator_credits_inr[vehicle.id])))));
+  get('ledger').replaceChildren(...ledger.map(entry =>
+    element('li', entry.vehicle + ' · ' + money(entry.amount_inr) + ' · leg ' + (entry.leg_index + 1)
+      + ' · ' + entry.journey_id)));
+}
+get('connect').onclick = () => run(async () => {
+  if (!get('key').value.trim()) throw new Error('Enter the access key from your server PowerShell window.');
+  await refresh();
+  if (state.routing_source === 'fixture') {
+    get('status').textContent = 'Mapbox server token missing. Only the local fixture corridor is available.';
+  }
+});
+get('vehicle').onchange = () => { get('scanner').value = ''; };
+if ('BarcodeDetector' in window) {
+  get('qr-reader').hidden = false;
+  get('qr-file').onchange = () => run(async () => {
+    const input = get('qr-file');
+    const file = input.files[0];
+    input.value = '';
+    if (!file) return;
+    const detector = new BarcodeDetector({formats: ['qr_code']});
+    const bitmap = await createImageBitmap(file);
+    try {
+      const codes = await detector.detect(bitmap);
+      if (codes.length !== 1) throw new Error('Choose an image with one QR code.');
+      get('ticket').value = codes[0].rawValue;
+    } finally {
+      bitmap.close();
+    }
+  });
+}
+get('plan').onclick = () => run(async () => {
+  get('routes').replaceChildren();
+  if (!state) await refresh();
+  const payload = {origin: get('origin').value, destination: get('destination').value};
+  const result = state.routing_source === 'mapbox'
+    ? await api('/map/routes', payload)
+    : {routes: await api('/routes', payload)};
+  if (!result.plan_id) get('status').textContent = 'Fixture routes. Configure a Mapbox server token to use live street routing.';
+  const routes = result.routes;
+  for (const route of routes) {
+    const minutes = route.legs.reduce((sum, leg) => sum + leg.minutes, 0);
+    const fare = route.legs.reduce((sum, leg) => sum + leg.fare_inr, 0);
+    const card = element('article', route.name);
+    card.append(element('p', 'Estimated journey time ' + minutes + ' min · Estimated fare ' + money(fare)));
+    const breakdown = element('ul', '');
+    for (const leg of route.legs) {
+      const operator = state.fleet.find(vehicle => vehicle.id === leg.vehicle)?.operator ?? 'Walk';
+      breakdown.append(element('li', operator + ' · ' + leg.origin + ' → ' + leg.destination
+        + ' · ' + leg.minutes + ' min · ' + money(leg.fare_inr)
+        + (leg.source === 'mapbox' ? ' · Mapbox street geometry' : ' · Simulated path')));
+    }
+    card.append(breakdown);
+    const book = element('button', passengerView ? 'Start journey · ' + route.name : 'Choose ' + route.name);
+    book.onclick = () => run(async () => {
+      await api('/journeys', {route_id: route.id, plan_id: result.plan_id});
+      if (!followedRun) drawRoute(route);
+      await refresh();
+      if (passengerView) get('map-title').scrollIntoView({block: 'start'});
+    });
+    const preview = element('button', 'Preview on map');
+    preview.onclick = () => {
+      if (!map) get('status').textContent = 'Load the Mapbox map to see the route.';
+      if (!followedRun) drawRoute(route);
+    };
+    card.append(document.createElement('br'), book);
+    if (result.plan_id) card.append(preview);
+    if (result.plan_id && state.tracking_configured && !passengerView) {
+      const simulate = element('button', 'Start tracked simulation');
+      simulate.onclick = () => run(async () => {
+        const simulation = await api('/simulations', {
+          plan_id: result.plan_id, route_id: route.id, speed: Number(get('run-speed').value)
+        });
+        await trackRun(simulation);
+      });
+      card.append(simulate);
+    }
+    get('routes').append(card);
+  }
+});
+async function driver(action) {
+  const path = '/fleet/' + get('vehicle').value;
+  const payload = activeLeg();
+  if (action === 'accept') {
+    await api(path + '/accept', payload, get('scanner').value);
+  } else {
+    await api(path + '/scan', {...payload, action, ticket: get('ticket').value.trim()}, get('scanner').value);
+    if (action === 'exit') get('ticket').value = '';
+  }
+  await refresh();
+}
+for (const action of ['accept', 'board', 'exit']) get(action).onclick = () => run(() => driver(action));
+</script>
+</body>
+</html>
