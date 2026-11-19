@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 from .driver_auth import DriverSessions
 from .mapbox import Mapbox, MapboxError, Point, StreetRoute, Track, meters
-from .providers import FLEET, VehicleId, taxi_fare
+from .providers import FLEET, VehicleId, bmtc, metro, taxi
 from .replay_api import replay_router
 from .tracking import ReplayLeg, SimulationStore
 
@@ -133,8 +133,6 @@ class StaffLogin(BaseModel):
     password: str = Field(max_length=256)
 
 
-WHITEFIELD_STATION: Point = (77.8251, 12.9957)
-MAJESTIC_STATION: Point = (77.5727, 12.9757)
 KNOWN_LOCATIONS: dict[str, Point] = {
     "whitefield": (77.7500, 12.9698),
     "ksr bengaluru": (77.5685, 12.9784),
@@ -172,7 +170,7 @@ def map_routes(mapbox: Mapbox, payload: Plan) -> list[Route]:
     if meters(start, end) < 25:
         raise MapboxError(422, "Choose two different locations")
     road = mapbox.directions("driving-traffic", start, end)
-    cab_fare = taxi_fare(road.distance)
+    cab_fare = taxi.taxi_fare(road.distance)
     routes = [
         Route(
             id="cab-direct",
@@ -185,11 +183,18 @@ def map_routes(mapbox: Mapbox, payload: Plan) -> list[Route]:
             id="bus",
             name="Simulated BMTC",
             legs=[
-                street_leg(road, origin, destination, "bus-01", 30, extra_seconds=600),
+                street_leg(
+                    road,
+                    origin,
+                    destination,
+                    bmtc.BMTC.id,
+                    bmtc.DEMO_FARE_INR,
+                    extra_seconds=bmtc.DEMO_STOP_ALLOWANCE_SECONDS,
+                ),
             ],
         ),
     ]
-    station_a, station_b = WHITEFIELD_STATION, MAJESTIC_STATION
+    station_a, station_b = metro.WHITEFIELD_STATION, metro.MAJESTIC_STATION
     name_a, name_b = METRO, MAJESTIC
     if meters(start, station_a) > meters(start, station_b):
         station_a, station_b = station_b, station_a
@@ -199,11 +204,11 @@ def map_routes(mapbox: Mapbox, payload: Plan) -> list[Route]:
     rail = Leg(
         origin=name_a,
         destination=name_b,
-        minutes=46,
-        fare_inr=60,
-        vehicle="metro-01",
+        minutes=metro.DEMO_RIDE_MINUTES,
+        fare_inr=metro.DEMO_FARE_INR,
+        vehicle=metro.METRO.id,
         path=[station_a, station_b],
-        seconds=46 * 60,
+        seconds=metro.DEMO_RIDE_MINUTES * 60,
         source="simulated_rail",
     )
     try:
@@ -220,7 +225,9 @@ def map_routes(mapbox: Mapbox, payload: Plan) -> list[Route]:
         routes.append(Route(id="walk-metro", name="Walk and metro", legs=[*access, rail, *last]))
         if access:
             first = mapbox.directions("driving-traffic", start, station_a)
-            cab = street_leg(first, origin, name_a, "cab-01", taxi_fare(first.distance, minimum=30))
+            cab = street_leg(
+                first, origin, name_a, taxi.TAXI.id, taxi.taxi_fare(first.distance, minimum=30)
+            )
             routes.append(Route(id="cab-metro", name="Taxi and metro", legs=[cab, rail, *last]))
     except MapboxError as exc:
         if exc.status != 404:
@@ -238,6 +245,7 @@ def create_demo(
     wall_clock: Callable[[], float] = time,
     driver_passwords: Mapping[VehicleId, str] | None = None,
     integration_key: str | None = None,
+    passenger_key: str | None = None,
 ) -> FastAPI:
     if not 1 <= speed <= 120:
         raise ValueError("Simulation speed must be between 1 and 120")
@@ -277,10 +285,15 @@ def create_demo(
         if not expected or not value or not compare_digest(value.encode(), expected.encode()):
             raise HTTPException(401, "Invalid demo credential")
 
+    def authorize_passenger(value: str | None) -> None:
+        if passenger_key and value and compare_digest(value.encode(), passenger_key.encode()):
+            return
+        authorize(value, key)
+
     def authorize_routes(value: str | None) -> None:
         if integration_key and value and compare_digest(value.encode(), integration_key.encode()):
             return
-        authorize(value, key)
+        authorize_passenger(value)
 
     def authorize_scanner(vehicle: VehicleId, api_key: str | None, session: str | None) -> None:
         if session is not None:
@@ -361,6 +374,7 @@ def create_demo(
         if position is not None and position["phase"] != "arrived":
             raise HTTPException(409, "Await simulated arrival before completing this leg")
 
+    @app.get("/passenger", include_in_schema=False)
     @app.get("/", include_in_schema=False)
     def console() -> FileResponse:
         return FileResponse(Path(__file__).with_name("console.html"))
@@ -424,19 +438,20 @@ def create_demo(
 
     @app.get("/demo/v1/map/progress")
     def map_progress(x_demo_key: ApiKey = None) -> dict[str, object] | None:
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
         with lock:
             return motion()
 
     @app.get("/demo/v1/state")
     def state(x_demo_key: ApiKey = None) -> dict[str, object]:
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
+        operator = bool(key and x_demo_key and compare_digest(key.encode(), x_demo_key.encode()))
         with lock:
             return {
                 "mode": "simulation",
                 "routing_source": "mapbox" if mapbox is not None else "fixture",
                 "simulation_speed": speed,
-                "tracking_configured": store is not None,
+                "tracking_configured": operator and store is not None,
                 "motion": motion(),
                 "journey": journey.model_copy(deep=True) if journey else None,
                 "balance_inr": balance,
@@ -447,12 +462,14 @@ def create_demo(
                 "operator_credits_inr": {
                     vehicle: sum(entry.amount_inr for entry in ledger if entry.vehicle == vehicle)
                     for vehicle in FLEET
-                },
+                }
+                if operator
+                else {},
             }
 
     @app.get("/demo/v1/journey/status")
     def journey_status(x_demo_key: ApiKey = None) -> dict[str, object] | None:
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
         with lock:
             if journey is None:
                 return None
@@ -465,7 +482,7 @@ def create_demo(
 
     @app.post("/demo/v1/ticket/qr", response_class=Response)
     def ticket_qr(payload: Progress, x_demo_key: ApiKey = None) -> Response:
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
         with lock:
             ticket = current(payload.journey_id, payload.leg_index).ticket
         if ticket is None:
@@ -483,7 +500,7 @@ def create_demo(
     @app.post("/demo/v1/journeys", status_code=201)
     def book(payload: Booking, x_demo_key: ApiKey = None) -> Journey:
         nonlocal journey, held, pending
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
         with lock:
             if payload.plan_id is not None:
                 route = find_map_route(payload.plan_id, payload.route_id)
@@ -505,7 +522,7 @@ def create_demo(
 
     @app.post("/demo/v1/walk")
     def walk(payload: Progress, x_demo_key: ApiKey = None) -> Journey:
-        authorize(x_demo_key, key)
+        authorize_passenger(x_demo_key)
         with lock:
             active = current(payload.journey_id, payload.leg_index)
             if active.route.legs[active.leg_index].vehicle is not None:
@@ -586,6 +603,7 @@ def configured_app() -> FastAPI:
             "bus-01": os.environ.get("NAMMAMOVE_BMTC_PASSWORD", ""),
         },
         integration_key=os.environ.get("NAMMAMOVE_PARTNER_KEY"),
+        passenger_key=os.environ.get("NAMMAMOVE_PASSENGER_KEY"),
     )
 
 

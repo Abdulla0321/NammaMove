@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 CONSOLE = {"X-Demo-Key": "console-test"}
 PARTNER = {"X-Demo-Key": "partner-test"}
+PASSENGER = {"X-Demo-Key": "passenger-test"}
 API = "/demo/v1"
 
 
@@ -17,13 +18,16 @@ def test_assigned_staff_validates_board_and_exit_without_console_key():
         clock=clock,
         driver_passwords={"bus-01": "bus-test"},
         integration_key="partner-test",
+        passenger_key="passenger-test",
     )
     with TestClient(app) as client:
         assert client.get("/driver").status_code == 200
+        assert client.get("/passenger").status_code == 200
         itinerary = {"origin": "Whitefield", "destination": "KSR Bengaluru"}
         assert client.post(f"{API}/routes", headers=PARTNER, json=itinerary).status_code == 200
         assert client.get(f"{API}/state", headers=PARTNER).status_code == 401
         assert client.get(f"{API}/fleet/bus-01/credential", headers=PARTNER).status_code == 401
+        assert client.get(f"{API}/fleet/bus-01/credential", headers=PASSENGER).status_code == 401
         assert (
             client.post(
                 f"{API}/staff/login", json={"username": "bmtc-driver", "password": "incorrect"}
@@ -37,7 +41,7 @@ def test_assigned_staff_validates_board_and_exit_without_console_key():
         assert login.headers["Cache-Control"] == "no-store"
         staff = {"X-Staff-Token": login.json()["session"]}
         assert client.get(f"{API}/fleet/cab-01/assignment", headers=staff).status_code == 401
-        booking = client.post(f"{API}/journeys", headers=CONSOLE, json={"route_id": "bus"})
+        booking = client.post(f"{API}/journeys", headers=PASSENGER, json={"route_id": "bus"})
         assert booking.status_code == 201
         active = client.get(f"{API}/fleet/bus-01/assignment", headers=staff).json()["assignment"]
         assert "ticket" not in active
@@ -46,7 +50,8 @@ def test_assigned_staff_validates_board_and_exit_without_console_key():
             client.post(f"{API}/fleet/bus-01/accept", headers=staff, json=payload).status_code
             == 200
         )
-        state = client.get(f"{API}/state", headers=CONSOLE).json()
+        state = client.get(f"{API}/state", headers=PASSENGER).json()
+        assert state["operator_credits_inr"] == {}
         payload["ticket"] = state["journey"]["ticket"]
         endpoint = f"{API}/fleet/bus-01/scan"
         assert (

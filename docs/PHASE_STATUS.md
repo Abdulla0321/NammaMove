@@ -362,3 +362,7 @@ Verification on Windows: 175 backend tests passed and 189 external-service tests
 ### Durable simulation runs
 
 Moved the operator backend, console and requirements under backend/app/simulation. The standalone SQLite store persists concurrent run definitions. UUID and tick IDs identify historical positions reconstructed from the saved timeline, including across restarts. The street interpolation uses Mapbox durations where they align with the geometry. Verified 176 backend tests passed, with 189 external-service tests skipped. Ruff, mypy and JavaScript syntax checks passed. Mapbox was tested through mock transport. The interactive wallet remains local and in memory. This work does not constitute live transit or payment acceptance.
+
+## Connected passenger and validator slice
+
+The standalone simulation service serves /passenger and /driver from the same backend. Passenger view exposes balance and leg estimates and refreshes after staff actions. Staff sessions are scoped to one simulated provider assignment. Provider fixture settings are organized under backend/app/simulation/providers. The launch script provisions the replay store and local credentials. The partner credential grants plan access, and the passenger key is confined to the local shared demo journey. The Mapbox token and independently approved operator feeds remain prerequisites for outside-data acceptance.

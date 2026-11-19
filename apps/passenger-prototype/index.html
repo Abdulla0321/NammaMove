@@ -114,7 +114,7 @@ function buildRoutes(from,to){
 function modePills(route){return route.legs.map(l=>'<span class="pill '+l.mode+'">'+Modes[l.mode]+'</span>').join('<span aria-hidden="true">›</span>');}
 function legsMarkup(route,index=-1,terminal=false){return route.legs.map((l,i)=>{
   const done=i<index||terminal, active=i===index&&!terminal;
-  return '<li class="'+(active?'current':done?'done':'')+'"><span class="bullet" aria-hidden="true">'+(done?'✓':active?'•':'')+'</span><span><b>'+Modes[l.mode]+' · '+l.to+'</b><small>'+l.from+' → '+l.to+'</small></span><small>'+l.minutes+' min</small></li>';
+  return '<li class="'+(active?'current':done?'done':'')+'"><span class="bullet" aria-hidden="true">'+(done?'✓':active?'•':'')+'</span><span><b>'+Modes[l.mode]+' · '+l.to+'</b><small>'+l.from+' → '+l.to+'</small></span><small>'+l.minutes+' min · '+money(l.fare)+'</small></li>';
 }).join('');}
 function showRoutes(){
   const ordered=[...routes];
